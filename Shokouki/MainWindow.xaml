@@ -1,0 +1,106 @@
+﻿<Window x:Class="Shokouki.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Shokouki"
+        mc:Ignorable="d"
+        Title="Spectroscopy Visualizer alpha" Height="375" Width="500" d:DataContext="{d:DesignData }">
+    <Grid>
+        <TabControl x:Name="tabControl">
+
+            <TabItem Header="Spectroscopy">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" Name="scopeColumn"/>
+                        <ColumnDefinition Width="125" Name="panelColumn"/>
+                    </Grid.ColumnDefinitions>
+                    <Canvas Grid.Column="0" x:Name="ScopeCanvas" Background="#FF000032"/>
+                    <Viewbox Grid.Column="1" HorizontalAlignment="Right" Stretch="None">
+                        <Grid Height="310" Width="122">
+
+                            <TextBox x:Name="StartFreqTextBox" Height="20" Margin="0,3,82,0"
+                    			TextWrapping="Wrap" Text="{Binding StartFreqInMHz}" VerticalAlignment="Top" HorizontalAlignment="Right" Width="34" />
+                            <Label x:Name="label15" Content="To" Margin="0,0,49,0" VerticalAlignment="Top" Height="23" HorizontalAlignment="Right" Width="28"/>
+
+                            <TextBox x:Name="EndFreqTextBox" Height="20" Margin="0,3,10,0"
+                    			TextWrapping="Wrap"
+                    			Text="{Binding EndFreqInMHz}" VerticalAlignment="Top" HorizontalAlignment="Right" Width="34" />
+                            <Button x:Name="ToggleButton" Content="START" HorizontalAlignment="Right"
+                    			VerticalAlignment="Bottom" Width="75" Click="ToggleButton_OnClick" Margin="0,0,26,10" />
+                            <Button x:Name="BnAuto" Content="Auto" HorizontalAlignment="Left" Margin="6,40,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
+                        </Grid>
+                    </Viewbox>
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="Config">
+                <Grid Background="#FFE5E5E5">
+                    <Label x:Name="label" Content="Sampling" HorizontalAlignment="Left" Height="27" Margin="0,18,0,0"
+                           VerticalAlignment="Top" Width="101" />
+                    <Viewbox Margin="10,61,300,230" Stretch="Fill"/>
+                    <StackPanel HorizontalAlignment="Left" Height="203" Margin="14,50,0,0" VerticalAlignment="Top" Width="132">
+                        <Grid Height="26" Margin="0,0,-44,0">
+                            <Label x:Name="label1" Content="DeviceName" HorizontalAlignment="Left" Height="26"
+                    			VerticalAlignment="Top" Width="82" />
+                            <TextBox x:Name="TbDeviceName" HorizontalAlignment="Left" Height="26" Margin="96,0,0,0"
+                    			TextWrapping="Wrap" Text="{Binding DeviceName}" VerticalAlignment="Top" Width="80" />
+                        </Grid>
+                        <Viewbox Margin="0,0,-44,0" Height="25" Width="176">
+                            <Grid Height="25" Width="176">
+                                <Label x:Name="label2" Content="Channel" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                                <TextBox x:Name="TbChannel" HorizontalAlignment="Left" Height="23" Margin="96,2,0,0"
+                        			TextWrapping="Wrap" Text="{Binding Channel}" VerticalAlignment="Top" Width="80" />
+                            </Grid>
+                        </Viewbox>
+                        <Viewbox Margin="0,0,-44,0" Stretch="Fill" Height="25">
+                            <Grid Height="25" Width="176">
+                                <Label x:Name="label3" Content="SamplingRate" HorizontalAlignment="Left"
+                        			VerticalAlignment="Top" />
+                                <TextBox x:Name="TbSamplingRate" HorizontalAlignment="Left" Height="23" Margin="96,2,0,0"
+                        			TextWrapping="Wrap" Text="{Binding SamplingRate}" VerticalAlignment="Top"
+                        			Width="80" />
+                            </Grid>
+                        </Viewbox>
+                        <Viewbox Margin="0,0,-44,0" Stretch="Fill" Height="25">
+                            <Grid Height="25" Width="176">
+                                <Label x:Name="label4" Content="RecordLength" HorizontalAlignment="Left"
+                        			VerticalAlignment="Top" />
+                                <TextBox x:Name="TbRecordLength" HorizontalAlignment="Left" Height="23" Margin="96,2,0,0"
+                        			TextWrapping="Wrap" Text="{Binding RecordLength}" VerticalAlignment="Top"
+                        			Width="80" />
+                            </Grid>
+                        </Viewbox>
+                        <Viewbox Margin="0,0,-44,0" Stretch="Fill" Height="25">
+                            <Grid Height="25" Width="176">
+                                <Label x:Name="label5" Content="Range" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                                <TextBox x:Name="TbRange" HorizontalAlignment="Left" Height="23" Margin="96,2,0,0"
+                        			TextWrapping="Wrap" Text="{Binding Range}" VerticalAlignment="Top" Width="80" />
+                            </Grid>
+                        </Viewbox>
+                    </StackPanel>
+                    <Label x:Name="label6" Content="Experiment" HorizontalAlignment="Left" Margin="0,196,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="label7" Content="RepetitionRate" HorizontalAlignment="Left" Margin="14,226,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="TbRepRate" HorizontalAlignment="Left" Height="23" Margin="109,230,0,0" TextWrapping="Wrap" Text="{Binding RepetitionRate}" VerticalAlignment="Top" Width="84"/>
+                    <Label x:Name="label8" Content="SlicePulses" HorizontalAlignment="Left" Margin="207,18,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="label9" Content="PointsBeforeCrest" HorizontalAlignment="Left" Margin="231,61,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="label10" Content="CrestPosition" HorizontalAlignment="Left" Margin="231,121,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="label11" Content="CrestMinAmp" HorizontalAlignment="Left" Margin="231,91,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="label12" Content="PhaseCorrection" HorizontalAlignment="Left" Margin="207,151,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="label13" Content="ZeroFillFactor" HorizontalAlignment="Left" Margin="232,179,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="label14" Content="CenterSpanLength" HorizontalAlignment="Left" Margin="231,204,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="label16" Content="Display" HorizontalAlignment="Left" Margin="14,258,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="label17" Content="PointsOnScreen" HorizontalAlignment="Left" Margin="14,281,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="TbPtsBeforeCrest" HorizontalAlignment="Left" Height="23" Margin="356,65,0,0" TextWrapping="Wrap" Text="{Binding PointsBeforeCrest}" VerticalAlignment="Top" Width="120"/>
+                    <TextBox x:Name="TbCrestMinAmp" HorizontalAlignment="Left" Height="23" Margin="356,91,0,0" TextWrapping="Wrap" Text="{Binding CrestAmplitudeThreshold}" VerticalAlignment="Top" Width="120"/>
+                    <TextBox x:Name="TbZeroFillFactor" HorizontalAlignment="Left" Height="23" Margin="356,179,0,0" TextWrapping="Wrap" Text="{Binding ZeroFillFactor}" VerticalAlignment="Top" Width="120"/>
+                    <TextBox x:Name="TbCenterSpanLength" HorizontalAlignment="Left" Height="23" Margin="356,207,0,0" TextWrapping="Wrap" Text="{Binding CentreSpanLength}" VerticalAlignment="Top" Width="120"/>
+                    <TextBox x:Name="TbDispPoints" HorizontalAlignment="Left" Height="23" Margin="120,285,0,0" TextWrapping="Wrap" Text="{Binding DispPoints}" VerticalAlignment="Top" Width="120"/>
+                    <TextBox x:Name="TbThreadNum" HorizontalAlignment="Left" Height="23" Margin="332,283,0,0" TextWrapping="Wrap" Text="{Binding ThreadNum}" VerticalAlignment="Top" Width="120"/>
+                    <Label x:Name="label18" Content="ThreadNum" HorizontalAlignment="Left" Margin="249,282,0,0" VerticalAlignment="Top"/>
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

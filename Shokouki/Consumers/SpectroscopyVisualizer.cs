@@ -6,7 +6,6 @@ using FTIR.Maths;
 using FTIR.Utils;
 using JetBrains.Annotations;
 using Shokouki.Controllers;
-using Shokouki.Model;
 using Shokouki.Presenters;
 
 namespace Shokouki.Consumers

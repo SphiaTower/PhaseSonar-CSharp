@@ -1,8 +1,9 @@
 ﻿using System.Windows;
 using FTIR.Utils;
+using JetBrains.Annotations;
 using Shokouki.Consumers;
-using Shokouki.Model;
 using Shokouki.Presenters;
+using Shokouki.Producers;
 
 namespace Shokouki.Controllers
 {
@@ -21,7 +22,16 @@ namespace Shokouki.Controllers
                 Injector.NewAdapter(view));
         }
 
+        public Scheduler(IProducer producer, UiConsumer<double[]> consumer)
+        {
+            Producer = producer;
+            Consumer = consumer;
+        }
+
+        [NotNull]
         public IProducer Producer { get; protected set; }
+
+        [NotNull]
         public UiConsumer<double[]> Consumer { get; protected set; }
 
         public void Start()

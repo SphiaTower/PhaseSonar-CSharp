@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Windows.Controls;
-using Shokouki.Model;
 using Shokouki.Presenters;
 
 namespace Shokouki.Consumers

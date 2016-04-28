@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using FTIR.Slicers;
-using Shokouki.Model;
 using Shokouki.Presenters;
 
 namespace Shokouki.Consumers

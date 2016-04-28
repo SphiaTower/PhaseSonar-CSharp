@@ -87,17 +87,19 @@
     <Compile Include="Configs\SliceConfigs.cs" />
     <Compile Include="Consumers\Oscilloscope.cs" />
     <Compile Include="Consumers\ParallelSpecVisualizer.cs" />
+    <Compile Include="Consumers\SimpleSpetrumViewer.cs" />
     <Compile Include="Controllers\Camera.cs" />
     <Compile Include="Controllers\DiskCamera.cs" />
     <Compile Include="Controllers\Injector.cs" />
     <Compile Include="Controllers\Scheduler.cs" />
-    <Compile Include="Model\LocalProducer.cs" />
+    <Compile Include="Producers\DummyProducer.cs" />
+    <Compile Include="Producers\LocalProducer.cs" />
     <Compile Include="Configs\SamplingConfigs.cs" />
     <Compile Include="Configs\ViewConfigs.cs" />
     <Compile Include="Presenters\CanvasView.cs" />
     <Compile Include="Presenters\AxisBuilder.cs" />
     <Compile Include="Configs\Configurations.cs" />
-    <Compile Include="Model\SampleProducer.cs" />
+    <Compile Include="Producers\SampleProducer.cs" />
     <Compile Include="Presenters\IScopeView.cs" />
     <Compile Include="Presenters\DisplayAdapter.cs" />
     <Compile Include="Consumers\Consumer.cs" />
@@ -146,9 +148,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FTIR\FTIR\FTIR.csproj">
+    <ProjectReference Include="..\..\FTIR\FTIR\PhaseSonor.csproj">
       <Project>{636613d7-cb29-483b-a752-8ed3cea78645}</Project>
-      <Name>FTIR</Name>
+      <Name>PhaseSonor</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\StreamToDiskConsole\cs\StreamToDiskConsole.2012.csproj">
       <Project>{dc2359f3-7400-412d-b5a0-94c6053f67fc}</Project>

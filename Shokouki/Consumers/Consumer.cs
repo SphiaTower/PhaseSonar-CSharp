@@ -40,7 +40,7 @@ namespace Shokouki.Consumers
                 while (IsOn)
                 {
                     T raw;
-                    if (!BlockingQueue.TryTake(out raw, MillisecondsTimeout)) return;
+                    if (!BlockingQueue.TryTake(out raw, MillisecondsTimeout)) break;
                     if (!IsOn) return;
                     ConsumeElement(raw);
                     ConsumedCnt++;

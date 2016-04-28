@@ -6,7 +6,9 @@ using FTIR.Slicers;
 using JetBrains.Annotations;
 using NationalInstruments.Examples.StreamToDiskConsole;
 using Shokouki.Configs;
+using Shokouki.Consumers;
 using Shokouki.Presenters;
+using Shokouki.Producers;
 
 namespace Shokouki.Controllers
 {
@@ -81,6 +83,28 @@ namespace Shokouki.Controllers
         public static IApodizer NewApodizer()
         {
             return new TriangulerApodizer();
+        }
+
+        [NotNull]
+        public static IProducer NewProducer()
+        {
+            return new SampleProducer(NewSampler());
+        }
+
+        [NotNull]
+        public static LocalProducer NewProducer(string path)
+        {
+            return new LocalProducer(path);
+        }
+
+        [NotNull]
+        public static UiConsumer<double[]> NewConsumer(IProducer producer, IScopeView view)
+        {
+            return new SpectroscopyVisualizer(
+                producer.BlockingQueue,
+                view,
+                NewAccumulator(),
+                NewAdapter(view));
         }
     }
 }

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Media;
+﻿using System.Windows;
+using Microsoft.Win32;
 using Shokouki.Configs;
+using Shokouki.Consumers;
 using Shokouki.Controllers;
-using Shokouki.Model;
 using Shokouki.Presenters;
 
 namespace Shokouki
@@ -14,41 +13,44 @@ namespace Shokouki
     public partial class MainWindow : Window
     {
         private bool _isOn;
-        public CanvasView CanvasView { get; }
 
         public MainWindow()
         {
             InitializeComponent();
             SamplingConfigs.Initialize(
-              deviceName: "Dev2",
-              channel: 0,
-              samplingRate: 100e6,
-              recordLength: (long)1e6,
-              range: 10);
+                "Dev2",
+                0,
+                100e6,
+                (long) 1e6,
+                10);
 
             Configurations.Initialize(
-                repetitionRate: 400,
-                centreSpanLength: 512,
-                zeroFillFactor: 1,
-                threadNum: 4,
-                dispPoints: 500);
+                400,
+                512,
+                1,
+                4,
+                500);
             SliceConfigs.Initialize(
                 crestAmplitudeThreshold: 0.1,
                 pointsBeforeCrest: 1000,
                 centreSlice: true
                 );
 
-            SamplingConfigs.Get().Bind(TbDeviceName,TbChannel,TbSamplingRate,TbRecordLength,TbRange);
-            Configurations.Get().Bind(TbRepRate,TbZeroFillFactor,TbCenterSpanLength,TbThreadNum,TbDispPoints);
-            SliceConfigs.Get().Bind(TbPtsBeforeCrest,TbCrestMinAmp);
+            SamplingConfigs.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
+            Configurations.Get().Bind(TbRepRate, TbZeroFillFactor, TbCenterSpanLength, TbThreadNum, TbDispPoints);
+            SliceConfigs.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp);
 
 
             CanvasView = new CanvasView(ScopeCanvas);
-
-
         }
 
+        public CanvasView CanvasView { get; }
+
         public Scheduler Scheduler { get; private set; }
+
+
+        public double ScopeHeight => ScopeCanvas.ActualHeight;
+        public double ScopeWidth => ScopeCanvas.ActualWidth;
 
 
         private void ToggleButton_OnClick(object sender, RoutedEventArgs routedEventArgs)
@@ -72,13 +74,41 @@ namespace Shokouki
             _isOn = !_isOn;
         }
 
-
-        public double ScopeHeight => ScopeCanvas.ActualHeight;
-        public double ScopeWidth => ScopeCanvas.ActualWidth;
-
-        private void button_Click(object sender, RoutedEventArgs e) {
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
             Scheduler.Consumer.Adapter.ResetYScale();
         }
 
+        private void BnLoad_Click(object sender, RoutedEventArgs e)
+        {
+            // Create OpenFileDialog 
+            var dlg = new OpenFileDialog
+            {
+                DefaultExt = ".txt",
+                Filter = "Text documents (.txt)|*.txt"
+            };
+
+
+            // Set filter for file extension and default file extension 
+
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            var result = dlg.ShowDialog();
+
+
+            // Get the selected file name and display in a TextBox 
+            if (result == true)
+            {
+                // Open document 
+                var filename = dlg.FileName;
+                var producer = Injector.NewProducer(filename);
+                Scheduler = new Scheduler(producer,
+                    new SimpleSpetrumViewer(producer.BlockingQueue, CanvasView, Injector.NewAccumulator(),
+                        Injector.NewAdapter(CanvasView)));
+                Scheduler.Start();
+                BnLoad.Content = "Loading";
+                producer.OnDataLoadedListener = () => { BnLoad.Dispatcher.Invoke(() => BnLoad.Content = "Load"); };
+            }
+        }
     }
 }

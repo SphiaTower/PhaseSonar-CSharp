@@ -1,6 +1,9 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Threading;
 using System.Windows.Media;
 using FTIR.Analyzers;
+using FTIR.Correctors;
 using JetBrains.Annotations;
 using Shokouki.Controllers;
 using Shokouki.Presenters;
@@ -27,18 +30,18 @@ namespace Shokouki.Consumers
         public override void ConsumeElement([NotNull] double[] item)
         {
             var result = Accumulator.Accumulate(item);
-            IsOn = false;
             if (result == null) return;
             OnDataUpdatedInBackground(result);
         }
 
-        protected void OnDataUpdatedInBackground([NotNull] SpecInfo single)
+        protected void OnDataUpdatedInBackground([NotNull] ISpectrum single)
         {
-            var averSingle = Adapter.DownSampleAndAverage(single.Spec, single.PeriodCnt);
+            var averSingle = Adapter.DownSampleAndAverage(single.Amplitudes, single.PulseCount);
 
             _dummyAxis = _dummyAxis ?? Axis.DummyAxis(averSingle);
-            View.Invoke(() =>
+            View.InvokeAsync(() =>
             {
+           
                 var averSinglePts = Adapter.ToPoints(_dummyAxis, averSingle);
                 // todo: why does lines above must be exec in the UI thread??
                 View.Clear();
@@ -50,6 +53,7 @@ namespace Shokouki.Consumers
                 _refreshCnt++;
             }
                 );
+         
         }
     }
 }

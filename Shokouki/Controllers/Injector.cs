@@ -75,8 +75,9 @@ namespace Shokouki.Controllers
         {
             var configs = Configurations.Get();
             var fuzzyPeriodLength = (int) (SamplingConfigs.Get().SamplingRate/configs.RepetitionRate);
-            return new AccFlipMertzCorrector(NewApodizer(), fuzzyPeriodLength, configs.ZeroFillFactor,
-                configs.CentreSpanLength/2);
+//            return new AccFlipMertzCorrector(NewApodizer(), fuzzyPeriodLength, configs.ZeroFillFactor,
+//                configs.CentreSpanLength/2);
+            return new FakeCorrector(NewApodizer(),fuzzyPeriodLength,configs.ZeroFillFactor);
         }
 
         [NotNull]
@@ -92,9 +93,9 @@ namespace Shokouki.Controllers
         }
 
         [NotNull]
-        public static LocalProducer NewProducer(string path)
+        public static LocalProducer NewProducer(IEnumerable<string> paths)
         {
-            return new LocalProducer(path);
+            return new LocalProducer(paths);
         }
 
         [NotNull]

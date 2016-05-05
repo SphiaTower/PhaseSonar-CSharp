@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using FTIR.Analyzers;
+using FTIR.Correctors;
 using FTIR.Maths;
 using FTIR.Utils;
 using JetBrains.Annotations;
@@ -13,9 +14,7 @@ namespace Shokouki.Consumers
     public class SpectroscopyVisualizer : UiConsumer<double[]>
     {
         public Accumulator Accumulator { get; }
-        public double[] Accumulated { get; protected set; }
-        public int PulseCnt { get; protected set; }
-
+        public ISpectrum SumSpectrum { get; protected set; }
         public Camera Camera { get; } = new DiskCamera();
         private double[] _dummyAxis;
 
@@ -31,40 +30,42 @@ namespace Shokouki.Consumers
         public override void Reset()
         {
             base.Reset();
-            Funcs.Clear(Accumulated);
-            PulseCnt = 0;
+            SumSpectrum.Clear();
         }
 
         public override void Consume()
         {
-            if (Accumulated != null)
-            {
-                Funcs.Clear(Accumulated);
-            }
+            SumSpectrum?.Clear();
             base.Consume();
         }
 
         public override void ConsumeElement([NotNull]double[] item)
         {
-            var result = Accumulator.Accumulate(item);
-            if (result == null)
+            var elementSpectrum = Accumulator.Accumulate(item);
+            if (elementSpectrum == null)
             {
                 return;
             }
-            Accumulated = Accumulated ?? new double[result.Spec.Length];
-            Funcs.AddTo(Accumulated, result.Spec);
-            PulseCnt += result.PeriodCnt;
-
-            OnDataUpdatedInBackground(result);
+            if (SumSpectrum==null)
+            {
+                SumSpectrum = elementSpectrum.Clone();
+            }
+            else
+            {
+                SumSpectrum.Absorb(elementSpectrum);
+            }
+            OnDataUpdatedInBackground(elementSpectrum);
         }
 
-        protected void OnDataUpdatedInBackground([NotNull]SpecInfo single)
+        protected void OnDataUpdatedInBackground([NotNull]ISpectrum single)
         {
-            var averAll = Adapter.DownSampleAndAverage(Accumulated, PulseCnt);
-            var averSingle = Adapter.DownSampleAndAverage(single.Spec, single.PeriodCnt);
+            var averAll = Adapter.DownSampleAndAverage(SumSpectrum.Amplitudes, SumSpectrum.PulseCount);
+            var averSingle = Adapter.DownSampleAndAverage(single.Amplitudes, single.PulseCount);
+
+            if (Camera.IsOn) Camera.Capture(single);
 
             _dummyAxis = _dummyAxis ?? Axis.DummyAxis(averAll);
-            View.Invoke(() =>
+            View.InvokeAsync(() =>
             {
                 var averSinglePts = Adapter.ToPoints(_dummyAxis, averSingle);
                 var averAllPts = Adapter.ToPoints(_dummyAxis, averAll);
@@ -73,7 +74,6 @@ namespace Shokouki.Consumers
                 View.DrawLine(averSinglePts, Colors.Red);
                 View.DrawLine(averAllPts);
 
-                if (Camera.IsOn) Camera.Capture(single);
 
                 _refreshCnt++;
             }

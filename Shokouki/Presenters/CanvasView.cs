@@ -19,6 +19,11 @@ namespace Shokouki.Presenters
             Canvas.Dispatcher.Invoke(action);
         }
 
+        public void InvokeAsync(Action action)
+        {
+            Canvas.Dispatcher.InvokeAsync(action);
+        }
+
         public void DrawLine(PointCollection pointCollection, Color color)
         {
             var line = new Polyline

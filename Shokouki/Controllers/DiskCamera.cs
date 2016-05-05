@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FTIR.Analyzers;
+using FTIR.Correctors;
 using FTIR.Maths;
 using FTIR.Utils;
 
@@ -12,7 +13,7 @@ namespace Shokouki.Controllers {
     public class DiskCamera:Camera
     {
         private int _fileIndex = -1;
-        protected override void Consume(SpecInfo dequeue)
+        protected override void Consume(ISpectrum dequeue)
         {
             const string directory = @"C:\buffer\captured\";
             const string filename = @"captured-aver-sq-";
@@ -21,8 +22,8 @@ namespace Shokouki.Controllers {
             {
                 _fileIndex = GetMaxIndex(directory)+1; // todo buggy
             }
-            Toolbox.WriteData(basePath+"n"+dequeue.PeriodCnt+"-"+_fileIndex+".txt",
-                dequeue.Spec.Select(d => (d*d/dequeue.PeriodCnt/dequeue.PeriodCnt)).ToArray());
+            Toolbox.WriteData(basePath+"n"+dequeue.PulseCount+"-"+_fileIndex+".txt",
+                dequeue.Amplitudes.Select(d => (d*d/dequeue.PulseCount/dequeue.PulseCount)).ToArray());
             _fileIndex++;
         }
 

@@ -5,26 +5,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FTIR.Analyzers;
+using FTIR.Correctors;
 
 namespace Shokouki.Controllers {
     public abstract class Camera
     {
-        protected ConcurrentQueue<SpecInfo> Queue { get; } = new ConcurrentQueue<SpecInfo>();
+        protected ConcurrentQueue<ISpectrum> Queue { get; } = new ConcurrentQueue<ISpectrum>();
         public bool IsProcessing { get; protected set; } = false;
         public bool IsOn { get; set; } = false;
-        public void Capture(SpecInfo specInfo)
+        public void Capture(ISpectrum spectrum)
         {
             if (!IsOn)
             {
                 throw new Exception("camera is off");
             }
-            Queue.Enqueue(specInfo);
+            Queue.Enqueue(spectrum);
 
             if (IsProcessing) return;
             IsProcessing = true;
             Task.Run(() =>
             {
-                SpecInfo dequeue;
+                ISpectrum dequeue;
                 while (Queue.TryDequeue(out dequeue))
                 {
                     Consume(dequeue);
@@ -33,6 +34,6 @@ namespace Shokouki.Controllers {
             });
         }
 
-        protected abstract void Consume(SpecInfo dequeue);
+        protected abstract void Consume(ISpectrum dequeue);
     }
 }

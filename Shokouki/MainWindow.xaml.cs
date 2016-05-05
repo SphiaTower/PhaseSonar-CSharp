@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using NationalInstruments.Restricted;
 using Shokouki.Configs;
 using Shokouki.Consumers;
 using Shokouki.Controllers;
@@ -85,9 +87,9 @@ namespace Shokouki
             var dlg = new OpenFileDialog
             {
                 DefaultExt = ".txt",
-                Filter = "Text documents (.txt)|*.txt"
+                Filter = "Text documents (.txt)|*.txt",
+                Multiselect = true
             };
-
 
             // Set filter for file extension and default file extension 
 
@@ -99,15 +101,28 @@ namespace Shokouki
             // Get the selected file name and display in a TextBox 
             if (result == true)
             {
+                
                 // Open document 
-                var filename = dlg.FileName;
-                var producer = Injector.NewProducer(filename);
+                var fileNames = dlg.FileNames;
+                var producer = Injector.NewProducer(fileNames);
                 Scheduler = new Scheduler(producer,
                     new SimpleSpetrumViewer(producer.BlockingQueue, CanvasView, Injector.NewAccumulator(),
                         Injector.NewAdapter(CanvasView)));
                 Scheduler.Start();
                 BnLoad.Content = "Loading";
                 producer.OnDataLoadedListener = () => { BnLoad.Dispatcher.Invoke(() => BnLoad.Content = "Load"); };
+            }
+        }
+
+        private void BnPath_Click(object sender, RoutedEventArgs e) {
+            var dialog = new CommonOpenFileDialog {IsFolderPicker = true};
+            CommonFileDialogResult result = dialog.ShowDialog();
+            if (result == CommonFileDialogResult.Ok)
+            {
+                foreach (var fileName in dialog.FileNames)
+                {
+                    TbSavePath.Text = fileName;
+                }
             }
         }
     }

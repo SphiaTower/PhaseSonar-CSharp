@@ -6,7 +6,7 @@ using Shokouki.Presenters;
 
 namespace Shokouki.Consumers
 {
-    public class ParallelSpecVisualizer : SpectroscopyVisualizer
+  /*  public class ParallelSpecVisualizer : SpectroscopyVisualizer
     {
         private static readonly object Latch = new object(); // todo unusable
 
@@ -24,7 +24,7 @@ namespace Shokouki.Consumers
             /* else
             {
                 Accumulated = new double[];
-            }*/
+            }#1#
             IsOn = true;
             Parallel.For(0, 4, i =>
             {
@@ -45,14 +45,14 @@ namespace Shokouki.Consumers
             {
                 return;
             }
-            Accumulated = Accumulated ?? new double[result.Spec.Length];
+            Accumulated = Accumulated ?? new double[result.Amplitudes.Length];
             lock (Latch)
             {
-                Funcs.AddTo(Accumulated, result.Spec);
-                PulseCnt += result.PeriodCnt;
+                Funcs.AddTo(Accumulated, result.Amplitudes);
+                PulseCnt += result.PulseCount;
                 ConsumedCnt++;
                 OnDataUpdatedInBackground(result);
             }
         }
-    }
+    }*/
 }

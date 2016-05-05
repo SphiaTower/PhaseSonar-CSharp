@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Shokouki"
         mc:Ignorable="d"
-        Title="Spectroscopy Visualizer alpha" Height="375" Width="500" d:DataContext="{d:DesignData }">
+        Title="Spectroscopy Visualizer alpha" Height="450" Width="800" d:DataContext="{d:DesignData }">
     <Grid>
         <TabControl x:Name="tabControl">
 
@@ -13,23 +13,26 @@
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" Name="scopeColumn"/>
-                        <ColumnDefinition Width="125" Name="panelColumn"/>
+                        <ColumnDefinition Width="150" Name="panelColumn"/>
                     </Grid.ColumnDefinitions>
                     <Canvas Grid.Column="0" x:Name="ScopeCanvas" Background="#FF000032"/>
                     <Viewbox Grid.Column="1" HorizontalAlignment="Right" Stretch="None">
-                        <Grid Height="310" Width="122">
+                        <Grid Height="300" Width="150">
 
-                            <TextBox x:Name="StartFreqTextBox" Height="20" Margin="0,3,82,0"
+                            <TextBox x:Name="StartFreqTextBox" Height="20" Margin="0,3,97,0"
                     			TextWrapping="Wrap" Text="{Binding StartFreqInMHz}" VerticalAlignment="Top" HorizontalAlignment="Right" Width="34" />
-                            <Label x:Name="label15" Content="To" Margin="0,0,49,0" VerticalAlignment="Top" Height="23" HorizontalAlignment="Right" Width="28"/>
+                            <Label x:Name="label15" Content="To" Margin="0,0,64,0" VerticalAlignment="Top" Height="23" HorizontalAlignment="Right" Width="28" RenderTransformOrigin="0.036,0.478"/>
 
-                            <TextBox x:Name="EndFreqTextBox" Height="20" Margin="0,3,10,0"
+                            <TextBox x:Name="EndFreqTextBox" Height="20" Margin="0,3,25,0"
                     			TextWrapping="Wrap"
                     			Text="{Binding EndFreqInMHz}" VerticalAlignment="Top" HorizontalAlignment="Right" Width="34" />
                             <Button x:Name="ToggleButton" Content="START" HorizontalAlignment="Right"
-                    			VerticalAlignment="Bottom" Width="75" Click="ToggleButton_OnClick" Margin="0,0,26,10" />
-                            <Button x:Name="BnAuto" Content="Auto" HorizontalAlignment="Left" Margin="6,40,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
-                            <Button x:Name="BnLoad" Content="Load" HorizontalAlignment="Left" Margin="21,224,0,0" VerticalAlignment="Top" Width="75" Click="BnLoad_Click"/>
+                    			VerticalAlignment="Bottom" Width="75" Click="ToggleButton_OnClick" Margin="0,0,41,-18" />
+                            <Button x:Name="BnAuto" Content="Auto" HorizontalAlignment="Left" Margin="34,42,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
+                            <Button x:Name="BnLoad" Content="Load" HorizontalAlignment="Left" Margin="34,205,0,0" VerticalAlignment="Top" Width="75" Click="BnLoad_Click"/>
+                            <Button x:Name="BnCamera" Content="Save: Off" HorizontalAlignment="Left" Margin="10,104,0,0" VerticalAlignment="Top" Width="68"/>
+                            <Button x:Name="BnPath" Content="Path" HorizontalAlignment="Left" Margin="91,104,0,0" VerticalAlignment="Top" Width="49" RenderTransformOrigin="3.756,-1.336" Click="BnPath_Click"/>
+                            <TextBox x:Name="TbSavePath" HorizontalAlignment="Left" Height="35" Margin="10,136,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="130"/>
                         </Grid>
                     </Viewbox>
 

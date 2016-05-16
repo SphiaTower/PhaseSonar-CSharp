@@ -8,43 +8,36 @@ namespace Shokouki.Configs
     {
         private static Configurations _singleton;
 
-        private Configurations(double repetitionRate, int centreSpanLength, int zeroFillFactor, int threadNum, int dispPoints)
+        private Configurations(double repetitionRate, int threadNum, int dispPoints, string directory)
         {
             RepetitionRate = repetitionRate;
-            ZeroFillFactor = zeroFillFactor;
             ThreadNum = threadNum;
             DispPoints = dispPoints;
-            CentreSpanLength = centreSpanLength;
+            Directory = directory;
         }
 
         public double RepetitionRate { get; set; }
-        public int ZeroFillFactor { get; set; }
 
-        public int CentreSpanLength { get; set; }
         public int ThreadNum { get; set; }
         public int DispPoints { get; set; }
+        public string Directory { get; set; }
 
 
-
-        public void Bind(
-            Control repetitionRate,
-            Control zeroFillFactor,
-            Control centreSpanLength,
-            Control threadNum,
-            Control dispPoints)
+        public void Bind(Control repetitionRate, Control threadNum, Control dispPoints, Control savePath)
         {
             repetitionRate.DataContext = this;
-            zeroFillFactor.DataContext = this;
-            centreSpanLength.DataContext = this;
             threadNum.DataContext = this;
             dispPoints.DataContext = this;
+            savePath.DataContext = this;
         }
-        public static void Initialize(double repetitionRate,int centreSpanLength, int zeroFillFactor, int threadNum, int dispPoints) {
-            if (_singleton!=null)
+
+        public static void Initialize(double repetitionRate, int threadNum, int dispPoints, string directory)
+        {
+            if (_singleton != null)
             {
                 throw new Exception("environment already init");
             }
-            _singleton = new Configurations(repetitionRate, centreSpanLength, zeroFillFactor,threadNum,dispPoints);
+            _singleton = new Configurations(repetitionRate, threadNum, dispPoints, directory);
         }
 
         public static Configurations Get()

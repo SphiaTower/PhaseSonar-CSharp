@@ -1,8 +1,6 @@
-﻿using System.Windows;
-using FTIR.Utils;
+﻿using FTIR.Utils;
 using JetBrains.Annotations;
 using Shokouki.Consumers;
-using Shokouki.Presenters;
 using Shokouki.Producers;
 
 namespace Shokouki.Controllers
@@ -10,17 +8,6 @@ namespace Shokouki.Controllers
     public class Scheduler
     {
         private readonly StopWatch _stopWatch = new StopWatch();
-
-        public Scheduler(IScopeView view)
-        {
-//            Producer = new SampleProducer(Injector.NewSampler());
-            Producer = new DummyProducer();
-            Consumer = new SpectroscopyVisualizer(
-                Producer.BlockingQueue,
-                view,
-                Injector.NewAccumulator(),
-                Injector.NewAdapter(view));
-        }
 
         public Scheduler(IProducer producer, UiConsumer<double[]> consumer)
         {
@@ -46,7 +33,7 @@ namespace Shokouki.Controllers
         {
             Producer.Stop();
             Consumer.Stop();
-            var timeElapsed = _stopWatch.Reset();
+            /* var timeElapsed = _stopWatch.Reset();
 
             var historyProductCnt = Producer.HistoryProductCnt;
             var productInQueue = Producer.BlockingQueue.Count;
@@ -59,7 +46,7 @@ namespace Shokouki.Controllers
                 + nameof(timeElapsed) + ": " + timeElapsed
                 , "sampling stopped", MessageBoxButton.OK);
 
-
+*/
             Producer.Reset();
             Consumer.Reset();
         }

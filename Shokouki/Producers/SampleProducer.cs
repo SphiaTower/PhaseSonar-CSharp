@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NationalInstruments.Examples.StreamToDiskConsole;
 using NationalInstruments.ModularInstruments.NIScope;
+using Shokouki.Controllers;
 
 namespace Shokouki.Producers
 {
@@ -71,10 +72,13 @@ namespace Shokouki.Producers
     {
         private readonly Sampler _sampler;
 
-        public SampleProducer(Sampler sampler)
+        public SampleProducer(Sampler sampler, SampleCamera camera)
         {
+            Camera = camera;
             _sampler = sampler;
         }
+
+        public SampleCamera Camera { get; set; }
 
         protected override void Wait()
         {
@@ -87,7 +91,9 @@ namespace Shokouki.Producers
 
         protected override double[] RetrieveData()
         {
-            return _sampler.Retrieve();
+            var pulseSequence = _sampler.Retrieve();
+            if (Camera.IsOn) Camera.Capture(pulseSequence);
+            return pulseSequence;
         }
 
         //todo

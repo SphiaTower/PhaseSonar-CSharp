@@ -7,21 +7,21 @@ namespace Shokouki.Consumers
 {
     public interface IConsumer
     {
+        int ConsumedCnt { get; }
         void Stop();
         void Consume();
-        int ConsumedCnt { get; }
         void Reset();
     }
 
     public abstract class Consumer<T> : IConsumer
     {
-        public int MillisecondsTimeout { get; set; } = 10000;
-
-        protected Consumer([NotNull]BlockingCollection<T> blockingQueue)
+        protected Consumer([NotNull] BlockingCollection<T> blockingQueue)
         {
             Toolbox.RequireNonNull(blockingQueue, "blockingQueue");
             BlockingQueue = blockingQueue;
         }
+
+        public int MillisecondsTimeout { get; set; } = 10000;
 
         protected BlockingCollection<T> BlockingQueue { get; }
 
@@ -49,12 +49,13 @@ namespace Shokouki.Consumers
             });
         }
 
-        public int ConsumedCnt { get; protected set; } = 0;
+        public int ConsumedCnt { get; protected set; }
+
         public virtual void Reset()
         {
             ConsumedCnt = 0;
         }
 
-        public abstract void ConsumeElement([NotNull]T item);
+        public abstract void ConsumeElement([NotNull] T item);
     }
 }

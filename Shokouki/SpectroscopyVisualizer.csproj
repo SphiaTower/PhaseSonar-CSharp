@@ -92,13 +92,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Configs\CorrectorConfigs.cs" />
     <Compile Include="Configs\SliceConfigs.cs" />
-    <Compile Include="Consumers\Oscilloscope.cs" />
-    <Compile Include="Consumers\ParallelSpecVisualizer.cs" />
     <Compile Include="Consumers\SimpleSpetrumViewer.cs" />
     <Compile Include="Controllers\Camera.cs" />
-    <Compile Include="Controllers\DiskCamera.cs" />
-    <Compile Include="Controllers\Injector.cs" />
+    <Compile Include="Controllers\SpectrumCamera.cs" />
+    <Compile Include="EnumBindingSourceExtension.cs" />
+    <Compile Include="EnumToBooleanConverter.cs" />
+    <Compile Include="Factories\Injector.cs" />
     <Compile Include="Controllers\Scheduler.cs" />
     <Compile Include="Producers\DummyProducer.cs" />
     <Compile Include="Producers\LocalProducer.cs" />
@@ -125,7 +126,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Consumers\SliceMarker.cs" />
     <Compile Include="Consumers\SpectroscopyVisualizer.cs" />
     <Compile Include="Consumers\UIConsumer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

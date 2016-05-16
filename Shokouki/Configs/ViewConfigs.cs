@@ -1,6 +1,6 @@
-﻿namespace Shokouki.Configs {
+﻿namespace Shokouki.Configs
+{
     public class ViewConfigs
     {
-      
     }
 }

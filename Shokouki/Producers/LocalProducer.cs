@@ -2,8 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Windows.Documents;
-using System.Windows.Threading;
+using System.Windows;
 using FTIR.Utils;
 using JetBrains.Annotations;
 
@@ -11,16 +10,18 @@ namespace Shokouki.Producers
 {
     public class LocalProducer : IProducer
     {
-        public BlockingCollection<double[]> BlockingQueue { get; } = new BlockingCollection<double[]>();
         private readonly IEnumerable<string> _paths;
-        [CanBeNull]
-        public Action OnDataLoadedListener { get; set; }
 
-     
+
         public LocalProducer(IEnumerable<string> paths)
         {
             _paths = paths;
         }
+
+        [CanBeNull]
+        public Action OnDataLoadedListener { get; set; }
+
+        public BlockingCollection<double[]> BlockingQueue { get; } = new BlockingCollection<double[]>();
 
         public void Produce()
         {
@@ -30,7 +31,7 @@ namespace Shokouki.Producers
                 {
                     var doubles = Toolbox.Read(path);
                     BlockingQueue.Add(doubles);
-                    OnDataLoadedListener?.Invoke();
+                    Application.Current.Dispatcher.Invoke(OnDataLoadedListener);
                 }
             });
         }
@@ -51,5 +52,4 @@ namespace Shokouki.Producers
             throw new NotImplementedException();
         }
     }
-
 }

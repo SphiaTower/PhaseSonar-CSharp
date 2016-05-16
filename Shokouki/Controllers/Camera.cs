@@ -1,31 +1,40 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using FTIR.Analyzers;
-using FTIR.Correctors;
 
-namespace Shokouki.Controllers {
-    public abstract class Camera
+namespace Shokouki.Controllers
+{
+    public interface ICamera<in T>
     {
-        protected ConcurrentQueue<ISpectrum> Queue { get; } = new ConcurrentQueue<ISpectrum>();
-        public bool IsProcessing { get; protected set; } = false;
-        public bool IsOn { get; set; } = false;
-        public void Capture(ISpectrum spectrum)
+        bool IsOn { get; set; }
+        bool IsProcessing { get; }
+        void Capture(T data);
+    }
+
+    public abstract class Camera<T> : ICamera<T>
+    {
+        protected Camera(bool on)
+        {
+            IsOn = on;
+        }
+
+        protected ConcurrentQueue<T> Queue { get; } = new ConcurrentQueue<T>();
+        public bool IsProcessing { get; protected set; }
+        public bool IsOn { get; set; }
+
+        public void Capture(T data)
         {
             if (!IsOn)
             {
                 throw new Exception("camera is off");
             }
-            Queue.Enqueue(spectrum);
+            Queue.Enqueue(data);
 
             if (IsProcessing) return;
             IsProcessing = true;
             Task.Run(() =>
             {
-                ISpectrum dequeue;
+                T dequeue;
                 while (Queue.TryDequeue(out dequeue))
                 {
                     Consume(dequeue);
@@ -34,6 +43,6 @@ namespace Shokouki.Controllers {
             });
         }
 
-        protected abstract void Consume(ISpectrum dequeue);
+        protected abstract void Consume(T dequeue);
     }
 }

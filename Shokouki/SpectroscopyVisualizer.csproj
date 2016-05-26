@@ -92,24 +92,25 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Configs\ConfigsHolder.cs" />
     <Compile Include="Configs\CorrectorConfigs.cs" />
     <Compile Include="Configs\SliceConfigs.cs" />
     <Compile Include="Consumers\SimpleSpetrumViewer.cs" />
     <Compile Include="Controllers\Camera.cs" />
+    <Compile Include="Controllers\DiskCameraBase.cs" />
     <Compile Include="Controllers\SpectrumCamera.cs" />
     <Compile Include="EnumBindingSourceExtension.cs" />
     <Compile Include="EnumToBooleanConverter.cs" />
     <Compile Include="Factories\Injector.cs" />
     <Compile Include="Controllers\Scheduler.cs" />
+    <Compile Include="Presenters\SwitchButton.cs" />
     <Compile Include="Producers\DummyProducer.cs" />
     <Compile Include="Producers\LocalProducer.cs" />
     <Compile Include="Configs\SamplingConfigs.cs" />
-    <Compile Include="Configs\ViewConfigs.cs" />
     <Compile Include="Presenters\CanvasView.cs" />
     <Compile Include="Presenters\AxisBuilder.cs" />
     <Compile Include="Configs\Configurations.cs" />
     <Compile Include="Producers\SampleProducer.cs" />
-    <Compile Include="Presenters\IScopeView.cs" />
     <Compile Include="Presenters\DisplayAdapter.cs" />
     <Compile Include="Consumers\Consumer.cs" />
     <Page Include="MainWindow.xaml">

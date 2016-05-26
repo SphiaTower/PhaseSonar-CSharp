@@ -1,5 +1,8 @@
-﻿using FTIR.Utils;
+﻿using System;
+using System.Windows;
+using FTIR.Utils;
 using JetBrains.Annotations;
+using Microsoft.WindowsAPICodePack.Shell.Interop;
 using Shokouki.Consumers;
 using Shokouki.Producers;
 
@@ -25,7 +28,9 @@ namespace Shokouki.Controllers
         {
             _stopWatch.Reset();
             Producer.Produce();
-            Consumer.Consume();
+            Consumer.Consume(
+               
+                );
         }
 
 

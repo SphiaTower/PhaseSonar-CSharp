@@ -5,12 +5,12 @@ namespace Shokouki.Presenters
 {
     public class AxisBuilder
     {
-        public AxisBuilder(IScopeView view)
+        public AxisBuilder(CanvasView view)
         {
             View = view;
         }
 
-        public IScopeView View { get; set; }
+        public CanvasView View { get; set; }
 
         public double ScreenWidth => View.ScopeWidth;
 

@@ -54,7 +54,7 @@ namespace Shokouki.Factories
         }
 
         [NotNull]
-        public static DisplayAdapter NewAdapter(IScopeView view)
+        public static DisplayAdapter NewAdapter(CanvasView view)
         {
             return new DisplayAdapter(view, Configurations.Get().DispPoints, SamplingConfigs.Get().SamplingRate);
         }
@@ -130,7 +130,7 @@ namespace Shokouki.Factories
         }
 
         [NotNull]
-        private static SpectroscopyVisualizer<T> NewConsumer<T>(IProducer producer, IScopeView view, bool cameraOn)
+        private static SpectroscopyVisualizer<T> NewConsumer<T>(IProducer producer, CanvasView view, bool cameraOn)
             where T : ISpectrum
         {
             return new SpectroscopyVisualizer<T>(producer.BlockingQueue, view, NewAccumulator<T>(), NewAdapter(view),
@@ -150,7 +150,7 @@ namespace Shokouki.Factories
         }
 
         [NotNull]
-        public static UiConsumer<double[]> NewConsumer(IProducer producer, IScopeView view, bool cameraOn)
+        public static UiConsumer<double[]> NewConsumer(IProducer producer, CanvasView view, bool cameraOn)
         {
             switch (CorrectorConfigs.Get().CorrectorType)
             {

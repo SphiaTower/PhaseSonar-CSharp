@@ -1,7 +1,9 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
 
 namespace Shokouki.Configs
 {
+    [Serializable]
     public class SliceConfigs
     {
         private static SliceConfigs _singleton;
@@ -20,6 +22,11 @@ namespace Shokouki.Configs
         public static void Initialize(int pointsBeforeCrest, bool centreSlice, double crestAmplitudeThreshold)
         {
             _singleton = new SliceConfigs(pointsBeforeCrest, centreSlice, crestAmplitudeThreshold);
+        }
+
+        internal void Register(SliceConfigs sliceConfigs)
+        {
+            _singleton = sliceConfigs;
         }
 
         public static SliceConfigs Get()

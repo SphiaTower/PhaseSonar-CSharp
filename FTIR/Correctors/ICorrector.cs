@@ -2,12 +2,14 @@
 
 namespace FTIR.Correctors
 {
-    public interface ICorrector
+    public interface ICorrector<out T> where T:ISpectrum
     {
-        void Correct([NotNull]double[] pulseSequence, int startIndex, int pulseLength, int pointsBeforeCrest);
         [NotNull]
-        double[] Output { get; }
-        int OutputPeriodCnt();
+        T OutputSpetrumBuffer();
+
+        int OutputLength { get; }
+
+        void Correct([NotNull] double[] pulseSequence, int startIndex, int pulseLength, int pointsBeforeCrest);
         void ClearBuffer();
     }
 }

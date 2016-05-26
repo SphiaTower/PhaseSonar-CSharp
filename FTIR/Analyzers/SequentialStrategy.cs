@@ -4,11 +4,11 @@ using FTIR.Correctors;
 
 namespace FTIR.Analyzers
 {
-    public class SequentialStrategy : IAnalyzerStrategy
+    public class SequentialStrategy<T> : IAnalyzerStrategy<T> where T : ISpectrum
     {
-        private readonly ICorrector _corrector;
+        private readonly ICorrector<T> _corrector;
 
-        public SequentialStrategy(BaseAnalyzer analyzer, ICorrector corrector)
+        public SequentialStrategy(BaseAnalyzer analyzer, ICorrector<T> corrector)
         {
             Analyzer = analyzer;
             _corrector = corrector;
@@ -17,7 +17,7 @@ namespace FTIR.Analyzers
         private BaseAnalyzer Analyzer { get; }
 
 
-        public List<SpecInfo> Run(double[] pulseSequence)
+        public List<T> Run(double[] pulseSequence)
         {
             var startIndicesDuo = Analyzer.Slicer.Slice(pulseSequence);
             if (startIndicesDuo==null)
@@ -31,16 +31,14 @@ namespace FTIR.Analyzers
                     startIndices => CorrectSequentially(pulseSequence, startIndices, slicedPeriodLength)).ToList();
         }
 
-        private SpecInfo CorrectSequentially(double[] pulseSequence, List<int> startIndices, int pulseLength)
+        private T CorrectSequentially(double[] pulseSequence, List<int> startIndices, int pulseLength)
         {
             foreach (var startIndex in startIndices)
             {
                 // todo: exception
                 _corrector.Correct(pulseSequence, startIndex, pulseLength, Analyzer.Slicer.SliceStartOffset);
             }
-            var output = new double[_corrector.Output.Length];
-            _corrector.Output.CopyTo(output, 0);
-            return new SpecInfo(output, _corrector.OutputPeriodCnt());
+            return (T) _corrector.OutputSpetrumBuffer().Clone();
         }
     }
 }

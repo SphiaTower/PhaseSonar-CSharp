@@ -14,16 +14,4 @@ namespace FTIR.Analyzers
         }
 
     }
-
-    public class SpecInfo
-    {
-        public SpecInfo(double[] spec, int periodCnt)
-        {
-            Spec = spec;
-            PeriodCnt = periodCnt;
-        }
-
-        public double[] Spec { get; }
-        public int PeriodCnt { get; }
-    }
 }

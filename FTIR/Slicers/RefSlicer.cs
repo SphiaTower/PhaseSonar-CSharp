@@ -21,6 +21,10 @@ namespace FTIR.Slicers
             SlicedPeriodLength = AnalyzePeriodLength(crestIndices);
             var startIndices1 = FindStartIndices(pulseSequence, tuple.Item1, SlicedPeriodLength);
             var startIndices2 = FindStartIndices(pulseSequence, tuple.Item2, SlicedPeriodLength);
+            if (startIndices1==null||startIndices2==null)
+            {
+                return null;
+            }
             return new List<List<int>>(2) {startIndices1, startIndices2};
         }
 

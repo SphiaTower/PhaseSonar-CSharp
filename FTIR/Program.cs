@@ -19,8 +19,8 @@ namespace FTIR
             var parallelResult = splitter.Split(data);
             watch.Reset("correct");
             Toolbox.Toolbox.WriteData(
-                @"D:\database\test\full test\5-3-csharp-parallel-n" + parallelResult.Source.PeriodCnt + ".txt",
-                parallelResult.Source.Spec);
+                @"D:\database\test\full test\5-3-csharp-parallel-n" + parallelResult.Source.PulseCount + ".txt",
+                parallelResult.Source.Amplitudes);
             watch.Reset("write");*/
         }
 

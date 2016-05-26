@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using FTIR.Utils;
+using JetBrains.Annotations;
 
 namespace FTIR.Maths
 {
@@ -16,6 +18,13 @@ namespace FTIR.Maths
             {
                 copy[i] = array[j];
             }
+        }
+
+        public static T[] Clone<T>(T[] array)
+        {
+            var copy = new T[array.Length];
+            Array.Copy(array,copy,array.Length);
+            return copy;
         }
 
         public static T[] CopyRange<T>(T[] array, int start, int count)
@@ -57,7 +66,7 @@ namespace FTIR.Maths
             return result;
         }
 
-        public static void AddTo(double[] target, double[] adder)
+        public static void AddTo([NotNull]double[] target, [NotNull]double[] adder)
         {
             var length = target.Length;
             if (adder.Length != length)
@@ -69,7 +78,12 @@ namespace FTIR.Maths
                 target[i] += adder[i];
             }
         }
-
+        public static void ForceAddTo([NotNull]double[] target, [NotNull]double[] adder) {
+            var length = target.Length;
+            for (var i = 0; i < length; i++) {
+                target[i] += adder[i];
+            }
+        }
         public static T[] Rotate<T>(T[] array)
         {
             var length = array.Length;
@@ -127,7 +141,7 @@ namespace FTIR.Maths
             return result;
         }
 
-        public static void Clear(double[] array)
+        public static void Clear([NotNull]double[] array)
         {
             Array.Clear(array,0,array.Length);
         }

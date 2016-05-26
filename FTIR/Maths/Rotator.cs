@@ -55,7 +55,7 @@ namespace FTIR.Maths
             }
             else
             {
-                throw new NotImplementedException("try to symmetrize when crest is at tail");
+                throw new ArgumentOutOfRangeException("try to symmetrize when crest is at tail");
             }
         }
     }

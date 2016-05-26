@@ -30,7 +30,7 @@ namespace FTIR.Slicers
             {
                 SlicedPeriodLength = AnalyzePeriodLength(crestIndices);
                 var startIndices = FindStartIndices(pulseSequence, crestIndices, SlicedPeriodLength);
-                return new List<List<int>>(1) {startIndices};
+                return startIndices==null ? null : new List<List<int>>(1) {startIndices};
             }
         }
 
@@ -51,7 +51,7 @@ namespace FTIR.Slicers
             }
             return min;
         }
-
+        [CanBeNull]
         protected virtual List<int> FindStartIndices([NotNull]double[] pulseSequence, [NotNull]List<int> crestIndices, int periodLength)
         {
             var length = pulseSequence.Length;
@@ -64,11 +64,15 @@ namespace FTIR.Slicers
             {
                 crestIndices.RemoveAt(0);
             }
+            if (crestIndices.Count==0)
+            {
+                return null;
+            }
             if (crestIndices.Last() + periodLength >= length)
             {
                 crestIndices.RemoveAt(crestIndices.Count - 1);
             }
-            return crestIndices;
+            return crestIndices.Count==0 ? null : crestIndices;
         }
     }
 }

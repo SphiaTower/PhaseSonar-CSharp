@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using JetBrains.Annotations;
 
 namespace FTIR.Utils
 {
@@ -18,7 +20,7 @@ namespace FTIR.Utils
             return data;
         }
 
-        public static void WriteData<T>(string path, T[] data)
+        public static void WriteData<T>(string path, [NotNull] T[] data)
         {
             var contents = new string[data.Length];
             for (var i = 0; i < data.Length; i++)
@@ -26,6 +28,22 @@ namespace FTIR.Utils
                 contents[i] = data[i].ToString();
             }
             File.WriteAllLines(path, contents);
+        }
+
+        public static void SerializeData<T>(string path, [NotNull] T data)
+        {
+            var file = new FileInfo(path);
+            var fileStream = file.OpenWrite();
+            var binaryFormatter = new BinaryFormatter();
+            binaryFormatter.Serialize(fileStream, data);
+        }
+
+        public static T DeserializeData<T>(string path)
+        {
+            var file = new FileInfo(path);
+            var fileStream = file.OpenRead();
+            var binaryFormatter = new BinaryFormatter();
+            return (T) binaryFormatter.Deserialize(fileStream);
         }
 
         public static void RequireNonNull(object arg, string name)

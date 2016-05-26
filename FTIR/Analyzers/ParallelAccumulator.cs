@@ -4,15 +4,14 @@ using FTIR.Slicers;
 
 namespace FTIR.Analyzers
 {
-    public sealed class ParallelAccumulator : Accumulator
-    {
+    public sealed class ParallelAccumulator<T> : Accumulator<T> where T : ISpectrum {
         
-        protected override IAnalyzerStrategy Strategy { get; set; }
+        protected override IAnalyzerStrategy<T> Strategy { get; set; }
 
 
-        public ParallelAccumulator(ISlicer slicer, List<ICorrector> correctors) : base(slicer)
+        public ParallelAccumulator(ISlicer slicer, List<ICorrector<T>> correctors) : base(slicer)
         {
-            Strategy = new ParallelStrategy(this, correctors);
+            Strategy = new ParallelStrategy<T>(this, correctors);
         }
     }
 }

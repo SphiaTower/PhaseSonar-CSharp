@@ -7,13 +7,14 @@ using FTIR.Correctors;
 using FTIR.Slicers;
 
 namespace FTIR.Analyzers {
-    public sealed class SequentialAccumulator:Accumulator {
+    public sealed class SequentialAccumulator<T>:Accumulator<T> where T : ISpectrum
+    {
       
-        protected override IAnalyzerStrategy Strategy { get; set; }
+        protected override IAnalyzerStrategy<T> Strategy { get; set; }
 
-        public SequentialAccumulator(ISlicer slicer,ICorrector corrector) : base(slicer)
+        public SequentialAccumulator(ISlicer slicer,ICorrector<T> corrector) : base(slicer)
         {
-            Strategy = new SequentialStrategy(this,corrector);
+            Strategy = new SequentialStrategy<T>(this,corrector);
         }
     }
 }

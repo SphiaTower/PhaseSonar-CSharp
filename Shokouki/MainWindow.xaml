@@ -84,8 +84,8 @@
                                  Text="{Binding Path=EndFreqInMHz,Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                  VerticalAlignment="Top" HorizontalAlignment="Right"
                                  Width="34" />
-                        <Button x:Name="BnAuto" Content="Auto" HorizontalAlignment="Left" Margin="263,11,0,0"
-                                VerticalAlignment="Top" Width="85" Click="button_Click" Height="24" />
+                        <TextBlock x:Name="BnAuto" Text="To Adjust the View, Plz Click the Middle Wheel " HorizontalAlignment="Left" Margin="263,11,0,0"
+                                VerticalAlignment="Top"   Height="24" />
                         <Label x:Name="textBlock123" HorizontalAlignment="Left" Margin="19,10,0,0"
                                Content="Freq Axis/MHz : " VerticalAlignment="Top" Width="95" Height="26"
                                RenderTransformOrigin="0.41,-0.225" />
@@ -175,7 +175,7 @@
                                VerticalAlignment="Top" />
                         <TextBox x:Name="TbZeroFillFactor" HorizontalAlignment="Left" Height="23" Margin="112,73,0,0"
                                  TextWrapping="Wrap" Text="{Binding ZeroFillFactor}" VerticalAlignment="Top" Width="54" />
-                        <TextBox x:Name="TbCenterSpanLength" HorizontalAlignment="Left" Margin="286,74,0,17"
+                        <TextBox x:Name="TbCenterSpanLength" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="286,74,0,17"
                                  TextWrapping="Wrap" Text="{Binding CenterSpanLength}" Width="54" Height="23" />
 
                         <ComboBox x:Name="CbCorrector"
@@ -199,13 +199,13 @@
                                  TextWrapping="Wrap" Text="{Binding ThreadNum}" VerticalAlignment="Top" Width="67" />
                         <Label x:Name="label18" Content="Threads" HorizontalAlignment="Left" Margin="194,4,0,0"
                                VerticalAlignment="Top" />
-                        <Label x:Name="label17" Content="Points On Screen" HorizontalAlignment="Left"
-                               VerticalAlignment="Top" Margin="-1,4,0,0" />
-                        <TextBox x:Name="TbDispPoints" HorizontalAlignment="Left" Height="23" Margin="109,5,0,0"
-                                 TextWrapping="Wrap" Text="{Binding DispPoints}" VerticalAlignment="Top" Width="71" />
+                        <Label x:Name="label17" Content="Resolution" HorizontalAlignment="Left"
+                               VerticalAlignment="Top" Margin="0,3,0,0" />
+                        <TextBox x:Name="TbDispPoints" HorizontalAlignment="Left" Height="23" Margin="112,4,0,0"
+                                 TextWrapping="Wrap" Text="{Binding DispPoints}" VerticalAlignment="Top" Width="54" RenderTransformOrigin="0.498,0.93" />
                     </Grid>
                     <Grid Row="4">
-                        <Button x:Name="BnPath" Content="Set Data&#xD;&#xA;Directory" HorizontalAlignment="Left"
+                        <Button x:Name="BnPath" Content="Set Save&#xD;&#xA;Directory" HorizontalAlignment="Left"
                                 Margin="5,11,0,0" VerticalAlignment="Top" Width="78"
                                 RenderTransformOrigin="3.756,-1.336"
                                 Click="BnPath_Click" Height="43" />

@@ -63,6 +63,8 @@ namespace Shokouki.Presenters
 
         public void DrawGrid()
         {
+            Canvas.Children.Clear();
+
             var width = ScopeWidth;
             var height = ScopeHeight;
             var xInterval = width/10;

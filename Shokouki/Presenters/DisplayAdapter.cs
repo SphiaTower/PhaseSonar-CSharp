@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using FTIR.Correctors;
 using NationalInstruments.Restricted;
@@ -71,8 +72,8 @@ namespace Shokouki.Presenters
                     var zoomCommand = new ZoomCommand(_zoomStart, zoomEnd, _wavefromView, this);
                     _cmdStack.Push(zoomCommand);
                     zoomCommand.Invoke();
-                }
-                else
+                    ResetYScale();
+                } else
                 {
                     _wavefromView.ClearLine();
                 }
@@ -90,6 +91,14 @@ namespace Shokouki.Presenters
                 {
                     var zoomCommand = _cmdStack.Pop();
                     zoomCommand.Undo();
+                }
+                ResetYScale();
+            };
+            canvas.MouseDown += (sender, args) =>
+            {
+                if (args.ChangedButton == MouseButton.Middle)
+                {
+                    ResetYScale();
                 }
             };
             _wavefromView.DrawGrid();
@@ -248,7 +257,6 @@ namespace Shokouki.Presenters
             ResetYScale();
             _horizontalAxisView.DrawRuler(StartFreqInMHz,EndFreqInMHz);
             _verticalAxisView.DrawRuler(_min,_max);
-            _wavefromView.Canvas.Children.Clear();
             _wavefromView.DrawGrid();
         }
     }

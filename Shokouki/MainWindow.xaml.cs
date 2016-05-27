@@ -51,10 +51,7 @@ namespace Shokouki
             CanvasView = new CanvasView(ScopeCanvas);
             HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
             VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
-            /*     Loaded += (sender, args) =>
-            {
-                CbCorrector.ItemsSource = Enum.GetValues(typeof(CorrectorType)).Cast<CorrectorType>();
-            };*/
+         
             SwitchButton = new SwitchButton(ToggleButton, false, "STOP", "START", TurnOn, TurnOff);
 
 //            Toolbox.SerializeData(@"D:\\config.bin",CorrectorConfigs.Get());

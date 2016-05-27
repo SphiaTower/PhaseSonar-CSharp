@@ -50,7 +50,7 @@ namespace Shokouki.Presenters {
 
                 textBlock.Foreground = new SolidColorBrush(Colors.White);
 
-                Canvas.SetLeft(textBlock, i*interval-5 );
+                Canvas.SetLeft(textBlock, i*interval-15 );
 
                 Canvas.SetTop(textBlock, depth);
 

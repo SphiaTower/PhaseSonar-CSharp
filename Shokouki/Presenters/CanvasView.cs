@@ -9,12 +9,18 @@ namespace Shokouki.Presenters
 {
     public class CanvasView
     {
+        private readonly List<Polyline> _lines = new List<Polyline>();
+        private readonly List<Polyline> _waveforms = new List<Polyline>(2);
+
         public CanvasView(Canvas canvas)
         {
             Canvas = canvas;
         }
 
         public Canvas Canvas { get; }
+
+        public double ScopeHeight => Canvas.ActualHeight;
+        public double ScopeWidth => Canvas.ActualWidth;
 
         public void Invoke(Action action)
         {
@@ -32,8 +38,10 @@ namespace Shokouki.Presenters
             _waveforms.Add(line);
         }
 
-        private Polyline DrawLineBase(PointCollection pointCollection, Color color) {
-            var line = new Polyline {
+        private Polyline DrawLineBase(PointCollection pointCollection, Color color)
+        {
+            var line = new Polyline
+            {
                 Points = pointCollection,
                 Stroke = new SolidColorBrush(color),
                 StrokeThickness = 1
@@ -42,21 +50,47 @@ namespace Shokouki.Presenters
             return line;
         }
 
-        public void DrawLine(PointCollection pointCollection, Color color) {
+        public void DrawLine(PointCollection pointCollection, Color color)
+        {
             var line = DrawLineBase(pointCollection, color);
             _lines.Add(line);
         }
-        private List<Polyline> _waveforms = new List<Polyline>(2);
-        private List<Polyline> _lines = new List<Polyline>();
-
-        public double ScopeHeight => Canvas.ActualHeight;
-        public double ScopeWidth => Canvas.ActualWidth;
 
         public void DrawWaveform(PointCollection pointCollection)
         {
             DrawWaveform(pointCollection, Colors.White);
         }
 
+        public void DrawGrid()
+        {
+            var width = ScopeWidth;
+            var height = ScopeHeight;
+            var xInterval = width/10;
+
+            for (var i = 0; i <= 10; i++)
+            {
+                var linePts = new PointCollection(2) {new Point(xInterval*i, 0), new Point(xInterval*i, height)};
+                var line = new Polyline
+                {
+                    Points = linePts,
+                    Stroke = new SolidColorBrush(Colors.DarkGray),
+                    StrokeDashArray = new DoubleCollection() { 1,1}
+                };
+                Canvas.Children.Add(line);
+            }
+            var yInterval = height/10;
+            for (var i = 0; i <= 10; i++)
+            {
+                var linePts = new PointCollection(2) {new Point(0, yInterval*i), new Point(width, yInterval*i)};
+                var line = new Polyline
+                {
+                    Points = linePts,
+                    Stroke = new SolidColorBrush(Colors.DarkGray),
+                    StrokeDashArray = new DoubleCollection() { 1, 1 }
+                };
+                Canvas.Children.Add(line);
+            }
+        }
 
         public void ClearWaveform()
         {

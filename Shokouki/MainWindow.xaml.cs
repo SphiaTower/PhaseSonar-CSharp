@@ -49,6 +49,8 @@ namespace Shokouki
             SliceConfigs.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp);
             CorrectorConfigs.Get().Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType);
             CanvasView = new CanvasView(ScopeCanvas);
+            HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
+            VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
             /*     Loaded += (sender, args) =>
             {
                 CbCorrector.ItemsSource = Enum.GetValues(typeof(CorrectorType)).Cast<CorrectorType>();
@@ -56,12 +58,18 @@ namespace Shokouki
             SwitchButton = new SwitchButton(ToggleButton, false, "STOP", "START", TurnOn, TurnOff);
 
 //            Toolbox.SerializeData(@"D:\\config.bin",CorrectorConfigs.Get());
+            this.SizeChanged += (sender, args) =>
+            {
+                Scheduler?.Consumer.Adapter.OnWindowZoomed();
+            };
         }
 
         private SwitchButton SwitchButton { get; }
 
 
         public CanvasView CanvasView { get; }
+        public HorizontalAxisView HorizontalAxisView { get; }
+        public VerticalAxisView VerticalAxisView { get; }
 
         [CanBeNull]
         public Scheduler Scheduler { get; private set; }
@@ -94,7 +102,7 @@ namespace Shokouki
             if (DeveloperMode())
             {
                 var dummyProducer = new DummyProducer();
-                var newConsumer = Injector.NewConsumer(dummyProducer, CanvasView, IsChecked(CbCaptureSpec));
+                var newConsumer = Injector.NewConsumer(dummyProducer, CanvasView,HorizontalAxisView, VerticalAxisView, IsChecked(CbCaptureSpec));
                 try
                 {
                     newConsumer.Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
@@ -109,7 +117,7 @@ namespace Shokouki
             else
             {
                 var sampleProducer = Injector.NewProducer(IsChecked(CbCaptureSample));
-                var uiConsumer = Injector.NewConsumer(sampleProducer, CanvasView, IsChecked(CbCaptureSpec));
+                var uiConsumer = Injector.NewConsumer(sampleProducer, CanvasView,HorizontalAxisView, VerticalAxisView, IsChecked(CbCaptureSpec));
                 try
                 {
                     uiConsumer.Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
@@ -217,7 +225,7 @@ namespace Shokouki
             TbSavePath.Text = Configurations.Get().Directory;
             var producer = Injector.NewProducer(fileNames);
 
-            var consumer = Injector.NewConsumer(producer, CanvasView, IsChecked(CbCaptureSpec));
+            var consumer = Injector.NewConsumer(producer, CanvasView,HorizontalAxisView, VerticalAxisView, IsChecked(CbCaptureSpec));
             Scheduler = new Scheduler(producer, consumer);
             Scheduler.Start();
             Scheduler = null;

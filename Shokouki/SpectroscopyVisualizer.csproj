@@ -103,7 +103,9 @@
     <Compile Include="EnumToBooleanConverter.cs" />
     <Compile Include="Factories\Injector.cs" />
     <Compile Include="Controllers\Scheduler.cs" />
+    <Compile Include="Presenters\HorizontalAxisView.cs" />
     <Compile Include="Presenters\SwitchButton.cs" />
+    <Compile Include="Presenters\VerticalAxisView.cs" />
     <Compile Include="Producers\DummyProducer.cs" />
     <Compile Include="Producers\LocalProducer.cs" />
     <Compile Include="Configs\SamplingConfigs.cs" />

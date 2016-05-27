@@ -13,7 +13,9 @@ namespace Shokouki.Presenters
     {
         private readonly Stack<ZoomCommand> _cmdStack = new Stack<ZoomCommand>();
         private readonly double _sampleRateInMHz;
-        private readonly CanvasView _view;
+        private readonly CanvasView _wavefromView;
+        private readonly HorizontalAxisView _horizontalAxisView;
+        private readonly VerticalAxisView _verticalAxisView;
         private double _endFreqInMHz;
         private Point _lastPoint;
         private bool _mouseDown;
@@ -22,15 +24,17 @@ namespace Shokouki.Presenters
         private double _startFreqInMHz;
         private double _zoomStart;
 
-        public DisplayAdapter(CanvasView view, int dispPointNum, double samplingRate, int startFreqInMHz = 0,
+        public DisplayAdapter(CanvasView wavefromView,HorizontalAxisView horizontalAxisView,VerticalAxisView verticalAxisView, int dispPointNum, double samplingRate, int startFreqInMHz = 0,
             int endFreqInMHz = 50)
         {
-            _view = view;
+            _wavefromView = wavefromView;
+            _horizontalAxisView = horizontalAxisView;
+            _verticalAxisView = verticalAxisView;
             _sampleRateInMHz = samplingRate/1e6;
             DispPointsCnt = dispPointNum;
             StartFreqInMHz = startFreqInMHz;
             EndFreqInMHz = endFreqInMHz;
-            var canvas = view.Canvas;
+            var canvas = wavefromView.Canvas;
             canvas.MouseLeftButtonDown += (sender, args) =>
             {
                 if (!_mouseDown)
@@ -44,10 +48,10 @@ namespace Shokouki.Presenters
             {
                 if (!_mouseDown) return;
                 var point = args.GetPosition(canvas);
-                view.InvokeAsync(() =>
+                wavefromView.InvokeAsync(() =>
                 {
                     var pointCollection = new PointCollection(2) {_lastPoint, point};
-                    view.DrawLine(pointCollection, Colors.Yellow);
+                    wavefromView.DrawLine(pointCollection, Colors.Yellow);
                     _lastPoint = point;
                 });
             };
@@ -64,13 +68,13 @@ namespace Shokouki.Presenters
 
                 if (!(zoomEnd - _zoomStart <= 12))
                 {
-                    var zoomCommand = new ZoomCommand(_zoomStart, zoomEnd, _view, this);
+                    var zoomCommand = new ZoomCommand(_zoomStart, zoomEnd, _wavefromView, this);
                     _cmdStack.Push(zoomCommand);
                     zoomCommand.Invoke();
                 }
                 else
                 {
-                    _view.ClearLine();
+                    _wavefromView.ClearLine();
                 }
 
                 _mouseDown = false;
@@ -88,12 +92,13 @@ namespace Shokouki.Presenters
                     zoomCommand.Undo();
                 }
             };
+            _wavefromView.DrawGrid();
         }
 
         public int DispPointsCnt { get; set; }
 
-        public double ScreenHeight => _view.ScopeHeight;
-        public double ScreenWidth => _view.ScopeWidth;
+        public double ScreenHeight => _wavefromView.ScopeHeight;
+        public double ScreenWidth => _wavefromView.ScopeWidth;
 
         public double EndFreqInMHz
         {
@@ -102,6 +107,7 @@ namespace Shokouki.Presenters
             {
                 _endFreqInMHz = value;
                 InvokePropertyChanged("EndFreqInMHz");
+                RedrawAxis();
             }
         }
 
@@ -112,6 +118,7 @@ namespace Shokouki.Presenters
             {
                 _startFreqInMHz = value;
                 InvokePropertyChanged("StartFreqInMHz");
+                RedrawAxis();
             }
         }
 
@@ -140,13 +147,7 @@ namespace Shokouki.Presenters
 
         public PointCollection CreateGraphPoints(double[] yAxis)
         {
-            /*  if (_xScale < 0)
-            {
-                _xScale = ScreenWidth/(yAxis.Length-0);
-            }
-            if (_yScale < 0) {
-                _yScale = ComputeYScale(yAxis);
-            }*/ // todo
+          
             var points = new PointCollection(yAxis.Length);
             for (var i = 0; i < yAxis.Length; i++)
             {
@@ -166,25 +167,35 @@ namespace Shokouki.Presenters
             return x => ScreenWidth/(xAxis.Last() - xAxis.First())*x;
         }
 
-
-        private Func<double, double> GetYScaler(double[] yAxis)
+        private static void FindMinMax(double[] yAxis, out double min, out double max)
         {
-            double min = double.MaxValue, max = double.MinValue;
-            foreach (var y in yAxis)
-            {
-                if (y > max)
-                {
+            min = double.MaxValue;
+            max = double.MinValue;
+            foreach (var y in yAxis) {
+                if (y > max) {
                     max = y;
-                }
-                else if (y < min)
-                {
+                } else if (y < min) {
                     min = y;
                 }
             }
+        }
+
+        private double _min;
+        private double _max;
+        private Func<double, double> GetYScaler(double[] yAxis)
+        {
+            FindMinMax(yAxis,out _min, out _max);
+            double min = _min;
+            double max = _max;
+            _verticalAxisView.DrawRuler(min,max);
             // todo: store height as const or invoke getter to adapt
-            const int margin = 10;
+            //            const int margin = 10;
+            const int margin = 0;
             var dispAreaHeight = ScreenHeight - 2*margin;
             return y => dispAreaHeight - dispAreaHeight/(max - min)*(y - min) + margin;
+            //     const int margin = 0;
+            //            var dispAreaHeight = ScreenHeight - 2*margin;
+            //            return y => dispAreaHeight - dispAreaHeight/(max - min)*(y - min) + margin;
         }
 
         private Point CreateGraphPoint(double x, double y)
@@ -200,15 +211,20 @@ namespace Shokouki.Presenters
             var hi = (int) (indexOverFreq*EndFreqInMHz);
 
             var interval = (hi - lo)/(DispPointsCnt - 1);
-            while (interval < 1)
+            if (interval<1)
             {
-                var broader = (EndFreqInMHz - StartFreqInMHz)*0.05;
-                StartFreqInMHz -= broader;
-                EndFreqInMHz += broader;
-                lo = (int) (indexOverFreq*StartFreqInMHz);
-                hi = (int) (indexOverFreq*EndFreqInMHz);
-                interval = (hi - lo)/(DispPointsCnt - 1);
+                while (interval < 1) {
+                    var broader = (EndFreqInMHz - StartFreqInMHz) * 0.05;
+                    _startFreqInMHz -= broader;
+                    _endFreqInMHz += broader;
+                    lo = (int)(indexOverFreq * StartFreqInMHz);
+                    hi = (int)(indexOverFreq * EndFreqInMHz);
+                    interval = (hi - lo) / (DispPointsCnt - 1);
+                }
+                StartFreqInMHz = _startFreqInMHz;
+                EndFreqInMHz = _endFreqInMHz;
             }
+            
             var divider = spec.PulseCount*spec.PulseCount;
             var sampledAverPowerSpec = new double[DispPointsCnt];
             for (int i = 0, j = lo; i < DispPointsCnt; i++,j += interval)
@@ -216,6 +232,24 @@ namespace Shokouki.Presenters
                 sampledAverPowerSpec[i] = spec.Power(j)/divider;
             }
             return sampledAverPowerSpec;
+        }
+
+        public void RedrawAxis()
+        {
+            _horizontalAxisView.Canvas.Dispatcher.InvokeAsync(() =>
+            {
+                _horizontalAxisView.DrawRuler(StartFreqInMHz, EndFreqInMHz);
+
+            });
+        }
+
+        public void OnWindowZoomed()
+        {
+            ResetYScale();
+            _horizontalAxisView.DrawRuler(StartFreqInMHz,EndFreqInMHz);
+            _verticalAxisView.DrawRuler(_min,_max);
+            _wavefromView.Canvas.Children.Clear();
+            _wavefromView.DrawGrid();
         }
     }
 
@@ -254,6 +288,7 @@ namespace Shokouki.Presenters
         {
             _adapter.StartFreqInMHz = _lastStartFreq;
             _adapter.EndFreqInMHz = _lastEndFreq;
+
         }
     }
 }

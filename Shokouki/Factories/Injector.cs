@@ -54,9 +54,9 @@ namespace Shokouki.Factories
         }
 
         [NotNull]
-        public static DisplayAdapter NewAdapter(CanvasView view)
+        public static DisplayAdapter NewAdapter(CanvasView view,HorizontalAxisView horizontalAxisView,VerticalAxisView verticalAxisView)
         {
-            return new DisplayAdapter(view, Configurations.Get().DispPoints, SamplingConfigs.Get().SamplingRate);
+            return new DisplayAdapter(view,horizontalAxisView, verticalAxisView, Configurations.Get().DispPoints, SamplingConfigs.Get().SamplingRate);
         }
 
         [NotNull]
@@ -130,10 +130,10 @@ namespace Shokouki.Factories
         }
 
         [NotNull]
-        private static SpectroscopyVisualizer<T> NewConsumer<T>(IProducer producer, CanvasView view, bool cameraOn)
+        private static SpectroscopyVisualizer<T> NewConsumer<T>(IProducer producer, CanvasView view,HorizontalAxisView horizontalAxisView,VerticalAxisView verticalAxisView, bool cameraOn)
             where T : ISpectrum
         {
-            return new SpectroscopyVisualizer<T>(producer.BlockingQueue, view, NewAccumulator<T>(), NewAdapter(view),
+            return new SpectroscopyVisualizer<T>(producer.BlockingQueue, view, NewAccumulator<T>(), NewAdapter(view,horizontalAxisView,verticalAxisView),
                 NewCamera<T>(cameraOn));
         }
 
@@ -150,15 +150,15 @@ namespace Shokouki.Factories
         }
 
         [NotNull]
-        public static UiConsumer<double[]> NewConsumer(IProducer producer, CanvasView view, bool cameraOn)
+        public static UiConsumer<double[]> NewConsumer(IProducer producer, CanvasView view,HorizontalAxisView horizontalAxisView,VerticalAxisView verticalAxisView, bool cameraOn)
         {
             switch (CorrectorConfigs.Get().CorrectorType)
             {
                 case CorrectorType.Fake:
-                    return NewConsumer<ComplexSpectrum>(producer, view, cameraOn);
+                    return NewConsumer<ComplexSpectrum>(producer, view, horizontalAxisView,verticalAxisView, cameraOn);
                 case CorrectorType.LinearMertz:
                 case CorrectorType.Mertz:
-                    return NewConsumer<RealSpectrum>(producer, view, cameraOn);
+                    return NewConsumer<RealSpectrum>(producer, view, horizontalAxisView,verticalAxisView, cameraOn);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

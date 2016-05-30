@@ -10,7 +10,7 @@ namespace SpectroscopyVisualizer.Controllers
 {
     public class Scheduler
     {
-        private readonly StopWatch _stopWatch = new StopWatch();
+        public StopWatch Watch { get; } = new StopWatch();
 
         public Scheduler(IProducer producer, UiConsumer<double[]> consumer)
         {
@@ -26,11 +26,9 @@ namespace SpectroscopyVisualizer.Controllers
 
         public void Start()
         {
-            _stopWatch.Reset();
+            Watch.Reset();
             Producer.Produce();
-            Consumer.Consume(
-               
-                );
+            Consumer.Consume();
         }
 
 
@@ -50,7 +48,6 @@ namespace SpectroscopyVisualizer.Controllers
                 + nameof(productConsumed) + ": " + productConsumed + '\n'
                 + nameof(timeElapsed) + ": " + timeElapsed
                 , "sampling stopped", MessageBoxButton.OK);
-
 */
             Producer.Reset();
             Consumer.Reset();

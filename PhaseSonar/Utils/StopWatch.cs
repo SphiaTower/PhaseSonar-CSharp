@@ -24,5 +24,9 @@ namespace PhaseSonar.Utils
             //Console.WriteLine(tag + @": " + elapsed);
             return elapsed;
         }
+
+        public double ElapsedSeconds(string tag = @"elapsed") {
+            return (DateTime.Now - _start).TotalSeconds;
+        }
     }
 }

@@ -1,15 +1,16 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
-using PhaseSonar.Utils;
 using JetBrains.Annotations;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using NationalInstruments.Restricted;
+using PhaseSonar.Correctors;
+using PhaseSonar.Utils;
 using SpectroscopyVisualizer.Configs;
+using SpectroscopyVisualizer.Consumers;
 using SpectroscopyVisualizer.Controllers;
 using SpectroscopyVisualizer.Factories;
 using SpectroscopyVisualizer.Presenters;
@@ -35,7 +36,7 @@ namespace SpectroscopyVisualizer
             Configurations.Initialize(
                 400,
                 4,
-                500,
+                1000,
                 @"C:\buffer\captured\");
             SliceConfigs.Initialize(
                 crestAmplitudeThreshold: 0.1,
@@ -51,14 +52,11 @@ namespace SpectroscopyVisualizer
             CanvasView = new CanvasView(ScopeCanvas);
             HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
             VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
-         
+
             SwitchButton = new SwitchButton(ToggleButton, false, "STOP", "START", TurnOn, TurnOff);
 
 //            Toolbox.SerializeData(@"D:\\config.bin",CorrectorConfigs.Get());
-            this.SizeChanged += (sender, args) =>
-            {
-                Scheduler?.Consumer.Adapter.OnWindowZoomed();
-            };
+            SizeChanged += (sender, args) => { Scheduler?.Consumer.Adapter.OnWindowZoomed(); };
         }
 
         private SwitchButton SwitchButton { get; }
@@ -96,42 +94,48 @@ namespace SpectroscopyVisualizer
 
         private void TurnOn()
         {
+            IProducer producer;
             if (DeveloperMode())
             {
-                var dummyProducer = new DummyProducer();
-                var newConsumer = Injector.NewConsumer(dummyProducer, CanvasView,HorizontalAxisView, VerticalAxisView, IsChecked(CbCaptureSpec));
-                try
-                {
-                    newConsumer.Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
-                    newConsumer.Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
-                }
-                catch (Exception)
-                {
-                }
-                Scheduler = new Scheduler(dummyProducer, newConsumer);
-                newConsumer.FailEvent += UiConsumerOnFailEvent;
+                producer = new DummyProducer();
             }
             else
             {
-                var sampleProducer = Injector.NewProducer(IsChecked(CbCaptureSample));
-                var uiConsumer = Injector.NewConsumer(sampleProducer, CanvasView,HorizontalAxisView, VerticalAxisView, IsChecked(CbCaptureSpec));
-                try
-                {
-                    uiConsumer.Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
-                    uiConsumer.Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
-                }
-                catch (Exception)
-                {
-                }
-                Scheduler = new Scheduler(sampleProducer, uiConsumer);
-                uiConsumer.FailEvent += UiConsumerOnFailEvent;
+                producer = Injector.NewProducer(IsChecked(CbCaptureSample));
             }
-
+            var uiConsumer = ParallelInjector.NewConsumer(producer, CanvasView, HorizontalAxisView, VerticalAxisView,
+                IsChecked(CbCaptureSpec));
+           
+            try
+            {
+                uiConsumer.Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
+                uiConsumer.Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
+            }
+            catch (Exception)
+            {
+            }
+            Scheduler = new Scheduler(producer, uiConsumer);
+            uiConsumer.FailEvent += UiConsumerOnFailEvent;
+            uiConsumer.ConsumeEvent += UiConsumerOnConsumeEvent;
 
             TbStartFreq.DataContext = Scheduler.Consumer.Adapter;
             TbEndFreq.DataContext = Scheduler.Consumer.Adapter;
-
             Scheduler.Start();
+        }
+
+        private void UiConsumerOnConsumeEvent(object sender)
+        {
+            var sizeInM = SamplingConfigs.Get().RecordLength/1e6;
+            Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                var consumedCnt = Scheduler?.Consumer.ConsumedCnt;
+                var elapsedSeconds = Scheduler?.Watch.ElapsedSeconds();
+                var speed = consumedCnt * sizeInM / elapsedSeconds;
+                if (speed.HasValue)
+                {
+                    TbConsumerSpeed.Text = speed.Value.ToString("G4");
+                }
+            });
         }
 
         private void UiConsumerOnFailEvent(object sender)
@@ -142,12 +146,6 @@ namespace SpectroscopyVisualizer
         }
 
 
-        private void button_Click(object sender, RoutedEventArgs e)
-        {
-            Scheduler?.Consumer.Adapter.ResetYScale();
-        }
-
-  
         private void BnPath_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new CommonOpenFileDialog {IsFolderPicker = true};
@@ -222,7 +220,8 @@ namespace SpectroscopyVisualizer
             TbSavePath.Text = Configurations.Get().Directory;
             var producer = Injector.NewProducer(fileNames);
 
-            var consumer = Injector.NewConsumer(producer, CanvasView,HorizontalAxisView, VerticalAxisView, IsChecked(CbCaptureSpec));
+            var consumer = Injector.NewConsumer(producer, CanvasView, HorizontalAxisView, VerticalAxisView,
+                IsChecked(CbCaptureSpec));
             Scheduler = new Scheduler(producer, consumer);
             Scheduler.Start();
             Scheduler = null;
@@ -231,7 +230,6 @@ namespace SpectroscopyVisualizer
         private void About_OnClick(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("A 2016 ST Workshop Production. All Rights Reserved.");
-
         }
     }
 }

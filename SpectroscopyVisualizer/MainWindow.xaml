@@ -64,7 +64,7 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="40" />
                         </Grid.RowDefinitions>
-                            <Canvas Grid.Row="1" Grid.Column="1" x:Name="ScopeCanvas" Background="#FF000032" />
+                        <Canvas Grid.Row="1" Grid.Column="1" x:Name="ScopeCanvas" Background="#FF000032" />
                         <Canvas Grid.Row="2" Grid.Column="1" x:Name="HorAxisCanvas" Background="#FF000032" />
                         <Canvas Grid.Row="1" Grid.Column="0"  x:Name="VerAxisCanvas" Background="#FF000032" />
                     </Grid>
@@ -84,14 +84,16 @@
                                  Text="{Binding Path=EndFreqInMHz,Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                  VerticalAlignment="Top" HorizontalAlignment="Right"
                                  Width="34" />
-                        <TextBlock x:Name="BnAuto" Text="To adjust the Y axis, plz click the middle wheel." HorizontalAlignment="Left" Margin="263,11,0,0"
+                        <TextBlock  Text="MSample/s" HorizontalAlignment="Left" Margin="422,12,0,0"
                                 VerticalAlignment="Top"   Height="24" />
-                        <Label x:Name="textBlock123" HorizontalAlignment="Left" Margin="19,10,0,0"
+                        <Label  HorizontalAlignment="Left" Margin="19,10,0,0"
                                Content="Freq Axis/MHz : " VerticalAlignment="Top" Width="95" Height="26"
                                RenderTransformOrigin="0.41,-0.225" />
                         <Button x:Name="ToggleButton" Content="START" HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom" Width="67" Click="ToggleButton_OnClick" Margin="0,0,10,6"
                                 Height="22" RenderTransformOrigin="-4.984,-2.155" />
+                        <TextBox x:Name="TbConsumerSpeed" HorizontalAlignment="Left" Height="24" Margin="370,12,0,0" TextWrapping="Wrap" Text="Speed" VerticalAlignment="Top" Width="47"/>
+                        <Label x:Name="label" Content="Processing Speed" HorizontalAlignment="Left" Margin="256,9,0,0" VerticalAlignment="Top"/>
                     </Grid>
                 </Grid>
 

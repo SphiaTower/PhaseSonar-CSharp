@@ -7,18 +7,9 @@ using JetBrains.Annotations;
 
 namespace SpectroscopyVisualizer.Consumers
 {
-    public interface IConsumer
-    {
-        int ConsumedCnt { get; }
-        void Stop();
-        void Consume();
-        void Reset();
-        
-    }
-
     public abstract class Consumer<T> : IConsumer
     {
-        private int _continuousFailCnt;
+        public int ContinuousFailCnt { get; protected set; }
 
         protected Consumer([NotNull] BlockingCollection<T> blockingQueue)
         {
@@ -26,8 +17,10 @@ namespace SpectroscopyVisualizer.Consumers
             BlockingQueue = blockingQueue;
         }
         public delegate void ConsumerFailEventHandler(object sender);
+        public delegate void ElementConsumedEventHandler(object sender);
 
         public event ConsumerFailEventHandler FailEvent;
+        public event ElementConsumedEventHandler ConsumeEvent;
 
         public int MillisecondsTimeout { get; set; } = 10000;
 
@@ -45,7 +38,7 @@ namespace SpectroscopyVisualizer.Consumers
         public virtual void Reset()
         {
             ConsumedCnt = 0;
-            _continuousFailCnt = 0;
+            ContinuousFailCnt = 0;
         }
 
         public virtual void Consume()
@@ -60,15 +53,16 @@ namespace SpectroscopyVisualizer.Consumers
                     if (!IsOn) return;
                     if (ConsumeElement(raw))
                     {
+                        ContinuousFailCnt = 0;
                         ConsumedCnt++;
-                        _continuousFailCnt = 0;
+                        FireConsumeEvent();
                     }
                     else
                     {
-                        _continuousFailCnt++;
-                        if (_continuousFailCnt >= 10)
+                        ContinuousFailCnt++;
+                        if (ContinuousFailCnt >= 10)
                         {
-                            FailEvent?.Invoke(this);
+                            FireFailEvent();
 //                            Application.Current.Dispatcher.InvokeAsync(()=>onConsumeFailed?.Invoke());
                             break;
                         }
@@ -76,6 +70,16 @@ namespace SpectroscopyVisualizer.Consumers
                 }
                 IsOn = false;
             });
+        }
+
+        protected void FireFailEvent()
+        {
+            FailEvent?.Invoke(this);
+        }
+
+        protected void FireConsumeEvent()
+        {
+            ConsumeEvent?.Invoke(this);
         }
 
         public abstract bool ConsumeElement([NotNull] T item);

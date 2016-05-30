@@ -14,7 +14,7 @@ using SpectroscopyVisualizer.Producers;
 
 namespace SpectroscopyVisualizer.Factories
 {
-    public class Injector
+    public class ParallelInjector
     {
         [NotNull]
         public static ISlicer NewSlicer()
@@ -39,17 +39,12 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        public static Accumulator<T> NewAccumulator<T>() where T : ISpectrum
+        public static SequentialAccumulator<T> NewAccumulator<T>() where T : ISpectrum
         {
             var threadNum = Configurations.Get().ThreadNum;
-            var correctors = new List<ICorrector<T>>(threadNum);
-            for (var i = 0; i < threadNum; i++)
-            {
-                correctors.Add(NewCorrector<T>());
-            }
-            return new ParallelAccumulator<T>(
+            return new SequentialAccumulator<T>(
                 NewSlicer(),
-                correctors);
+                NewCorrector<T>());
 //                return new SequentialAccumulator(NewSlicer(),NewCorrector());
         }
 
@@ -130,13 +125,16 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        private static SpectroscopyVisualizer<T> NewConsumer<T>(IProducer producer, CanvasView view,HorizontalAxisView horizontalAxisView,VerticalAxisView verticalAxisView, bool cameraOn)
+        private static ParallelSpectroscopyVisualizer<T> NewConsumer<T>(IProducer producer, CanvasView view,HorizontalAxisView horizontalAxisView,VerticalAxisView verticalAxisView, bool cameraOn)
             where T : ISpectrum
         {
-            return new SpectroscopyVisualizer<T>(producer.BlockingQueue,
-                view,
-                NewAccumulator<T>(),
-                NewAdapter(view,horizontalAxisView,verticalAxisView),
+            var threadNum = Configurations.Get().ThreadNum;
+            List<SequentialAccumulator<T>> list = new List<SequentialAccumulator<T>>(threadNum);
+            for (int i = 0; i < threadNum; i++)
+            {
+               list.Add(NewAccumulator<T>());
+            }
+            return new ParallelSpectroscopyVisualizer<T>(producer.BlockingQueue, view, list, NewAdapter(view,horizontalAxisView,verticalAxisView),
                 NewCamera<T>(cameraOn));
         }
 

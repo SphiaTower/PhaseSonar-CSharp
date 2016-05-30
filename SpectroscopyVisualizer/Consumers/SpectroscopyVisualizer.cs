@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Windows.Media;
 using PhaseSonar.Analyzers;
 using PhaseSonar.Correctors;

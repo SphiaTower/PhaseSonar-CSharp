@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectroscopyVisualizer", "SpectroscopyVisualizer.csproj", "{E6B82A91-4A21-4CA0-8481-C542F69DA65A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhaseSonar", "..\PhaseSonar\PhaseSonar.csproj", "{636613D7-CB29-483B-A752-8ED3CEA78645}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamToDiskConsole.2012", "..\StreamToDiskConsole\cs\StreamToDiskConsole.2012.csproj", "{DC2359F3-7400-412D-B5A0-94C6053F67FC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E6B82A91-4A21-4CA0-8481-C542F69DA65A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6B82A91-4A21-4CA0-8481-C542F69DA65A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6B82A91-4A21-4CA0-8481-C542F69DA65A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6B82A91-4A21-4CA0-8481-C542F69DA65A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{636613D7-CB29-483B-A752-8ED3CEA78645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{636613D7-CB29-483B-A752-8ED3CEA78645}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{636613D7-CB29-483B-A752-8ED3CEA78645}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{636613D7-CB29-483B-A752-8ED3CEA78645}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC2359F3-7400-412D-B5A0-94C6053F67FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC2359F3-7400-412D-B5A0-94C6053F67FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC2359F3-7400-412D-B5A0-94C6053F67FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC2359F3-7400-412D-B5A0-94C6053F67FC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

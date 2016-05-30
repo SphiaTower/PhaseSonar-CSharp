@@ -84,7 +84,7 @@
                                  Text="{Binding Path=EndFreqInMHz,Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                  VerticalAlignment="Top" HorizontalAlignment="Right"
                                  Width="34" />
-                        <TextBlock x:Name="BnAuto" Text="To Adjust the View, Plz Click the Middle Wheel " HorizontalAlignment="Left" Margin="263,11,0,0"
+                        <TextBlock x:Name="BnAuto" Text="To adjust the Y axis, plz click the middle wheel." HorizontalAlignment="Left" Margin="263,11,0,0"
                                 VerticalAlignment="Top"   Height="24" />
                         <Label x:Name="textBlock123" HorizontalAlignment="Left" Margin="19,10,0,0"
                                Content="Freq Axis/MHz : " VerticalAlignment="Top" Width="95" Height="26"

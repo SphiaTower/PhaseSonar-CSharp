@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using FTIR.Correctors;
+using JetBrains.Annotations;
 using NationalInstruments.Restricted;
 
 namespace Shokouki.Presenters
@@ -13,19 +14,23 @@ namespace Shokouki.Presenters
     public class DisplayAdapter : INotifyPropertyChanged
     {
         private readonly Stack<ZoomCommand> _cmdStack = new Stack<ZoomCommand>();
-        private readonly double _sampleRateInMHz;
-        private readonly CanvasView _wavefromView;
         private readonly HorizontalAxisView _horizontalAxisView;
+        private readonly double _sampleRateInMHz;
         private readonly VerticalAxisView _verticalAxisView;
+        private readonly CanvasView _wavefromView;
         private double _endFreqInMHz;
         private Point _lastPoint;
+        private double _max;
+
+        private double _min;
         private bool _mouseDown;
         private Func<double, double> _scaleX;
         private Func<double, double> _scaleY;
         private double _startFreqInMHz;
         private double _zoomStart;
 
-        public DisplayAdapter(CanvasView wavefromView,HorizontalAxisView horizontalAxisView,VerticalAxisView verticalAxisView, int dispPointNum, double samplingRate, int startFreqInMHz = 0,
+        public DisplayAdapter(CanvasView wavefromView, HorizontalAxisView horizontalAxisView,
+            VerticalAxisView verticalAxisView, int dispPointNum, double samplingRate, int startFreqInMHz = 0,
             int endFreqInMHz = 50)
         {
             _wavefromView = wavefromView;
@@ -73,7 +78,8 @@ namespace Shokouki.Presenters
                     _cmdStack.Push(zoomCommand);
                     zoomCommand.Invoke();
                     ResetYScale();
-                } else
+                }
+                else
                 {
                     _wavefromView.ClearLine();
                 }
@@ -156,7 +162,6 @@ namespace Shokouki.Presenters
 
         public PointCollection CreateGraphPoints(double[] yAxis)
         {
-          
             var points = new PointCollection(yAxis.Length);
             for (var i = 0; i < yAxis.Length; i++)
             {
@@ -176,27 +181,65 @@ namespace Shokouki.Presenters
             return x => ScreenWidth/(xAxis.Last() - xAxis.First())*x;
         }
 
-        private static void FindMinMax(double[] yAxis, out double min, out double max)
+        private static void FindMinMax([NotNull] double[] nums, out double min, out double max)
         {
-            min = double.MaxValue;
+            /*min = double.MaxValue;
             max = double.MinValue;
-            foreach (var y in yAxis) {
+            foreach (var y in nums) {
                 if (y > max) {
                     max = y;
                 } else if (y < min) {
                     min = y;
                 }
+            }*/
+            var length = nums.Length;
+            if (length == 0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            int i;
+            if (length%2 == 1)
+            {
+                max = min = nums[0];
+                i = 1;
+            }
+            else
+            {
+                if (nums[0] > nums[1])
+                {
+                    max = nums[0];
+                    min = nums[1];
+                }
+                else
+                {
+                    max = nums[1];
+                    min = nums[0];
+                }
+                i = 2;
+            }
+            for (; i < length; i += 2)
+            {
+                var num1 = nums[i];
+                var num2 = nums[i + 1];
+                if (num1 > num2)
+                {
+                    max = Math.Max(max, num1);
+                    min = Math.Min(min, num2);
+                }
+                else
+                {
+                    max = Math.Max(max, num2);
+                    min = Math.Min(min, num1);
+                }
             }
         }
 
-        private double _min;
-        private double _max;
         private Func<double, double> GetYScaler(double[] yAxis)
         {
-            FindMinMax(yAxis,out _min, out _max);
-            double min = _min;
-            double max = _max;
-            _verticalAxisView.DrawRuler(min,max);
+            FindMinMax(yAxis, out _min, out _max);
+            var min = _min;
+            var max = _max;
+            _verticalAxisView.DrawRuler(min, max);
             // todo: store height as const or invoke getter to adapt
             //            const int margin = 10;
             const int margin = 0;
@@ -220,20 +263,21 @@ namespace Shokouki.Presenters
             var hi = (int) (indexOverFreq*EndFreqInMHz);
 
             var interval = (hi - lo)/(DispPointsCnt - 1);
-            if (interval<1)
+            if (interval < 1)
             {
-                while (interval < 1) {
-                    var broader = (EndFreqInMHz - StartFreqInMHz) * 0.05;
+                while (interval < 1)
+                {
+                    var broader = (EndFreqInMHz - StartFreqInMHz)*0.05;
                     _startFreqInMHz -= broader;
                     _endFreqInMHz += broader;
-                    lo = (int)(indexOverFreq * StartFreqInMHz);
-                    hi = (int)(indexOverFreq * EndFreqInMHz);
-                    interval = (hi - lo) / (DispPointsCnt - 1);
+                    lo = (int) (indexOverFreq*StartFreqInMHz);
+                    hi = (int) (indexOverFreq*EndFreqInMHz);
+                    interval = (hi - lo)/(DispPointsCnt - 1);
                 }
                 StartFreqInMHz = _startFreqInMHz;
                 EndFreqInMHz = _endFreqInMHz;
             }
-            
+
             var divider = spec.PulseCount*spec.PulseCount;
             var sampledAverPowerSpec = new double[DispPointsCnt];
             for (int i = 0, j = lo; i < DispPointsCnt; i++,j += interval)
@@ -245,18 +289,15 @@ namespace Shokouki.Presenters
 
         public void RedrawAxis()
         {
-            _horizontalAxisView.Canvas.Dispatcher.InvokeAsync(() =>
-            {
-                _horizontalAxisView.DrawRuler(StartFreqInMHz, EndFreqInMHz);
-
-            });
+            _horizontalAxisView.Canvas.Dispatcher.InvokeAsync(
+                () => { _horizontalAxisView.DrawRuler(StartFreqInMHz, EndFreqInMHz); });
         }
 
         public void OnWindowZoomed()
         {
             ResetYScale();
-            _horizontalAxisView.DrawRuler(StartFreqInMHz,EndFreqInMHz);
-            _verticalAxisView.DrawRuler(_min,_max);
+            _horizontalAxisView.DrawRuler(StartFreqInMHz, EndFreqInMHz);
+            _verticalAxisView.DrawRuler(_min, _max);
             _wavefromView.DrawGrid();
         }
     }
@@ -296,7 +337,6 @@ namespace Shokouki.Presenters
         {
             _adapter.StartFreqInMHz = _lastStartFreq;
             _adapter.EndFreqInMHz = _lastEndFreq;
-
         }
     }
 }

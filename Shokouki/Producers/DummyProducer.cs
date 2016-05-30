@@ -12,7 +12,7 @@ namespace Shokouki.Producers
 
         public DummyProducer()
         {
-            _pulse = Toolbox.Read(@"C:\Buffer\pulses\pulse-5.txt");
+            _pulse = Toolbox.Read(@"C:\Buffer\pulse-5.txt");
             _backup = new double[_pulse.Length];
             Array.Copy(_pulse, _backup, _pulse.Length);
         }

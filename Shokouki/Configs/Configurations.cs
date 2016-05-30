@@ -4,6 +4,7 @@ using FTIR.Utils;
 
 namespace Shokouki.Configs
 {
+    [Serializable]
     public class Configurations
     {
         private static Configurations _singleton;
@@ -20,6 +21,11 @@ namespace Shokouki.Configs
 
         public int ThreadNum { get; set; }
         public int DispPoints { get; set; }
+
+        internal void Register(Configurations configurations) {
+            _singleton = configurations;
+        }
+
         public string Directory { get; set; }
 
 

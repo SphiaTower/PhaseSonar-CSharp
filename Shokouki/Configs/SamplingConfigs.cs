@@ -4,6 +4,7 @@ using FTIR.Utils;
 
 namespace Shokouki.Configs
 {
+    [Serializable]
     public class SamplingConfigs
     {
         private static SamplingConfigs _singleton;
@@ -22,6 +23,11 @@ namespace Shokouki.Configs
             DeviceName = deviceName;
             Range = range;
             RecordLengthInM = recordLengthInM;
+        }
+
+        internal void Register(SamplingConfigs samplingConfigs)
+        {
+            _singleton = samplingConfigs;
         }
 
         public string DeviceName { get; set; }

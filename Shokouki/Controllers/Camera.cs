@@ -37,12 +37,12 @@ namespace Shokouki.Controllers
                 T dequeue;
                 while (Queue.TryDequeue(out dequeue))
                 {
-                    Consume(dequeue);
+                    ConsumeElement(dequeue);
                 }
                 IsProcessing = false;
             });
         }
 
-        protected abstract void Consume(T dequeue);
+        protected abstract void ConsumeElement(T dequeue);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Windows.Controls;
 
 namespace Shokouki.Configs
@@ -19,7 +20,8 @@ namespace Shokouki.Configs
         [Description("Triangular")] Triangular
     }
 
-    internal class CorrectorConfigs
+    [Serializable]
+    public class CorrectorConfigs
     {
         private static CorrectorConfigs _singleton;
 
@@ -43,6 +45,11 @@ namespace Shokouki.Configs
             return _singleton;
         }
 
+        public static void Register(CorrectorConfigs config)
+        {
+            _singleton = config;
+        }
+
         public static void Initialize(int zeroFillFactory, int centerSpanLength, CorrectorType correctorType,
             ApodizerType apodizerType)
         {
@@ -61,5 +68,6 @@ namespace Shokouki.Configs
             cbCorrectorType.DataContext = this;
             cbApodizationType.DataContext = this;
         }
+
     }
 }

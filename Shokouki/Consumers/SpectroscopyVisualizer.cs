@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Windows.Media;
 using FTIR.Analyzers;
 using FTIR.Correctors;
@@ -15,7 +16,7 @@ namespace Shokouki.Consumers
 
         public SpectroscopyVisualizer(
             BlockingCollection<double[]> blockingQueue,
-            IScopeView view,
+            CanvasView view,
             Accumulator<T> accumulator,
             DisplayAdapter adapter,
             Camera<T> camera)
@@ -26,6 +27,7 @@ namespace Shokouki.Consumers
         }
 
         public Accumulator<T> Accumulator { get; }
+        [CanBeNull]
         public ISpectrum SumSpectrum { get; protected set; }
         public Camera<T> Camera { get; }
 
@@ -38,7 +40,7 @@ namespace Shokouki.Consumers
         public override void Reset()
         {
             base.Reset();
-            SumSpectrum.Clear();
+            SumSpectrum?.Clear();
         }
 
         public override void Consume()
@@ -47,12 +49,12 @@ namespace Shokouki.Consumers
             base.Consume();
         }
 
-        public override void ConsumeElement([NotNull] double[] item)
+        public override bool ConsumeElement([NotNull] double[] item)
         {
             var elementSpectrum = Accumulator.Accumulate(item);
             if (elementSpectrum == null)
             {
-                return;
+                return false;
             }
             if (SumSpectrum == null)
             {
@@ -63,25 +65,27 @@ namespace Shokouki.Consumers
                 SumSpectrum.TryAbsorb(elementSpectrum);
             }
             OnDataUpdatedInBackground(elementSpectrum);
+            return true;
         }
 
         protected void OnDataUpdatedInBackground([NotNull] T single)
         {
-            var averAll = Adapter.DownSampleAndAverage(SumSpectrum);
-            var averSingle = Adapter.DownSampleAndAverage(single);
+            var averAll = Adapter.SampleAverageAndSquare(SumSpectrum);
+            var averSingle = Adapter.SampleAverageAndSquare(single);
 
             if (Camera.IsOn) Camera.Capture(single);
 
             _dummyAxis = _dummyAxis ?? Axis.DummyAxis(averAll);
             View.InvokeAsync(() =>
             {
-                var averSinglePts = Adapter.ToPoints(_dummyAxis, averSingle);
-                var averAllPts = Adapter.ToPoints(_dummyAxis, averAll);
+                var averSinglePts = Adapter.CreateGraphPoints(_dummyAxis, averSingle);
+                var averAllPts = Adapter.CreateGraphPoints(_dummyAxis, averAll);
                 // todo: why does lines above must be exec in the UI thread??
-                View.Clear();
-
-                View.DrawLine(averSinglePts, Colors.Red);
-                View.DrawLine(averAllPts);
+                View.ClearWaveform();
+//                View.Canvas.Children.RemoveRange(0,2);
+                
+                View.DrawWaveform(averSinglePts, Colors.Red);
+                View.DrawWaveform(averAllPts);
                 // todo: bug: buffer cleared while closure continues
                 _refreshCnt++;
             }

@@ -13,7 +13,7 @@ namespace Shokouki.Consumers
 
         private int _refreshCnt;
 
-        public SimpleSpetrumViewer(BlockingCollection<double[]> blockingQueue, IScopeView view,
+        public SimpleSpetrumViewer(BlockingCollection<double[]> blockingQueue, CanvasView view,
             Accumulator<T> accumulator,
             DisplayAdapter adapter, Camera<T> camera)
             : base(blockingQueue, view, adapter)
@@ -28,25 +28,26 @@ namespace Shokouki.Consumers
 
         public override bool Save { get; set; }
 
-        public override void ConsumeElement([NotNull] double[] item)
+        public override bool ConsumeElement([NotNull] double[] item)
         {
             var result = Accumulator.Accumulate(item);
-            if (result == null) return;
+            if (result == null) return false;
             OnDataUpdatedInBackground(result);
+            return true;
         }
 
         protected void OnDataUpdatedInBackground([NotNull] T single)
         {
-            var averSingle = Adapter.DownSampleAndAverage(single);
+            var averSingle = Adapter.SampleAverageAndSquare(single);
 
             _dummyAxis = _dummyAxis ?? Axis.DummyAxis(averSingle);
             View.InvokeAsync(() =>
             {
-                var averSinglePts = Adapter.ToPoints(_dummyAxis, averSingle);
+                var averSinglePts = Adapter.CreateGraphPoints(_dummyAxis, averSingle);
                 // todo: why does lines above must be exec in the UI thread??
-                View.Clear();
+                View.ClearWaveform();
 
-                View.DrawLine(averSinglePts);
+                View.DrawWaveform(averSinglePts);
 
                 if (Camera.IsOn) Camera.Capture(single);
 

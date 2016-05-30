@@ -1,92 +1,171 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using FTIR.Correctors;
+using JetBrains.Annotations;
+using NationalInstruments.Restricted;
 
 namespace Shokouki.Presenters
 {
-    public class DisplayAdapter
+    public class DisplayAdapter : INotifyPropertyChanged
     {
-        private readonly double _samplingRateInMHz;
-        private readonly IScopeView _view;
+        private readonly Stack<ZoomCommand> _cmdStack = new Stack<ZoomCommand>();
+        private readonly HorizontalAxisView _horizontalAxisView;
+        private readonly double _sampleRateInMHz;
+        private readonly VerticalAxisView _verticalAxisView;
+        private readonly CanvasView _wavefromView;
+        private double _endFreqInMHz;
+        private Point _lastPoint;
+        private double _max;
 
+        private double _min;
+        private bool _mouseDown;
         private Func<double, double> _scaleX;
-
         private Func<double, double> _scaleY;
+        private double _startFreqInMHz;
+        private double _zoomStart;
 
-        public DisplayAdapter(IScopeView view, int dispPointNum, double samplingRate,int startFreqInMHz=0,int endFreqInMHz=50)
+        public DisplayAdapter(CanvasView wavefromView, HorizontalAxisView horizontalAxisView,
+            VerticalAxisView verticalAxisView, int dispPointNum, double samplingRate, int startFreqInMHz = 0,
+            int endFreqInMHz = 50)
         {
-            _view = view;
-            _samplingRateInMHz = samplingRate/1e6;
-            DispPointsCnt = dispPointNum; //todo bind
+            _wavefromView = wavefromView;
+            _horizontalAxisView = horizontalAxisView;
+            _verticalAxisView = verticalAxisView;
+            _sampleRateInMHz = samplingRate/1e6;
+            DispPointsCnt = dispPointNum;
             StartFreqInMHz = startFreqInMHz;
             EndFreqInMHz = endFreqInMHz;
-            var v = view as CanvasView;
-            Canvas canvas = v.Canvas;
+            var canvas = wavefromView.Canvas;
             canvas.MouseLeftButtonDown += (sender, args) =>
             {
-                var x = args.GetPosition(canvas).X;
                 if (!_mouseDown)
                 {
-                    _zoom[0] = x;
+                    _lastPoint = args.GetPosition(canvas);
+                    _zoomStart = _lastPoint.X;
                     _mouseDown = true;
+                }
+            };
+            canvas.MouseMove += (sender, args) =>
+            {
+                if (!_mouseDown) return;
+                var point = args.GetPosition(canvas);
+                wavefromView.InvokeAsync(() =>
+                {
+                    var pointCollection = new PointCollection(2) {_lastPoint, point};
+                    wavefromView.DrawLine(pointCollection, Colors.Yellow);
+                    _lastPoint = point;
+                });
+            };
+            canvas.MouseLeftButtonUp += (sender, args) =>
+            {
+                if (!_mouseDown) return;
+                var zoomEnd = args.GetPosition(canvas).X;
+                if (zoomEnd < _zoomStart)
+                {
+                    var t = zoomEnd;
+                    zoomEnd = _zoomStart;
+                    _zoomStart = t;
+                }
+
+                if (!(zoomEnd - _zoomStart <= 12))
+                {
+                    var zoomCommand = new ZoomCommand(_zoomStart, zoomEnd, _wavefromView, this);
+                    _cmdStack.Push(zoomCommand);
+                    zoomCommand.Invoke();
+                    ResetYScale();
                 }
                 else
                 {
-                    _zoom[1] = x;
-                    _mouseDown = false;
-                    var nextStart = _zoom[0]/canvas.ActualWidth*(EndFreqInMHz - StartFreqInMHz) + StartFreqInMHz;
-                    var nextEnd =  _zoom[1]/canvas.ActualWidth * (EndFreqInMHz - StartFreqInMHz) + StartFreqInMHz;
-                    StartFreqInMHz = nextStart;
-                    EndFreqInMHz = nextEnd;
+                    _wavefromView.ClearLine();
+                }
+
+                _mouseDown = false;
+            };
+            canvas.MouseRightButtonDown += (sender, args) =>
+            {
+                if (_cmdStack.IsEmpty())
+                {
+                    StartFreqInMHz = 0;
+                    EndFreqInMHz = 50; // todo hard coded
+                }
+                else
+                {
+                    var zoomCommand = _cmdStack.Pop();
+                    zoomCommand.Undo();
+                }
+                ResetYScale();
+            };
+            canvas.MouseDown += (sender, args) =>
+            {
+                if (args.ChangedButton == MouseButton.Middle)
+                {
+                    ResetYScale();
                 }
             };
+            _wavefromView.DrawGrid();
         }
 
-        private double[] _zoom = new double[2];
-        private bool _mouseDown = false;
         public int DispPointsCnt { get; set; }
 
-        public double ScreenHeight => _view.ScopeHeight;
-        public double ScreenWidth => _view.ScopeWidth;
-        public double EndFreqInMHz { get; set; }
-        public double StartFreqInMHz { get; set; }
+        public double ScreenHeight => _wavefromView.ScopeHeight;
+        public double ScreenWidth => _wavefromView.ScopeWidth;
 
-
-        public PointCollection ToPoints(double[] xAxis, double[] yAxis)
+        public double EndFreqInMHz
         {
-            if (_scaleX == null)
+            get { return _endFreqInMHz; }
+            set
             {
-                _scaleX = GetXScaler(xAxis);
+                _endFreqInMHz = value;
+                InvokePropertyChanged("EndFreqInMHz");
+                RedrawAxis();
             }
-            if (_scaleY == null)
+        }
+
+        public double StartFreqInMHz
+        {
+            get { return _startFreqInMHz; }
+            set
             {
-                _scaleY = GetYScaler(yAxis);
+                _startFreqInMHz = value;
+                InvokePropertyChanged("StartFreqInMHz");
+                RedrawAxis();
             }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void InvokePropertyChanged(string propertyName)
+        {
+            var e = new PropertyChangedEventArgs(propertyName);
+
+            var changed = PropertyChanged;
+
+            if (changed != null) changed(this, e);
+        }
+
+        public PointCollection CreateGraphPoints(double[] xAxis, double[] yAxis)
+        {
+            if (_scaleX == null) _scaleX = GetXScaler(xAxis);
+            if (_scaleY == null) _scaleY = GetYScaler(yAxis);
             var points = new PointCollection(yAxis.Length);
             for (var i = 0; i < yAxis.Length; i++)
             {
-                points.Add(Scale(xAxis[i], yAxis[i]));
+                points.Add(CreateGraphPoint(xAxis[i], yAxis[i]));
             }
             return points;
         }
 
-        public PointCollection ToPoints(double[] yAxis)
+        public PointCollection CreateGraphPoints(double[] yAxis)
         {
-            /*  if (_xScale < 0)
-            {
-                _xScale = ScreenWidth/(yAxis.Length-0);
-            }
-            if (_yScale < 0) {
-                _yScale = ComputeYScale(yAxis);
-            }*/ // todo
             var points = new PointCollection(yAxis.Length);
             for (var i = 0; i < yAxis.Length; i++)
             {
-                points.Add(Scale(i, yAxis[i]));
+                points.Add(CreateGraphPoint(i, yAxis[i]));
             }
             return points;
         }
@@ -102,67 +181,162 @@ namespace Shokouki.Presenters
             return x => ScreenWidth/(xAxis.Last() - xAxis.First())*x;
         }
 
+        private static void FindMinMax([NotNull] double[] nums, out double min, out double max)
+        {
+            /*min = double.MaxValue;
+            max = double.MinValue;
+            foreach (var y in nums) {
+                if (y > max) {
+                    max = y;
+                } else if (y < min) {
+                    min = y;
+                }
+            }*/
+            var length = nums.Length;
+            if (length == 0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            int i;
+            if (length%2 == 1)
+            {
+                max = min = nums[0];
+                i = 1;
+            }
+            else
+            {
+                if (nums[0] > nums[1])
+                {
+                    max = nums[0];
+                    min = nums[1];
+                }
+                else
+                {
+                    max = nums[1];
+                    min = nums[0];
+                }
+                i = 2;
+            }
+            for (; i < length; i += 2)
+            {
+                var num1 = nums[i];
+                var num2 = nums[i + 1];
+                if (num1 > num2)
+                {
+                    max = Math.Max(max, num1);
+                    min = Math.Min(min, num2);
+                }
+                else
+                {
+                    max = Math.Max(max, num2);
+                    min = Math.Min(min, num1);
+                }
+            }
+        }
 
         private Func<double, double> GetYScaler(double[] yAxis)
         {
-            double min = double.MaxValue, max = double.MinValue;
-            foreach (var y in yAxis)
-            {
-                if (y > max)
-                {
-                    max = y;
-                }
-                else if (y < min)
-                {
-                    min = y;
-                }
-            }
+            FindMinMax(yAxis, out _min, out _max);
+            var min = _min;
+            var max = _max;
+            _verticalAxisView.DrawRuler(min, max);
             // todo: store height as const or invoke getter to adapt
-            return y => ScreenHeight - ScreenHeight/(max - min)*(y - min);
+            //            const int margin = 10;
+            const int margin = 0;
+            var dispAreaHeight = ScreenHeight - 2*margin;
+            return y => dispAreaHeight - dispAreaHeight/(max - min)*(y - min) + margin;
+            //     const int margin = 0;
+            //            var dispAreaHeight = ScreenHeight - 2*margin;
+            //            return y => dispAreaHeight - dispAreaHeight/(max - min)*(y - min) + margin;
         }
 
-        private Point Scale(double x, double y)
+        private Point CreateGraphPoint(double x, double y)
         {
             return new Point(_scaleX(x), _scaleY(y));
-            // todo translate
         }
 
 
-        public double[] DownSample(double[] spetrum)
+        public double[] SampleAverageAndSquare(ISpectrum spec)
         {
-            return DownSampleAndAverage(spetrum, 1);
-        }
+            var indexOverFreq = (spec.Length() - 1)/(_sampleRateInMHz/2);
+            var lo = (int) (indexOverFreq*StartFreqInMHz);
+            var hi = (int) (indexOverFreq*EndFreqInMHz);
 
-        public double[] DownSampleAndAverage(double[] spetrum, int periodCnt)
-        {
-            var lo = (int) (spetrum.Length*StartFreqInMHz/(_samplingRateInMHz/2));
-            var hi = (int) (spetrum.Length*EndFreqInMHz/(_samplingRateInMHz/2));
-
-            var downSampledAverSpec = new double[DispPointsCnt];
-
-            var interval = (hi - lo)/DispPointsCnt;
-            for (int i = lo, j = 0; i < hi && j < DispPointsCnt; i += interval, j++)
+            var interval = (hi - lo)/(DispPointsCnt - 1);
+            if (interval < 1)
             {
-                downSampledAverSpec[j] = spetrum[i]/periodCnt;
+                while (interval < 1)
+                {
+                    var broader = (EndFreqInMHz - StartFreqInMHz)*0.05;
+                    _startFreqInMHz -= broader;
+                    _endFreqInMHz += broader;
+                    lo = (int) (indexOverFreq*StartFreqInMHz);
+                    hi = (int) (indexOverFreq*EndFreqInMHz);
+                    interval = (hi - lo)/(DispPointsCnt - 1);
+                }
+                StartFreqInMHz = _startFreqInMHz;
+                EndFreqInMHz = _endFreqInMHz;
             }
-            return downSampledAverSpec;
-            // todo _scaledBuffer may be not filled or overflow
+
+            var divider = spec.PulseCount*spec.PulseCount;
+            var sampledAverPowerSpec = new double[DispPointsCnt];
+            for (int i = 0, j = lo; i < DispPointsCnt; i++,j += interval)
+            {
+                sampledAverPowerSpec[i] = spec.Power(j)/divider;
+            }
+            return sampledAverPowerSpec;
         }
 
-        public double[] DownSampleAndAverage(ISpectrum spec)
+        public void RedrawAxis()
         {
-            var lo = (int) (spec.Length()*StartFreqInMHz/(_samplingRateInMHz/2));
-            var hi = (int) (spec.Length()*EndFreqInMHz/(_samplingRateInMHz/2));
+            _horizontalAxisView.Canvas.Dispatcher.InvokeAsync(
+                () => { _horizontalAxisView.DrawRuler(StartFreqInMHz, EndFreqInMHz); });
+        }
 
-            var downSampledAverSpec = new double[DispPointsCnt];
+        public void OnWindowZoomed()
+        {
+            ResetYScale();
+            _horizontalAxisView.DrawRuler(StartFreqInMHz, EndFreqInMHz);
+            _verticalAxisView.DrawRuler(_min, _max);
+            _wavefromView.DrawGrid();
+        }
+    }
 
-            var interval = (hi - lo)/DispPointsCnt;
-            for (int i = lo, j = 0; i < hi && j < DispPointsCnt; i += interval, j++)
-            {
-                downSampledAverSpec[j] = spec.Power(i)/spec.PulseCount/spec.PulseCount;
-            }
-            return downSampledAverSpec;
-            // todo _scaledBuffer may be not filled or overflow
+    internal class ZoomCommand
+    {
+        private readonly DisplayAdapter _adapter;
+        private readonly CanvasView _canvasView;
+        private readonly double _endX;
+        private readonly double _startX;
+        private double _lastEndFreq;
+
+        private double _lastStartFreq;
+
+        public ZoomCommand(double startX, double endX, CanvasView canvasView, DisplayAdapter adapter)
+        {
+            _startX = startX;
+            _endX = endX;
+            _canvasView = canvasView;
+            _adapter = adapter;
+        }
+
+        public void Invoke()
+        {
+            _lastStartFreq = _adapter.StartFreqInMHz;
+            _lastEndFreq = _adapter.EndFreqInMHz;
+            var width = _canvasView.Canvas.ActualWidth;
+            var factor = new Func<double, double>(x => x/width*(_lastEndFreq - _lastStartFreq) + _lastStartFreq);
+            var nextStart = factor.Invoke(_startX);
+            var nextEnd = factor.Invoke(_endX);
+            _adapter.StartFreqInMHz = nextStart;
+            _adapter.EndFreqInMHz = nextEnd;
+            _canvasView.InvokeAsync(_canvasView.ClearLine);
+        }
+
+        public void Undo()
+        {
+            _adapter.StartFreqInMHz = _lastStartFreq;
+            _adapter.EndFreqInMHz = _lastEndFreq;
         }
     }
 }

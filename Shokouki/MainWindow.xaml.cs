@@ -1,9 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls.Primitives;
+using FTIR.Utils;
 using JetBrains.Annotations;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using NationalInstruments.Restricted;
 using Shokouki.Configs;
 using Shokouki.Controllers;
 using Shokouki.Factories;
@@ -17,8 +22,6 @@ namespace Shokouki
     /// </summary>
     public partial class MainWindow : Window
     {
-        private bool _isOn;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -40,104 +43,111 @@ namespace Shokouki
                 centreSlice: true
                 );
             CorrectorConfigs.Initialize(1, 512, CorrectorType.Mertz, ApodizerType.Fake);
+//            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\config.bin"));
             SamplingConfigs.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
             Configurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath);
             SliceConfigs.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp);
             CorrectorConfigs.Get().Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType);
             CanvasView = new CanvasView(ScopeCanvas);
-            /*     Loaded += (sender, args) =>
+            HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
+            VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
+         
+            SwitchButton = new SwitchButton(ToggleButton, false, "STOP", "START", TurnOn, TurnOff);
+
+//            Toolbox.SerializeData(@"D:\\config.bin",CorrectorConfigs.Get());
+            this.SizeChanged += (sender, args) =>
             {
-                CbCorrector.ItemsSource = Enum.GetValues(typeof(CorrectorType)).Cast<CorrectorType>();
-            };*/
+                Scheduler?.Consumer.Adapter.OnWindowZoomed();
+            };
         }
+
+        private SwitchButton SwitchButton { get; }
 
 
         public CanvasView CanvasView { get; }
+        public HorizontalAxisView HorizontalAxisView { get; }
+        public VerticalAxisView VerticalAxisView { get; }
 
         [CanBeNull]
         public Scheduler Scheduler { get; private set; }
 
-        private bool SaveSample => CbCaptureSample.IsChecked != null && CbCaptureSample.IsChecked.Value;
-        private bool SaveSpec => CbCaptureSpec.IsChecked != null && CbCaptureSpec.IsChecked.Value;
 
+        private static bool IsChecked(ToggleButton checkBox)
+        {
+            return checkBox.IsChecked != null && checkBox.IsChecked.Value;
+        }
+
+        private bool DeveloperMode()
+        {
+            return TbChannel.Text == "256";
+        }
 
         private void ToggleButton_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
-            if (_isOn)
+            SwitchButton.Toggle();
+        }
+
+        private void TurnOff()
+        {
+            Scheduler?.Stop();
+            Scheduler = null;
+            GC.Collect();
+        }
+
+        private void TurnOn()
+        {
+            if (DeveloperMode())
             {
-                ToggleButton.Content = "START";
-                Scheduler.Stop();
-                Scheduler = null;
-                //MessageBox.Show("refreshCnt" + _refreshCnt);
+                var dummyProducer = new DummyProducer();
+                var newConsumer = Injector.NewConsumer(dummyProducer, CanvasView,HorizontalAxisView, VerticalAxisView, IsChecked(CbCaptureSpec));
+                try
+                {
+                    newConsumer.Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
+                    newConsumer.Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
+                }
+                catch (Exception)
+                {
+                }
+                Scheduler = new Scheduler(dummyProducer, newConsumer);
+                newConsumer.FailEvent += UiConsumerOnFailEvent;
             }
             else
             {
-                var sampleProducer = Injector.NewProducer(SaveSample);
-                if (CbCaptureSample.IsChecked != null) sampleProducer.Camera.IsOn = CbCaptureSample.IsChecked.Value;
-                var uiConsumer = Injector.NewConsumer(sampleProducer, CanvasView, SaveSpec);
+                var sampleProducer = Injector.NewProducer(IsChecked(CbCaptureSample));
+                var uiConsumer = Injector.NewConsumer(sampleProducer, CanvasView,HorizontalAxisView, VerticalAxisView, IsChecked(CbCaptureSpec));
                 try
                 {
-                    uiConsumer.Adapter.StartFreqInMHz = Convert.ToDouble(StartFreqTextBox.Text); // todo move to constructor
-                    uiConsumer.Adapter.EndFreqInMHz = Convert.ToDouble(EndFreqTextBox.Text);
-                } catch (Exception)
+                    uiConsumer.Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
+                    uiConsumer.Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
+                }
+                catch (Exception)
                 {
                 }
                 Scheduler = new Scheduler(sampleProducer, uiConsumer);
-
-                StartFreqTextBox.DataContext = Scheduler.Consumer.Adapter;
-                EndFreqTextBox.DataContext = Scheduler.Consumer.Adapter;
-
-                ToggleButton.Content = "STOP";
-                Scheduler.Start();
+                uiConsumer.FailEvent += UiConsumerOnFailEvent;
             }
-            _isOn = !_isOn;
+
+
+            TbStartFreq.DataContext = Scheduler.Consumer.Adapter;
+            TbEndFreq.DataContext = Scheduler.Consumer.Adapter;
+
+            Scheduler.Start();
         }
+
+        private void UiConsumerOnFailEvent(object sender)
+        {
+            Scheduler?.Stop();
+            MessageBox.Show("It seems that the source is invalid.");
+            Application.Current.Dispatcher.InvokeAsync(() => { SwitchButton.Toggle(false); });
+        }
+
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
             Scheduler?.Consumer.Adapter.ResetYScale();
         }
 
-        private void BnLoad_Click(object sender, RoutedEventArgs e)
-        {
-            // Create OpenFileDialog 
-            var dlg = new OpenFileDialog
-            {
-                DefaultExt = ".txt",
-                Filter = "Text documents (.txt)|*.txt",
-                Multiselect = true
-            };
-
-            // Set filter for file extension and default file extension 
-
-
-            // Display OpenFileDialog by calling ShowDialog method 
-            var result = dlg.ShowDialog();
-
-
-            // Get the selected file name and display in a TextBox 
-            if (result == true)
-            {
-                // Open document 
-                var fileNames = dlg.FileNames;
-                Configurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
-                TbSavePath.Text = Configurations.Get().Directory;
-                var producer = Injector.NewProducer(fileNames);
-//                var spectrumCamera = Injector.NewCamera<RealSpectrum>();
-                /* Scheduler = new Scheduler(producer,
-                    new SimpleSpetrumViewer<RealSpectrum>(producer.BlockingQueue, CanvasView,
-                        Injector.NewAccumulator<RealSpectrum>(),
-                        Injector.NewAdapter(CanvasView),
-                        spectrumCamera));*/
-                var consumer = Injector.NewConsumer(producer, CanvasView, SaveSpec);
-                Scheduler = new Scheduler(producer, consumer);
-                Scheduler.Start();
-                BnLoad.Content = "Loading";
-                producer.OnDataLoadedListener = () => BnLoad.Content = "Load";
-                Scheduler = null;
-            }
-        }
-
+  
         private void BnPath_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new CommonOpenFileDialog {IsFolderPicker = true};
@@ -162,7 +172,66 @@ namespace Shokouki
 
         private void CbCaptureSpec_OnChecked(object sender, RoutedEventArgs e)
         {
-            if (Scheduler != null) Scheduler.Consumer.Save = SaveSpec;
+            if (Scheduler != null) Scheduler.Consumer.Save = IsChecked(CbCaptureSpec);
+        }
+
+        private void DecodeFiles_OnClick(object sender, RoutedEventArgs e)
+        {
+            var files = SelectFiles();
+            if (!files.IsEmpty())
+            {
+                Task.Run(() =>
+                {
+                    files.ForEach(path =>
+                    {
+                        var deserializeData = Toolbox.DeserializeData<double[]>(path);
+                        Toolbox.WriteData(path.Replace("binary", "temporal"), deserializeData);
+                        MessageBox.Show("decoding finished");
+                    });
+                });
+            }
+        }
+
+        private static string[] SelectFiles()
+        {
+            // Create OpenFileDialog 
+            var dlg = new OpenFileDialog
+            {
+                DefaultExt = ".txt",
+                Filter = "Text documents (.txt)|*.txt",
+                Multiselect = true
+            };
+
+            // Set filter for file extension and default file extension 
+
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            var result = dlg.ShowDialog();
+            if (result == true)
+            {
+                return dlg.FileNames;
+            }
+            return new string[0];
+        }
+
+        private void LoadFiles_OnClick(object sender, RoutedEventArgs e)
+        {
+            var fileNames = SelectFiles();
+            if (fileNames.IsEmpty()) return;
+            Configurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
+            TbSavePath.Text = Configurations.Get().Directory;
+            var producer = Injector.NewProducer(fileNames);
+
+            var consumer = Injector.NewConsumer(producer, CanvasView,HorizontalAxisView, VerticalAxisView, IsChecked(CbCaptureSpec));
+            Scheduler = new Scheduler(producer, consumer);
+            Scheduler.Start();
+            Scheduler = null;
+        }
+
+        private void About_OnClick(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("A 2016 ST Workshop Production. All Rights Reserved.");
+
         }
     }
 }

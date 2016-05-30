@@ -40,7 +40,7 @@ namespace SpectroscopyVisualizer.Consumers
         public override void Reset()
         {
             base.Reset();
-            SumSpectrum?.Clear();
+            // todo potential bug
         }
 
         public override void Consume()
@@ -83,7 +83,6 @@ namespace SpectroscopyVisualizer.Consumers
                 // todo: why does lines above must be exec in the UI thread??
                 View.ClearWaveform();
 //                View.Canvas.Children.RemoveRange(0,2);
-                
                 View.DrawWaveform(averSinglePts, Colors.Red);
                 View.DrawWaveform(averAllPts);
                 // todo: bug: buffer cleared while closure continues

@@ -7,7 +7,7 @@ namespace SpectroscopyVisualizer.Producers
     public abstract class ProducerBase : IProducer
     {
         private bool IsOn { get; set; } = true;
-        public BlockingCollection<double[]> BlockingQueue { get; } = new BlockingCollection<double[]>(16);
+        public BlockingCollection<double[]> BlockingQueue { get; } = new BlockingCollection<double[]>(24); // todo config
         public int HistoryProductCnt { get; private set; }
 
         public void Produce()

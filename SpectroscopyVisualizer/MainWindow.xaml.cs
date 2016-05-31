@@ -133,7 +133,7 @@ namespace SpectroscopyVisualizer
                 var speed = consumedCnt * sizeInM / elapsedSeconds;
                 if (speed.HasValue)
                 {
-                    TbConsumerSpeed.Text = speed.Value.ToString("G4");
+                    TbConsumerSpeed.Text = speed.Value.ToString("F3");
                 }
             });
         }

@@ -5,7 +5,10 @@ using JetBrains.Annotations;
 
 namespace PhaseSonar.Maths
 {
-    public class Funcs
+    /// <summary>
+    /// A set of static helper functions.
+    /// </summary>
+    public class Functions
     {
 
         public static void CopyInto<T>(T[] array, int start, int count, T[] copy)
@@ -14,10 +17,11 @@ namespace PhaseSonar.Maths
             {
                 throw new ArgumentException("array size not enough");
             }
-            for (int i = 0, j = start; i < count; i++, j++)
-            {
-                copy[i] = array[j];
-            }
+//            for (int i = 0, j = start; i < count; i++, j++)
+//            {
+//                copy[i] = array[j];
+//            }
+            Array.Copy(array,start,copy,0,count);
         }
 
         public static T[] Clone<T>(T[] array)

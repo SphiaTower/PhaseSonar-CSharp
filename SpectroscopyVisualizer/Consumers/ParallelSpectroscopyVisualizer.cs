@@ -20,7 +20,7 @@ namespace SpectroscopyVisualizer.Consumers
         public ParallelSpectroscopyVisualizer(
             BlockingCollection<double[]> blockingQueue,
             CanvasView view,
-            List<SequentialAccumulator<T>> accumulators,
+            List<SerialAccumulator<T>> accumulators,
             DisplayAdapter adapter,
             Camera<T> camera)
             : base(blockingQueue, view, adapter)
@@ -29,7 +29,7 @@ namespace SpectroscopyVisualizer.Consumers
             Camera = camera;
         }
 
-        public List<SequentialAccumulator<T>> Accumulators { get; }
+        public List<SerialAccumulator<T>> Accumulators { get; }
 
         [CanBeNull]
         public ISpectrum SumSpectrum { get; protected set; }

@@ -2,8 +2,12 @@ using System;
 
 namespace PhaseSonar.Maths
 {
+    /// <summary>
+    /// A Rotator takes an array as input and do fftshift on it or symmetrize it.
+    /// </summary>
     public class Rotator
     {
+      
         private double[] _aux;
 
         private double[] Allocate(int size)
@@ -14,13 +18,16 @@ namespace PhaseSonar.Maths
             }
             return _aux;
         }
-
+        /// <summary>
+        /// Swap the two halves of the array, like a fftshift operation
+        /// </summary>
+        /// <param name="array">The array to be rotated</param>
         public void Rotate(double[] array)
         {
             var length = array.Length;
             var half = length/2;
 
-            Funcs.CopyInto(array, 0, half, Allocate(half));
+            Functions.CopyInto(array, 0, half, Allocate(half));
 
             for (int i = 0, j = half; i < half; i++, j++)
             {
@@ -31,11 +38,14 @@ namespace PhaseSonar.Maths
                 array[i] = _aux[j];
             }
         }
-
-        public void SymmetrizeInPlace(double[] pulse, int crestIndex)
+        /// <summary>
+        /// Rotate the array to center the crest of array
+        /// </summary>
+        /// <param name="array">The array to be symmetrized</param>
+        /// <param name="crestIndex">The index to be rotated to the center of the array</param>
+        public void Symmetrize(double[] array, int crestIndex)
         {
-            //var crestIndex = Funcs.FindCrestIndex(pulse); // todo abs/signed
-            var length = pulse.Length;
+            var length = array.Length;
             var centerIndex = length/2;
             if (crestIndex == centerIndex)
             {
@@ -43,14 +53,14 @@ namespace PhaseSonar.Maths
             else if (crestIndex < centerIndex)
             {
                 var auxLength = centerIndex - crestIndex;
-                Funcs.CopyInto(pulse, centerIndex + crestIndex, auxLength, Allocate(auxLength));
+                Functions.CopyInto(array, centerIndex + crestIndex, auxLength, Allocate(auxLength));
                 for (var r = length - 1; r > auxLength; r--)
                 {
-                    pulse[r] = pulse[r - auxLength];
+                    array[r] = array[r - auxLength];
                 }
                 for (var i = 0; i < auxLength; i++)
                 {
-                    pulse[i] = _aux[i];
+                    array[i] = _aux[i];
                 }
             }
             else

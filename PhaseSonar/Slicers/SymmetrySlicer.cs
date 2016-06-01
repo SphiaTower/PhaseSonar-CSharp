@@ -8,7 +8,7 @@ namespace PhaseSonar.Slicers {
     public class SymmetrySlicer:SimpleSlicer {
        
 
-        public override int SliceStartOffset => SlicedPeriodLength/2;
+        public override int CrestIndex => SlicedPeriodLength/2;
 
 
         public SymmetrySlicer(ICrestFinder crestFinder) : base(crestFinder)

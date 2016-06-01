@@ -282,7 +282,7 @@ namespace SpectroscopyVisualizer.Presenters
             var sampledAverPowerSpec = new double[DispPointsCnt];
             for (int i = 0, j = lo; i < DispPointsCnt; i++,j += interval)
             {
-                sampledAverPowerSpec[i] = spec.Power(j)/divider;
+                sampledAverPowerSpec[i] = spec.Intensity(j)/divider;
             }
             return sampledAverPowerSpec;
         }

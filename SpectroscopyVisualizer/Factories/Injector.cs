@@ -30,7 +30,7 @@ namespace SpectroscopyVisualizer.Factories
         public static ICrestFinder NewCrestFinder()
         {
             var config = Configurations.Get();
-            return new IntelligentCrestFinder(
+            return new IntelligentAbsoluteCrestFinder(
                 config.RepetitionRate,
                 SamplingConfigs.Get().SamplingRate,
                 SliceConfigs.Get().PointsBeforeCrest,
@@ -50,7 +50,7 @@ namespace SpectroscopyVisualizer.Factories
             return new ParallelAccumulator<T>(
                 NewSlicer(),
                 correctors);
-//                return new SequentialAccumulator(NewSlicer(),NewCorrector());
+//                return new SerialAccumulator(NewSlicer(),NewCorrector());
         }
 
         [NotNull]

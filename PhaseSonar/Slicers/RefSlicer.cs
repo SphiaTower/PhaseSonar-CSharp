@@ -5,10 +5,16 @@ using PhaseSonar.Correctors;
 
 namespace PhaseSonar.Slicers
 {
+    /// <summary>
+    /// A slicer for pulse sequences with 2 components, for example, gas and ref
+    /// </summary>
     public class RefSlicer : SimpleSlicer
     {
-       
-
+        /// <summary>
+        /// Slice the pulse sequence.
+        /// </summary>
+        /// <param name="pulseSequence">A pulse sequence, usually a sampled record</param>
+        /// <returns>Start indices of pulses of 2 components, for example, gas and reference</returns>
         public override List<List<int>> Slice(double[] pulseSequence)
         {
             // TODO: adjust threshold
@@ -72,7 +78,11 @@ namespace PhaseSonar.Slicers
             return Math.Abs(ratio - Math.Round(ratio)) < range;
         }
 
-        public RefSlicer(CrestFinder crestFinder) : base(crestFinder)
+        /// <summary>
+        /// Create a crest finder
+        /// </summary>
+        /// <param name="absoluteCrestFinder"></param>
+        public RefSlicer(ICrestFinder absoluteCrestFinder) : base(absoluteCrestFinder)
         {
         }
     }

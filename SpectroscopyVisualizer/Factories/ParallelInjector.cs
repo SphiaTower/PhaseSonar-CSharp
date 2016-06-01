@@ -30,7 +30,7 @@ namespace SpectroscopyVisualizer.Factories
         public static ICrestFinder NewCrestFinder()
         {
             var config = Configurations.Get();
-            return new IntelligentCrestFinder(
+            return new IntelligentAbsoluteCrestFinder(
                 config.RepetitionRate,
                 SamplingConfigs.Get().SamplingRate,
                 SliceConfigs.Get().PointsBeforeCrest,
@@ -39,13 +39,13 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        public static SequentialAccumulator<T> NewAccumulator<T>() where T : ISpectrum
+        public static SerialAccumulator<T> NewAccumulator<T>() where T : ISpectrum
         {
             var threadNum = Configurations.Get().ThreadNum;
-            return new SequentialAccumulator<T>(
+            return new SerialAccumulator<T>(
                 NewSlicer(),
                 NewCorrector<T>());
-//                return new SequentialAccumulator(NewSlicer(),NewCorrector());
+//                return new SerialAccumulator(NewSlicer(),NewCorrector());
         }
 
         [NotNull]
@@ -129,7 +129,7 @@ namespace SpectroscopyVisualizer.Factories
             where T : ISpectrum
         {
             var threadNum = Configurations.Get().ThreadNum;
-            List<SequentialAccumulator<T>> list = new List<SequentialAccumulator<T>>(threadNum);
+            List<SerialAccumulator<T>> list = new List<SerialAccumulator<T>>(threadNum);
             for (int i = 0; i < threadNum; i++)
             {
                list.Add(NewAccumulator<T>());

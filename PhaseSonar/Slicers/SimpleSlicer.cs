@@ -9,15 +9,15 @@ namespace PhaseSonar.Slicers
     {
 
         
-        public SimpleSlicer(ICrestFinder crestFinder)
+        public SimpleSlicer(ICrestFinder absoluteCrestFinder)
         {
-            Finder = crestFinder;
+            Finder = absoluteCrestFinder;
 
             // datalength/sampleRate*repetitionRate=pn
         }
 
         protected ICrestFinder Finder { get; }
-        public virtual int SliceStartOffset => Finder.LeftThreshold;
+        public virtual int CrestIndex => Finder.LeftThreshold;
 
         public virtual List<List<int>> Slice([NotNull]double[] pulseSequence)
         {
@@ -57,7 +57,7 @@ namespace PhaseSonar.Slicers
             var length = pulseSequence.Length;
             for (var i = 0; i < crestIndices.Count; i++)
             {
-                crestIndices[i] -= SliceStartOffset;
+                crestIndices[i] -= CrestIndex;
             }
             // todo SliceFailedException
             if (crestIndices[0] < 0)

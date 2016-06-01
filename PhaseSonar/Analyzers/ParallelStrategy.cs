@@ -8,29 +8,38 @@ using PhaseSonar.Maths;
 using JetBrains.Annotations;
 
 namespace PhaseSonar.Analyzers {
+    /// <summary>
+    /// A strategy to analyze a pulse sequence. The processing of the pulses are executed in parallel.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ParallelStrategy<T> : IAnalyzerStrategy<T> where T : ISpectrum {
         private readonly List<ICorrector<T>> _workers;
-        public BaseAnalyzer Analyzer { get; }
 
-        public ParallelStrategy(BaseAnalyzer baseAnalyzer,List<ICorrector<T>> correctors )
+        /// <summary>
+        /// Create a parallel strategy.
+        /// </summary>
+        /// <param name="correctors">The workers for correcting pulses</param>
+        public ParallelStrategy(List<ICorrector<T>> correctors )
         {
-            Analyzer = baseAnalyzer;
             _workers = correctors;
         }
 
-        public List<T> Run(double[] pulseSequence)
+        /// <summary>
+        /// Process the pulse sequence, including slicing, phase correction, and accumulation.
+        /// </summary>
+        /// <param name="pulseSequence">A pulse sequence.</param>
+        /// <param name="startIndicesList">The list of start indices for pulses of different sources, for example, gas and reference.</param>
+        /// <param name="pulseLength">The length of every pulse</param>
+        /// <param name="crestIndex"></param>
+        /// <returns>The processed result of the pulse sequence, or null if failed</returns>
+        public List<T> Process(double[] pulseSequence,[NotNull]List<List<int>> startIndicesList,int pulseLength,int crestIndex)
         {
-            var startIndicesDuo = Analyzer.Slicer.Slice(pulseSequence);
-            if (startIndicesDuo==null)
-            {
-                return null;
-            }
-            var slicedPeriodLength = Analyzer.Slicer.SlicedPeriodLength;
+          
             _workers.ForEach(corrector => corrector.ClearBuffer());
-            return startIndicesDuo.Select(startIndices => CorrectParallelly(pulseSequence, startIndices, slicedPeriodLength)).ToList();
+            return startIndicesList.Select(startIndices => CorrectParallelly(pulseSequence, startIndices, pulseLength, crestIndex)).ToList();
         }
 
-        private T CorrectParallelly(double[] pulseSequence, List<int> startIndices,int pulseLength)
+        private T CorrectParallelly(double[] pulseSequence, List<int> startIndices,int pulseLength,int crestIndex)
         {
             var queue = new ConcurrentQueue<int>();
             startIndices.ForEach(item => queue.Enqueue(item));
@@ -43,7 +52,7 @@ namespace PhaseSonar.Analyzers {
                     while (queue.TryDequeue(out startIndex))
                     {
                         // todo: exception
-                        corrector.Correct(pulseSequence, startIndex, pulseLength, Analyzer.Slicer.SliceStartOffset);
+                        corrector.Correct(pulseSequence, startIndex, pulseLength, crestIndex);
                     }
                 }
                 );

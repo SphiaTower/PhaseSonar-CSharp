@@ -3,6 +3,9 @@ using PhaseSonar.Maths;
 
 namespace PhaseSonar.Correctors
 {
+    /// <summary>
+    ///     A phase corrector which implements the Mertz method.
+    /// </summary>
     public class MertzCorrector : BaseCorrector<RealSpectrum>
     {
         private readonly double[] _centrePhase;
@@ -11,6 +14,16 @@ namespace PhaseSonar.Correctors
         private readonly double[] _interpolatedArray;
         private readonly Interpolator _interpolator;
 
+        /// <summary>
+        ///     Create a mertz corrector.
+        /// </summary>
+        /// <param name="apodizer">
+        ///     <see cref="IApodizer" />
+        /// </param>
+        /// <param name="fuzzyPulseLength">The approximate period length</param>
+        /// <param name="zeroFillFactor">The factor of zero filling</param>
+        /// <param name="centreSpan">The size of the centre span for phase extraction</param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public MertzCorrector(IApodizer apodizer, int fuzzyPulseLength, int zeroFillFactor, int centreSpan)
             : base(apodizer, fuzzyPulseLength, zeroFillFactor)
         {
@@ -27,19 +40,20 @@ namespace PhaseSonar.Correctors
 
 
         /// <summary>
-        ///     Do phase correction on a piece of the full temporal data
+        ///     Correct a pulse
         /// </summary>
-        /// <param name="pulseSequence">the full temporal data</param>
-        /// <param name="startIndex">the starting index of the piece</param>
-        /// <returns></returns>
-        public override void Correct(double[] pulseSequence, int startIndex, int pulseLength, int pointsBeforeCrest)
+        /// <param name="pulseSequence">The pulse sequence that the pulse contains in</param>
+        /// <param name="startIndex">The start index of the pulse in the pulse sequence</param>
+        /// <param name="pulseLength">The length of the pulse</param>
+        /// <param name="crestIndex">The number of points before the crest</param>
+        public override void Correct(double[] pulseSequence, int startIndex, int pulseLength, int crestIndex)
         {
             // Side effect: _zeroFilledArray -> balanced, zero-filled temporal data
             Retrieve(pulseSequence, startIndex, pulseLength);
             // Side effect: _zeroFilledArray -> centreburst rotated to the centre
             try
             {
-                Rotator.SymmetrizeInPlace(ZeroFilledArray, pointsBeforeCrest);
+                Rotator.Symmetrize(ZeroFilledArray, crestIndex);
             }
             catch (Exception)
             {
@@ -63,29 +77,41 @@ namespace PhaseSonar.Correctors
                 var phase = _interpolatedArray[i];
                 var real = fftReal[i];
                 var imag = fftImag[i];
-                WriteBuffer(i, real*Math.Cos(phase) + imag*Math.Sin(phase));
+                WriteSpecPoint(i, real*Math.Cos(phase) + imag*Math.Sin(phase));
             }
             OnCorrected();
         }
 
-        protected virtual void WriteBuffer(int i, double specPoint)
+        /// <summary>
+        ///     Write the index and the corresponding spectrum value
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="specValue"></param>
+        protected virtual void WriteSpecPoint(int i, double specValue)
         {
-            SpectrumBuffer.AmplitudeArray[i] = specPoint;
+            SpectrumBuffer.AmplitudeArray[i] = specValue;
         }
 
+        /// <summary>
+        ///     Called when the correction is about to finish.
+        /// </summary>
         protected virtual void OnCorrected()
         {
             SpectrumBuffer.PulseCount = 1;
         }
 
 
+        /// <summary>
+        ///     Prepare the phase data for correction
+        /// </summary>
+        /// <param name="symmetryPulse">The symmetrized pulse</param>
         public void PreparePhaseCorrectionData(double[] symmetryPulse)
         {
             var centerBurst = symmetryPulse.Length/2;
-//            Funcs.CopyInto(symmetryPulse, centerBurst - _centreSpan, _centreSpan*2, _centrePhase);
+//            Functions.CopyInto(symmetryPulse, centerBurst - _centreSpan, _centreSpan*2, _centrePhase);
             Array.Copy(symmetryPulse, centerBurst - _centreSpan, _centrePhase, 0, _centreSpan*2);
             Apodizer.Apodize(_centrePhase);
-            // Funcs.Rotate<double>(_centrePhase);
+            // Functions.Rotate<double>(_centrePhase);
             Rotator.Rotate(_centrePhase);
             double[] fftReal, fftImag;
             FourierTransformer.TransformForward(_centrePhase, out fftReal, out fftImag);

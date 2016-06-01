@@ -46,6 +46,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\PhaseSonar.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -73,19 +74,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analyzers\ParallelAccumulator.cs" />
-    <Compile Include="Analyzers\SequentialAccumulator.cs" />
+    <Compile Include="Analyzers\SerialAccumulator.cs" />
     <Compile Include="Correctors\Spectrum.cs" />
     <Compile Include="Correctors\AccFlipMertzCorrector.cs" />
     <Compile Include="Correctors\AccMertzCorrector.cs" />
     <Compile Include="Analyzers\Accumulator.cs" />
     <Compile Include="Analyzers\BaseAnalyzer.cs" />
     <Compile Include="Analyzers\IAnalyzerStrategy.cs" />
-    <Compile Include="Correctors\AccSqMertzCorrector.cs" />
     <Compile Include="Correctors\BaseCorrector.cs" />
     <Compile Include="Correctors\FakeCorrector.cs" />
     <Compile Include="Maths\IApodizer.cs" />
-    <Compile Include="Slicers\CrestFinder.cs" />
-    <Compile Include="Analyzers\SequentialStrategy.cs" />
+    <Compile Include="Slicers\AbsoluteCrestFinder.cs" />
+    <Compile Include="Analyzers\SerialStrategy.cs" />
     <Compile Include="Maths\Functions.cs" />
     <Compile Include="Correctors\ICorrector.cs" />
     <Compile Include="Slicers\ISlicer.cs" />
@@ -96,7 +96,7 @@
     <Compile Include="Analyzers\ParallelStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Slicers\RefSlicer.cs" />
-    <Compile Include="Analyzers\Splitter.cs" />
+    <Compile Include="Analyzers\SerialSplitter.cs" />
     <Compile Include="Slicers\SimpleSlicer.cs" />
     <Compile Include="Slicers\SymmetrySlicer.cs" />
     <Compile Include="Utils\StopWatch.cs" />

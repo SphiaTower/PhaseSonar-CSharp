@@ -6,8 +6,16 @@ using JetBrains.Annotations;
 
 namespace PhaseSonar.Utils
 {
+    /// <summary>
+    /// A utility toolbox.
+    /// </summary>
     public class Toolbox
     {
+        /// <summary>
+        /// Read data from a given path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static double[] Read(string path)
         {
             var lines = File.ReadAllLines(path);
@@ -20,6 +28,12 @@ namespace PhaseSonar.Utils
             return data;
         }
 
+        /// <summary>
+        /// Write data to a given path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void WriteData<T>(string path, [NotNull] T[] data)
         {
             var contents = new string[data.Length];
@@ -30,6 +44,12 @@ namespace PhaseSonar.Utils
             File.WriteAllLines(path, contents);
         }
 
+        /// <summary>
+        /// Serialize data into binary format to a given path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void SerializeData<T>(string path, [NotNull] T data)
         {
             var file = new FileInfo(path);
@@ -38,6 +58,12 @@ namespace PhaseSonar.Utils
             binaryFormatter.Serialize(fileStream, data);
         }
 
+        /// <summary>
+        /// Deserialize data in binary format from a given path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T DeserializeData<T>(string path)
         {
             var file = new FileInfo(path);
@@ -46,6 +72,12 @@ namespace PhaseSonar.Utils
             return (T) binaryFormatter.Deserialize(fileStream);
         }
 
+        /// <summary>
+        /// Require the argument not null.
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="name"></param>
+        /// <exception cref="NullReferenceException"></exception>
         public static void RequireNonNull(object arg, string name)
         {
             if (arg == null)
@@ -54,6 +86,11 @@ namespace PhaseSonar.Utils
             }
         }
 
+        /// <summary>
+        /// Require the argument not null.
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <exception cref="NullReferenceException"></exception>
         public static void RequireNonNull(object arg)
         {
             if (arg == null)
@@ -62,14 +99,14 @@ namespace PhaseSonar.Utils
             }
         }
 
-        public static void RequireLargerThan(object arg, int floor)
-        {
-            if (Comparer.Default.Compare(arg, floor) <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(arg) + " must > " + floor);
-            }
-        }
+       
 
+        /// <summary>
+        /// Require arg to satisfy a function.
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="func"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static void RequireRange(int arg, Func<int, bool> func)
         {
             if (!func(arg))
@@ -78,6 +115,12 @@ namespace PhaseSonar.Utils
             }
         }
 
+        /// <summary>
+        /// Require arg to satisfy a function.
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="func"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static void RequireRange(double arg, Func<double, bool> func)
         {
             if (!func(arg))
@@ -86,6 +129,12 @@ namespace PhaseSonar.Utils
             }
         }
 
+        /// <summary>
+        /// Require arg to satisfy a function.
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="func"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static void RequireRange(long arg, Func<long, bool> func)
         {
             if (!func(arg))

@@ -11,6 +11,15 @@ namespace PhaseSonar.Maths
     public class Functions
     {
 
+        /// <summary>
+        /// Copy array.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="start"></param>
+        /// <param name="count"></param>
+        /// <param name="copy"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <exception cref="ArgumentException"></exception>
         public static void CopyInto<T>(T[] array, int start, int count, T[] copy)
         {
             if (copy.Length < count)
@@ -24,6 +33,12 @@ namespace PhaseSonar.Maths
             Array.Copy(array,start,copy,0,count);
         }
 
+        /// <summary>
+        /// Shallow clone array.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T[] Clone<T>(T[] array)
         {
             var copy = new T[array.Length];
@@ -31,17 +46,12 @@ namespace PhaseSonar.Maths
             return copy;
         }
 
-        public static T[] CopyRange<T>(T[] array, int start, int count)
-        {
-            var copy = new T[count];
-            for (int i = 0, j = start; i < count; i++, j++)
-            {
-                copy[i] = array[j];
-            }
-            return copy;
-        }
-
-
+        /// <summary>
+        /// Multiply 2 vectors in place.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="weight"></param>
+        /// <exception cref="ArithmeticException"></exception>
         public static void MultiplyInPlace(double[] array, double[] weight)
         {
             var length = array.Length;
@@ -55,6 +65,13 @@ namespace PhaseSonar.Maths
             }
         }
 
+        /// <summary>
+        /// Add 2 arrays int a new one.
+        /// </summary>
+        /// <param name="array1"></param>
+        /// <param name="array2"></param>
+        /// <returns></returns>
+        /// <exception cref="ArithmeticException"></exception>
         public static double[] Add(double[] array1, double[] array2)
         {
             var length = array1.Length;
@@ -70,6 +87,12 @@ namespace PhaseSonar.Maths
             return result;
         }
 
+        /// <summary>
+        /// Add 2 arrays in place.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="adder"></param>
+        /// <exception cref="ArithmeticException"></exception>
         public static void AddTo([NotNull]double[] target, [NotNull]double[] adder)
         {
             var length = target.Length;
@@ -82,29 +105,26 @@ namespace PhaseSonar.Maths
                 target[i] += adder[i];
             }
         }
+        /// <summary>
+        /// Add 2 arrays in place, regardless of the extra length.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="adder"></param>
         public static void ForceAddTo([NotNull]double[] target, [NotNull]double[] adder) {
             var length = target.Length;
             for (var i = 0; i < length; i++) {
                 target[i] += adder[i];
             }
         }
-        public static T[] Rotate<T>(T[] array)
-        {
-            var length = array.Length;
-            var rotated = new T[length];
-            var half = length/2;
-            for (var i = 0; i < half; i++)
-            {
-                rotated[i] = array[half + i];
-            }
-            for (var i = half; i < length; i++)
-            {
-                rotated[i] = array[i - half];
-            }
-            return rotated;
-        }
 
 
+        /// <summary>
+        /// Allocate linespace.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="stop"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
         public static double[] LineSpace(double start, double stop, int size)
         {
             var result = new double[size];
@@ -112,6 +132,15 @@ namespace PhaseSonar.Maths
             return result;
         }
 
+        /// <summary>
+        /// Allocate linespace in space.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="stop"></param>
+        /// <param name="length"></param>
+        /// <param name="container"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public static void LineSpaceInPlace(double start, double stop, int length, double[] container)
         {
             if (container == null)
@@ -129,6 +158,11 @@ namespace PhaseSonar.Maths
             }
         }
 
+        /// <summary>
+        /// Add arrays up.
+        /// </summary>
+        /// <param name="arrays"></param>
+        /// <returns></returns>
         public static double[] AddUp(List<double[]> arrays)
         {
             var length = arrays[0].Length;
@@ -145,6 +179,10 @@ namespace PhaseSonar.Maths
             return result;
         }
 
+        /// <summary>
+        /// Clear an array.
+        /// </summary>
+        /// <param name="array"></param>
         public static void Clear([NotNull]double[] array)
         {
             Array.Clear(array,0,array.Length);

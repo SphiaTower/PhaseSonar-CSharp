@@ -1,29 +1,46 @@
-﻿using System;
-using System.Windows;
-using PhaseSonar.Utils;
 using JetBrains.Annotations;
-using Microsoft.WindowsAPICodePack.Shell.Interop;
+using PhaseSonar.Utils;
 using SpectroscopyVisualizer.Consumers;
 using SpectroscopyVisualizer.Producers;
 
-namespace SpectroscopyVisualizer.Controllers
+namespace SpectroscopyVisualizer
 {
+    /// <summary>
+    /// A scheduler scheduling the producer and the consumer.
+    /// </summary>
     public class Scheduler
     {
+        /// <summary>
+        /// A stopwatch.
+        /// </summary>
         public StopWatch Watch { get; } = new StopWatch();
 
+        /// <summary>
+        /// Create a scheduler.
+        /// </summary>
+        /// <param name="producer"></param>
+        /// <param name="consumer"></param>
         public Scheduler(IProducer producer, UiConsumer<double[]> consumer)
         {
             Producer = producer;
             Consumer = consumer;
         }
 
+        /// <summary>
+        /// The producer
+        /// </summary>
         [NotNull]
         public IProducer Producer { get; protected set; }
 
+        /// <summary>
+        /// The consumer
+        /// </summary>
         [NotNull]
         public UiConsumer<double[]> Consumer { get; protected set; }
 
+        /// <summary>
+        /// Start the system.
+        /// </summary>
         public void Start()
         {
             Watch.Reset();
@@ -32,6 +49,9 @@ namespace SpectroscopyVisualizer.Controllers
         }
 
 
+        /// <summary>
+        /// Stop the system.
+        /// </summary>
         public void Stop()
         {
             Producer.Stop();

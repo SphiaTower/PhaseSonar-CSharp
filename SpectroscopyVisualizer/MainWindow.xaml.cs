@@ -11,7 +11,7 @@ using PhaseSonar.Correctors;
 using PhaseSonar.Utils;
 using SpectroscopyVisualizer.Configs;
 using SpectroscopyVisualizer.Consumers;
-using SpectroscopyVisualizer.Controllers;
+using SpectroscopyVisualizer.Writers;
 using SpectroscopyVisualizer.Factories;
 using SpectroscopyVisualizer.Presenters;
 using SpectroscopyVisualizer.Producers;
@@ -19,43 +19,43 @@ using SpectroscopyVisualizer.Producers;
 namespace SpectroscopyVisualizer
 {
     /// <summary>
-    ///     Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml, also the entrance of the whole program.
     /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
-            SamplingConfigs.Initialize(
+            SamplingConfigurations.Initialize(
                 "Dev2",
                 0,
                 100,
                 1,
                 10);
 
-            Configurations.Initialize(
+            GeneralConfigurations.Initialize(
                 400,
                 4,
                 1000,
                 @"C:\buffer\captured\");
-            SliceConfigs.Initialize(
+            SliceConfigurations.Initialize(
                 crestAmplitudeThreshold: 0.1,
                 pointsBeforeCrest: 1000,
                 centreSlice: true
                 );
-            CorrectorConfigs.Initialize(1, 512, CorrectorType.Mertz, ApodizerType.Fake);
-//            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\config.bin"));
-            SamplingConfigs.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
-            Configurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath);
-            SliceConfigs.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp);
-            CorrectorConfigs.Get().Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType);
+            CorrectorConfigurations.Initialize(1, 512, CorrectorType.Mertz, ApodizerType.Fake);
+//            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\configuration.bin"));
+            SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
+            GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath);
+            SliceConfigurations.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp);
+            CorrectorConfigurations.Get().Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType);
             CanvasView = new CanvasView(ScopeCanvas);
             HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
             VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
 
             SwitchButton = new SwitchButton(ToggleButton, false, "STOP", "START", TurnOn, TurnOff);
 
-//            Toolbox.SerializeData(@"D:\\config.bin",CorrectorConfigs.Get());
+//            Toolbox.SerializeData(@"D:\\configuration.bin",CorrectorConfigs.Get());
             SizeChanged += (sender, args) => { Scheduler?.Consumer.Adapter.OnWindowZoomed(); };
         }
 
@@ -125,7 +125,7 @@ namespace SpectroscopyVisualizer
 
         private void UiConsumerOnConsumeEvent(object sender)
         {
-            var sizeInM = SamplingConfigs.Get().RecordLength/1e6;
+            var sizeInM = SamplingConfigurations.Get().RecordLength/1e6;
             Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 var consumedCnt = Scheduler?.Consumer.ConsumedCnt;
@@ -157,7 +157,7 @@ namespace SpectroscopyVisualizer
                     TbSavePath.Text = fileName;
                 }
             }
-            Configurations.Get().Directory = TbSavePath.Text;
+            GeneralConfigurations.Get().Directory = TbSavePath.Text;
         }
 
 
@@ -165,7 +165,7 @@ namespace SpectroscopyVisualizer
         {
             var producer = Scheduler?.Producer as SampleProducer;
             if (producer == null) return;
-            if (CbCaptureSample.IsChecked != null) producer.Camera.IsOn = CbCaptureSample.IsChecked.Value;
+            if (CbCaptureSample.IsChecked != null) producer.Writer.IsOn = CbCaptureSample.IsChecked.Value;
         }
 
         private void CbCaptureSpec_OnChecked(object sender, RoutedEventArgs e)
@@ -216,8 +216,8 @@ namespace SpectroscopyVisualizer
         {
             var fileNames = SelectFiles();
             if (fileNames.IsEmpty()) return;
-            Configurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
-            TbSavePath.Text = Configurations.Get().Directory;
+            GeneralConfigurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
+            TbSavePath.Text = GeneralConfigurations.Get().Directory;
             var producer = Injector.NewProducer(fileNames);
 
             var consumer = Injector.NewConsumer(producer, CanvasView, HorizontalAxisView, VerticalAxisView,

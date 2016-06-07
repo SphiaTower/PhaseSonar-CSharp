@@ -8,18 +8,21 @@ using JetBrains.Annotations;
 using NationalInstruments.Examples.StreamToDiskConsole;
 using SpectroscopyVisualizer.Configs;
 using SpectroscopyVisualizer.Consumers;
-using SpectroscopyVisualizer.Controllers;
+using SpectroscopyVisualizer.Writers;
 using SpectroscopyVisualizer.Presenters;
 using SpectroscopyVisualizer.Producers;
 
 namespace SpectroscopyVisualizer.Factories
 {
+    /// <summary>
+    /// TODO: apply the abstract factory pattern
+    /// </summary>
     public class ParallelInjector
     {
         [NotNull]
         public static ISlicer NewSlicer()
         {
-            var config = SliceConfigs.Get();
+            var config = SliceConfigurations.Get();
             var crestFinder = NewCrestFinder();
             return config.CentreSlice
                 ? new SymmetrySlicer(crestFinder)
@@ -29,19 +32,19 @@ namespace SpectroscopyVisualizer.Factories
         [NotNull]
         public static ICrestFinder NewCrestFinder()
         {
-            var config = Configurations.Get();
+            var config = GeneralConfigurations.Get();
             return new IntelligentAbsoluteCrestFinder(
                 config.RepetitionRate,
-                SamplingConfigs.Get().SamplingRate,
-                SliceConfigs.Get().PointsBeforeCrest,
-                SliceConfigs.Get().CrestAmplitudeThreshold
+                SamplingConfigurations.Get().SamplingRate,
+                SliceConfigurations.Get().PointsBeforeCrest,
+                SliceConfigurations.Get().CrestAmplitudeThreshold
                 );
         }
 
         [NotNull]
         public static SerialAccumulator<T> NewAccumulator<T>() where T : ISpectrum
         {
-            var threadNum = Configurations.Get().ThreadNum;
+            var threadNum = GeneralConfigurations.Get().ThreadNum;
             return new SerialAccumulator<T>(
                 NewSlicer(),
                 NewCorrector<T>());
@@ -51,13 +54,13 @@ namespace SpectroscopyVisualizer.Factories
         [NotNull]
         public static DisplayAdapter NewAdapter(CanvasView view,HorizontalAxisView horizontalAxisView,VerticalAxisView verticalAxisView)
         {
-            return new DisplayAdapter(view,horizontalAxisView, verticalAxisView, Configurations.Get().DispPoints, SamplingConfigs.Get().SamplingRate);
+            return new DisplayAdapter(view,horizontalAxisView, verticalAxisView, GeneralConfigurations.Get().DispPoints, SamplingConfigurations.Get().SamplingRate);
         }
 
         [NotNull]
         public static Sampler NewSampler()
         {
-            var configs = SamplingConfigs.Get();
+            var configs = SamplingConfigurations.Get();
             return new Sampler(
                 configs.DeviceName,
                 configs.Channel.ToString(),
@@ -70,12 +73,12 @@ namespace SpectroscopyVisualizer.Factories
         [NotNull]
         public static ICorrector<T> NewCorrector<T>() where T : ISpectrum
         {
-            var configs = Configurations.Get();
-            var fuzzyPeriodLength = (int) (SamplingConfigs.Get().SamplingRate/configs.RepetitionRate);
+            var configs = GeneralConfigurations.Get();
+            var fuzzyPeriodLength = (int) (SamplingConfigurations.Get().SamplingRate/configs.RepetitionRate);
 
             if (typeof(T) == typeof(RealSpectrum))
             {
-                switch (CorrectorConfigs.Get().CorrectorType)
+                switch (CorrectorConfigurations.Get().CorrectorType)
                 {
                     case CorrectorType.LinearMertz:
                         throw new NotImplementedException();
@@ -83,17 +86,17 @@ namespace SpectroscopyVisualizer.Factories
                         return
                             (ICorrector<T>)
                                 new AccFlipMertzCorrector(NewApodizer(), fuzzyPeriodLength,
-                                    CorrectorConfigs.Get().ZeroFillFactor, CorrectorConfigs.Get().CenterSpanLength/2);
+                                    CorrectorConfigurations.Get().ZeroFillFactor, CorrectorConfigurations.Get().CenterSpanLength/2);
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
-            switch (CorrectorConfigs.Get().CorrectorType)
+            switch (CorrectorConfigurations.Get().CorrectorType)
             {
                 case CorrectorType.Fake:
                     return
                         (ICorrector<T>)
-                            new FakeCorrector(NewApodizer(), fuzzyPeriodLength, CorrectorConfigs.Get().ZeroFillFactor);
+                            new FakeCorrector(NewApodizer(), fuzzyPeriodLength, CorrectorConfigurations.Get().ZeroFillFactor);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -101,7 +104,7 @@ namespace SpectroscopyVisualizer.Factories
 
         private static IApodizer NewApodizer()
         {
-            switch (CorrectorConfigs.Get().ApodizerType)
+            switch (CorrectorConfigurations.Get().ApodizerType)
             {
                 case ApodizerType.Fake:
                     return new FakeApodizer();
@@ -128,7 +131,7 @@ namespace SpectroscopyVisualizer.Factories
         private static ParallelSpectroscopyVisualizer<T> NewConsumer<T>(IProducer producer, CanvasView view,HorizontalAxisView horizontalAxisView,VerticalAxisView verticalAxisView, bool cameraOn)
             where T : ISpectrum
         {
-            var threadNum = Configurations.Get().ThreadNum;
+            var threadNum = GeneralConfigurations.Get().ThreadNum;
             List<SerialAccumulator<T>> list = new List<SerialAccumulator<T>>(threadNum);
             for (int i = 0; i < threadNum; i++)
             {
@@ -139,21 +142,21 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        public static SpectrumCamera<T> NewCamera<T>(bool on) where T : ISpectrum
+        public static SpectrumWriter<T> NewCamera<T>(bool on) where T : ISpectrum
         {
-            return new SpectrumCamera<T>(Configurations.Get().Directory, "captured-sq-aver-", on);
+            return new SpectrumWriter<T>(GeneralConfigurations.Get().Directory, "captured-sq-aver-", on);
         }
 
         [NotNull]
-        public static SampleCamera NewSampleCamera(bool on)
+        public static SampleWriter NewSampleCamera(bool on)
         {
-            return new SampleCamera(Configurations.Get().Directory, "binary-", on);
+            return new SampleWriter(GeneralConfigurations.Get().Directory, "binary-", on);
         }
 
         [NotNull]
         public static UiConsumer<double[]> NewConsumer(IProducer producer, CanvasView view,HorizontalAxisView horizontalAxisView,VerticalAxisView verticalAxisView, bool cameraOn)
         {
-            switch (CorrectorConfigs.Get().CorrectorType)
+            switch (CorrectorConfigurations.Get().CorrectorType)
             {
                 case CorrectorType.Fake:
                     return NewConsumer<ComplexSpectrum>(producer, view, horizontalAxisView,verticalAxisView, cameraOn);

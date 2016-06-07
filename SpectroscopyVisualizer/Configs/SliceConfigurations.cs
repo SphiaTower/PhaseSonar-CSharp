@@ -4,11 +4,11 @@ using System.Windows.Controls;
 namespace SpectroscopyVisualizer.Configs
 {
     [Serializable]
-    public class SliceConfigs
+    public class SliceConfigurations
     {
-        private static SliceConfigs _singleton;
+        private static SliceConfigurations _singleton;
 
-        private SliceConfigs(int pointsBeforeCrest, bool centreSlice, double crestAmplitudeThreshold)
+        private SliceConfigurations(int pointsBeforeCrest, bool centreSlice, double crestAmplitudeThreshold)
         {
             PointsBeforeCrest = pointsBeforeCrest;
             CentreSlice = centreSlice;
@@ -21,15 +21,15 @@ namespace SpectroscopyVisualizer.Configs
 
         public static void Initialize(int pointsBeforeCrest, bool centreSlice, double crestAmplitudeThreshold)
         {
-            _singleton = new SliceConfigs(pointsBeforeCrest, centreSlice, crestAmplitudeThreshold);
+            _singleton = new SliceConfigurations(pointsBeforeCrest, centreSlice, crestAmplitudeThreshold);
         }
 
-        internal void Register(SliceConfigs sliceConfigs)
+        internal void Register(SliceConfigurations sliceConfigurations)
         {
-            _singleton = sliceConfigs;
+            _singleton = sliceConfigurations;
         }
 
-        public static SliceConfigs Get()
+        public static SliceConfigurations Get()
         {
             return _singleton;
         }

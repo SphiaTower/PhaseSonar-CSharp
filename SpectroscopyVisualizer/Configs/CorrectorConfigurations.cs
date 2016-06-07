@@ -21,11 +21,11 @@ namespace SpectroscopyVisualizer.Configs
     }
 
     [Serializable]
-    public class CorrectorConfigs
+    public class CorrectorConfigurations
     {
-        private static CorrectorConfigs _singleton;
+        private static CorrectorConfigurations _singleton;
 
-        private CorrectorConfigs(int zeroFillFactor, int centerSpanLength, CorrectorType correctorType,
+        private CorrectorConfigurations(int zeroFillFactor, int centerSpanLength, CorrectorType correctorType,
             ApodizerType apodizerType)
         {
             ZeroFillFactor = zeroFillFactor;
@@ -40,14 +40,14 @@ namespace SpectroscopyVisualizer.Configs
         public CorrectorType CorrectorType { get; set; }
         public ApodizerType ApodizerType { get; set; }
 
-        public static CorrectorConfigs Get()
+        public static CorrectorConfigurations Get()
         {
             return _singleton;
         }
 
-        public static void Register(CorrectorConfigs config)
+        public static void Register(CorrectorConfigurations configuration)
         {
-            _singleton = config;
+            _singleton = configuration;
         }
 
         public static void Initialize(int zeroFillFactory, int centerSpanLength, CorrectorType correctorType,
@@ -57,7 +57,7 @@ namespace SpectroscopyVisualizer.Configs
             {
                 throw new Exception("environment already init");
             }
-            _singleton = new CorrectorConfigs(zeroFillFactory, centerSpanLength, correctorType, apodizerType);
+            _singleton = new CorrectorConfigurations(zeroFillFactory, centerSpanLength, correctorType, apodizerType);
         }
 
         public void Bind(Control tbZeroFillFactor, Control tbCenterSpanLength, Control cbCorrectorType,

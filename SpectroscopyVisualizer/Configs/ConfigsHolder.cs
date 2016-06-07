@@ -5,18 +5,37 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SpectroscopyVisualizer.Configs {
+    /// <summary>
+    /// A configuration holder which holds all configuration singletons.
+    /// This holder is used to serialize and deserialize the configurations.
+    /// </summary>
     [Serializable]
     public class ConfigsHolder
     {
-        public Configurations Configurations { get; set; } = Configurations.Get();
-        public CorrectorConfigs CorrectorConfigs { get; set; } = CorrectorConfigs.Get();
-        public SliceConfigs SliceConfigs { get; set; } = SliceConfigs.Get();
-        public SamplingConfigs SamplingConfigs { get; set; } = SamplingConfigs.Get();
+        /// <summary>
+        /// <see cref="GeneralConfigurations"/>
+        /// </summary>
+        public GeneralConfigurations GeneralConfigs { get; set; } = GeneralConfigurations.Get();
+        /// <summary>
+        /// <see cref="CorrectorConfigs"/>
+        /// </summary>
+        public CorrectorConfigurations CorrectorConfigs { get; set; } = CorrectorConfigurations.Get();
+        /// <summary>
+        /// <see cref="SliceConfigurations"/>
+        /// </summary>
+        public SliceConfigurations SliceConfigs { get; set; } = SliceConfigurations.Get();
+        /// <summary>
+        /// <see cref="SamplingConfigs"/>
+        /// </summary>
+        public SamplingConfigurations SamplingConfigs { get; set; } = SamplingConfigurations.Get();
 
+        /// <summary>
+        /// Register configuration instances as singletons.
+        /// </summary>
         public void Register()
         {
-            Configurations.Register(Configurations);
-            CorrectorConfigs.Register(CorrectorConfigs);
+            GeneralConfigs.Register(GeneralConfigs);
+            CorrectorConfigurations.Register(CorrectorConfigs);
             SliceConfigs.Register(SliceConfigs);
             SamplingConfigs.Register(SamplingConfigs);
         }

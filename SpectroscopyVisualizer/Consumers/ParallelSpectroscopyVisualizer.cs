@@ -6,49 +6,68 @@ using System.Windows.Media;
 using JetBrains.Annotations;
 using PhaseSonar.Analyzers;
 using PhaseSonar.Correctors;
-using SpectroscopyVisualizer.Controllers;
+using SpectroscopyVisualizer.Writers;
 using SpectroscopyVisualizer.Presenters;
 
 namespace SpectroscopyVisualizer.Consumers
 {
+    /// <summary>
+    /// A parallel version of <see cref="SpectroscopyVisualizer{T}"/> which dequeues elements parallelly.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ParallelSpectroscopyVisualizer<T> : UiConsumer<double[]> where T : ISpectrum
     {
         private const string Lock = "lock";
         private double[] _dummyAxis;
         private int _refreshCnt;
 
+        /// <summary>
+        /// Create an instance.
+        /// </summary>
+        /// <param name="blockingQueue">The queue containing all elements to be consumed.</param>
+        /// <param name="view">The view for display.</param>
+        /// <param name="accumulators">A list of accumulators processing the data sampled parallelly.</param>
+        /// <param name="adapter">An adapter for display.</param>
+        /// <param name="writer">A Writer for data storage.</param>
         public ParallelSpectroscopyVisualizer(
             BlockingCollection<double[]> blockingQueue,
             CanvasView view,
             List<SerialAccumulator<T>> accumulators,
             DisplayAdapter adapter,
-            Camera<T> camera)
+            Writer<T> writer)
             : base(blockingQueue, view, adapter)
         {
             Accumulators = accumulators;
-            Camera = camera;
+            Writer = writer;
         }
 
+        /// <summary>
+        /// A list of accumulators processing the data sampled parallelly.
+        /// </summary>
         public List<SerialAccumulator<T>> Accumulators { get; }
-
+        /// <summary>
+        /// The accumulation of spectra.
+        /// </summary>
         [CanBeNull]
         public ISpectrum SumSpectrum { get; protected set; }
 
-        public Camera<T> Camera { get; }
+        /// <summary>
+        /// A Writer for data storage.
+        /// </summary>
+        public Writer<T> Writer { get; }
 
+        /// <summary>
+        /// Save data.
+        /// </summary>
         public override bool Save
         {
-            get { return Camera.IsOn; }
-            set { Camera.IsOn = value; }
+            get { return Writer.IsOn; }
+            set { Writer.IsOn = value; }
         }
 
-        public override void Reset()
-        {
-            base.Reset();
-            // todo potential bug
-        }
-
-
+        /// <summary>
+        /// Start consuming.
+        /// </summary>
         public override void Consume()
         {
             SumSpectrum?.Clear();
@@ -91,12 +110,18 @@ namespace SpectroscopyVisualizer.Consumers
             });
         }
 
+        /// <summary>
+        /// This method is not implemented due to the bad design of the class hierarchy.// TODO Rewrite the consumer base class.
+        /// </summary>
+        /// <param name="item">The element</param>
+        /// <returns>Consumed successfully or not</returns>
         public override bool ConsumeElement(double[] item)
         {
             throw new NotImplementedException();
         }
 
-        public bool ConsumeElement([NotNull] double[] item, Accumulator<T> accumulator)
+    
+        private bool ConsumeElement([NotNull] double[] item, Accumulator<T> accumulator)
         {
             var elementSpectrum = accumulator.Accumulate(item);
             if (elementSpectrum == null)
@@ -117,13 +142,16 @@ namespace SpectroscopyVisualizer.Consumers
             OnDataUpdatedInBackground(elementSpectrum);
             return true;
         }
-
+        /// <summary>
+        /// Called when a new element is processed in the background.
+        /// </summary>
+        /// <param name="single">The processed spetrum of a newly dequeued element.</param>
         protected void OnDataUpdatedInBackground([NotNull] T single)
         {
             var averAll = Adapter.SampleAverageAndSquare(SumSpectrum);
             var averSingle = Adapter.SampleAverageAndSquare(single);
 
-            if (Camera.IsOn) Camera.Capture(single);
+            if (Writer.IsOn) Writer.Enqueue(single);
 
             _dummyAxis = _dummyAxis ?? Axis.DummyAxis(averAll);
             View.InvokeAsync(() =>

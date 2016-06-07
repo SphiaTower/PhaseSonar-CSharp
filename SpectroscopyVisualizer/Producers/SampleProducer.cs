@@ -1,20 +1,20 @@
 ﻿using System.Threading;
 using NationalInstruments.Examples.StreamToDiskConsole;
 using NationalInstruments.ModularInstruments.NIScope;
-using SpectroscopyVisualizer.Controllers;
+using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Producers {
     public class SampleProducer : ProducerBase
     {
         private readonly Sampler _sampler;
         
-        public SampleProducer(Sampler sampler, SampleCamera camera)
+        public SampleProducer(Sampler sampler, SampleWriter writer)
         {
-            Camera = camera;
+            Writer = writer;
             _sampler = sampler;
         }
 
-        public SampleCamera Camera { get; set; }
+        public SampleWriter Writer { get; set; }
 
         protected override void Wait()
         {
@@ -28,7 +28,7 @@ namespace SpectroscopyVisualizer.Producers {
         protected override double[] RetrieveData()
         {
             var pulseSequence = _sampler.Retrieve();
-            if (Camera.IsOn) Camera.Capture(pulseSequence);
+            if (Writer.IsOn) Writer.Enqueue(pulseSequence);
             return pulseSequence;
         }
 

@@ -49,6 +49,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Release\SpectroscopyVisualizer.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>
@@ -113,29 +114,29 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Configs\ConfigsHolder.cs" />
-    <Compile Include="Configs\CorrectorConfigs.cs" />
-    <Compile Include="Configs\SliceConfigs.cs" />
+    <Compile Include="Configs\CorrectorConfigurations.cs" />
+    <Compile Include="Configs\SliceConfigurations.cs" />
     <Compile Include="Consumers\IConsumer.cs" />
     <Compile Include="Consumers\ParallelSpectroscopyVisualizer.cs" />
-    <Compile Include="Consumers\SimpleSpetrumViewer.cs" />
-    <Compile Include="Controllers\Camera.cs" />
-    <Compile Include="Controllers\DiskCameraBase.cs" />
-    <Compile Include="Controllers\SpectrumCamera.cs" />
+    <Compile Include="Scheduler.cs" />
+    <Compile Include="Writers\Writer.cs" />
+    <Compile Include="Writers\DiskWriterBase.cs" />
+    <Compile Include="Writers\SampleWriter.cs" />
+    <Compile Include="Writers\SpectrumWriter.cs" />
     <Compile Include="EnumBindingSourceExtension.cs" />
     <Compile Include="EnumToBooleanConverter.cs" />
     <Compile Include="Factories\ParallelInjector.cs" />
     <Compile Include="Factories\Injector.cs" />
-    <Compile Include="Controllers\Scheduler.cs" />
     <Compile Include="Presenters\HorizontalAxisView.cs" />
     <Compile Include="Presenters\SwitchButton.cs" />
     <Compile Include="Presenters\VerticalAxisView.cs" />
     <Compile Include="Producers\DummyProducer.cs" />
     <Compile Include="Producers\IProducer.cs" />
     <Compile Include="Producers\LocalProducer.cs" />
-    <Compile Include="Configs\SamplingConfigs.cs" />
+    <Compile Include="Configs\SamplingConfigurations.cs" />
     <Compile Include="Presenters\CanvasView.cs" />
     <Compile Include="Presenters\AxisBuilder.cs" />
-    <Compile Include="Configs\Configurations.cs" />
+    <Compile Include="Configs\GeneralConfigurations.cs" />
     <Compile Include="Producers\ProducerBase.cs" />
     <Compile Include="Producers\SampleProducer.cs" />
     <Compile Include="Presenters\DisplayAdapter.cs" />

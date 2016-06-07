@@ -5,11 +5,11 @@ using PhaseSonar.Utils;
 namespace SpectroscopyVisualizer.Configs
 {
     [Serializable]
-    public class Configurations
+    public class GeneralConfigurations
     {
-        private static Configurations _singleton;
+        private static GeneralConfigurations _singleton;
 
-        private Configurations(double repetitionRate, int threadNum, int dispPoints, string directory)
+        private GeneralConfigurations(double repetitionRate, int threadNum, int dispPoints, string directory)
         {
             RepetitionRate = repetitionRate;
             ThreadNum = threadNum;
@@ -22,8 +22,8 @@ namespace SpectroscopyVisualizer.Configs
         public int ThreadNum { get; set; }
         public int DispPoints { get; set; }
 
-        internal void Register(Configurations configurations) {
-            _singleton = configurations;
+        internal void Register(GeneralConfigurations generalConfigurations) {
+            _singleton = generalConfigurations;
         }
 
         public string Directory { get; set; }
@@ -43,10 +43,10 @@ namespace SpectroscopyVisualizer.Configs
             {
                 throw new Exception("environment already init");
             }
-            _singleton = new Configurations(repetitionRate, threadNum, dispPoints, directory);
+            _singleton = new GeneralConfigurations(repetitionRate, threadNum, dispPoints, directory);
         }
 
-        public static Configurations Get()
+        public static GeneralConfigurations Get()
         {
             Toolbox.RequireNonNull(_singleton, "environment not init");
             return _singleton;

@@ -5,11 +5,11 @@ using PhaseSonar.Utils;
 namespace SpectroscopyVisualizer.Configs
 {
     [Serializable]
-    public class SamplingConfigs
+    public class SamplingConfigurations
     {
-        private static SamplingConfigs _singleton;
+        private static SamplingConfigurations _singleton;
 
-        private SamplingConfigs(string deviceName, int channel, double samplingRateInMHz, long recordLengthInM,
+        private SamplingConfigurations(string deviceName, int channel, double samplingRateInMHz, long recordLengthInM,
             double range)
         {
             Toolbox.RequireNonNull(deviceName, "device name is null");
@@ -25,9 +25,9 @@ namespace SpectroscopyVisualizer.Configs
             RecordLengthInM = recordLengthInM;
         }
 
-        internal void Register(SamplingConfigs samplingConfigs)
+        internal void Register(SamplingConfigurations samplingConfigurations)
         {
-            _singleton = samplingConfigs;
+            _singleton = samplingConfigurations;
         }
 
         public string DeviceName { get; set; }
@@ -55,10 +55,10 @@ namespace SpectroscopyVisualizer.Configs
             {
                 throw new Exception("SamplingConfigs already init ");
             }
-            _singleton = new SamplingConfigs(deviceName, channel, samplingRateInMHz, recordLengthInM, range);
+            _singleton = new SamplingConfigurations(deviceName, channel, samplingRateInMHz, recordLengthInM, range);
         }
 
-        public static SamplingConfigs Get()
+        public static SamplingConfigurations Get()
         {
             return _singleton;
         }

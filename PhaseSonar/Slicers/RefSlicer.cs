@@ -81,8 +81,8 @@ namespace PhaseSonar.Slicers
         /// <summary>
         /// Create a crest finder
         /// </summary>
-        /// <param name="absoluteCrestFinder"></param>
-        public RefSlicer(ICrestFinder absoluteCrestFinder) : base(absoluteCrestFinder)
+        /// <param name="finder"></param>
+        public RefSlicer(ICrestFinder finder) : base(finder)
         {
         }
     }

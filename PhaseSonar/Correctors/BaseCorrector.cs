@@ -82,12 +82,14 @@ namespace PhaseSonar.Correctors
         /// </summary>
         public int OutputLength { get; }
 
+
         /// <summary>
-        ///     Do phase correction on a piece of the full temporal data
+        /// Correct a pulse
         /// </summary>
-        /// <param name="pulseSequence">the full temporal data</param>
-        /// <param name="startIndex">the starting index of the piece</param>
-        /// <returns></returns>
+        /// <param name="pulseSequence">The pulse sequence that the pulse contains in</param>
+        /// <param name="startIndex">The start index of the pulse in the pulse sequence</param>
+        /// <param name="pulseLength">The length of the pulse</param>
+        /// <param name="crestIndex">The number of points before the crest</param>
         public abstract void Correct(double[] pulseSequence, int startIndex, int pulseLength, int crestIndex);
 
         /// <summary>
@@ -95,7 +97,7 @@ namespace PhaseSonar.Correctors
         /// </summary>
         public void ClearBuffer()
         {
-            throw new NotImplementedException();
+            SpectrumBuffer.Clear();
         }
 
 

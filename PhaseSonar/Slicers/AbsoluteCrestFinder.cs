@@ -106,7 +106,7 @@ namespace PhaseSonar.Slicers
     }
 
     /// <summary>
-    /// An improved finder which adjusts the vertical threshold automatically if the crests found is not enough .
+    /// An improved finder which adjusts the vertical threshold automatically if the number of crests found is not enough.
     /// </summary>
     public class IntelligentAbsoluteCrestFinder : AbsoluteCrestFinder
     {

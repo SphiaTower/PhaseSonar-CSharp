@@ -8,8 +8,7 @@ namespace PhaseSonar.Analyzers
     ///     An analyzer which adds up all results in a pulse sequence.
     ///     This class is targeted for the data with 1 component only.
     /// </summary>
-    /// <typeparam name="T">The type of spectrum</typeparam>
-    public abstract class Accumulator<T> : BaseAnalyzer where T : ISpectrum
+    public abstract class Accumulator : SingleDataRecordProcessor
     {
         /// <summary>
         ///     Create an accumulator
@@ -20,9 +19,9 @@ namespace PhaseSonar.Analyzers
         }
 
         /// <summary>
-        ///     <see cref="IAnalyzerStrategy{T}" />
+        ///     <see cref="IAnalyzerStrategy" />
         /// </summary>
-        protected abstract IAnalyzerStrategy<T> Strategy { get; set; }
+        protected abstract IAnalyzerStrategy Strategy { get; set; }
 
         /// <summary>
         ///     Process the pulse sequence and accumulate results of all pulses
@@ -30,16 +29,16 @@ namespace PhaseSonar.Analyzers
         /// <param name="pulseSequence">The pulse sequence, often a sampled data record</param>
         /// <returns>The accumulated spectrum of the pulse sequence, or null if failed</returns>
         [CanBeNull]
-        public T Accumulate(double[] pulseSequence)
+        public ISpectrum Accumulate(double[] pulseSequence)
         {
             var startIndicesList = Slicer.Slice(pulseSequence);
             if (startIndicesList == null)
             {
-                return default(T);
+                return null;
             }
 
             var spectra = Strategy.Process(pulseSequence, startIndicesList, Slicer.SlicedPeriodLength, Slicer.CrestIndex);
-            return spectra != null ? spectra[0] : default(T);
+            return spectra?[0];
         }
     }
 }

@@ -119,14 +119,15 @@
     <Compile Include="Consumers\IConsumer.cs" />
     <Compile Include="Consumers\ParallelSpectroscopyVisualizer.cs" />
     <Compile Include="Scheduler.cs" />
-    <Compile Include="Writers\Writer.cs" />
-    <Compile Include="Writers\DiskWriterBase.cs" />
+    <Compile Include="Writers\IWriter.cs" />
+    <Compile Include="Writers\AbstractWriter.cs" />
+    <Compile Include="Writers\AbstractDiskWriter.cs" />
     <Compile Include="Writers\SampleWriter.cs" />
     <Compile Include="Writers\SpectrumWriter.cs" />
     <Compile Include="EnumBindingSourceExtension.cs" />
     <Compile Include="EnumToBooleanConverter.cs" />
     <Compile Include="Factories\ParallelInjector.cs" />
-    <Compile Include="Factories\Injector.cs" />
+    <Compile Include="Factories\SerialInjector.cs" />
     <Compile Include="Presenters\HorizontalAxisView.cs" />
     <Compile Include="Presenters\SwitchButton.cs" />
     <Compile Include="Presenters\VerticalAxisView.cs" />
@@ -137,10 +138,10 @@
     <Compile Include="Presenters\CanvasView.cs" />
     <Compile Include="Presenters\AxisBuilder.cs" />
     <Compile Include="Configs\GeneralConfigurations.cs" />
-    <Compile Include="Producers\ProducerBase.cs" />
+    <Compile Include="Producers\AbstractProducer.cs" />
     <Compile Include="Producers\SampleProducer.cs" />
     <Compile Include="Presenters\DisplayAdapter.cs" />
-    <Compile Include="Consumers\Consumer.cs" />
+    <Compile Include="Consumers\AbstractConsumer.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -155,8 +156,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Consumers\SpectroscopyVisualizer.cs" />
-    <Compile Include="Consumers\UIConsumer.cs" />
+    <Compile Include="Consumers\SerialSpectroscopyVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

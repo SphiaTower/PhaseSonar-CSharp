@@ -53,11 +53,11 @@
                         <RowDefinition Height="40" />
                     </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="0" Background="#FF000032" >
+                    <Grid Grid.Row="0" Background="#FF000032">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="90"  />
-                            <ColumnDefinition Width="*"  />
-                            <ColumnDefinition Width="30"  />
+                            <ColumnDefinition Width="90" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="30" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="20" />
@@ -66,10 +66,10 @@
                         </Grid.RowDefinitions>
                         <Canvas Grid.Row="1" Grid.Column="1" x:Name="ScopeCanvas" Background="#FF000032" />
                         <Canvas Grid.Row="2" Grid.Column="1" x:Name="HorAxisCanvas" Background="#FF000032" />
-                        <Canvas Grid.Row="1" Grid.Column="0"  x:Name="VerAxisCanvas" Background="#FF000032" />
+                        <Canvas Grid.Row="1" Grid.Column="0" x:Name="VerAxisCanvas" Background="#FF000032" />
                     </Grid>
 
-                    <Grid Grid.Row="1" >
+                    <Grid Grid.Row="1">
                         <Rectangle Stroke="DarkGray" StrokeThickness="0.5" />
 
                         <TextBox x:Name="TbStartFreq" Height="20" Margin="0,12,488,0"
@@ -84,16 +84,18 @@
                                  Text="{Binding Path=EndFreqInMHz,Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                  VerticalAlignment="Top" HorizontalAlignment="Right"
                                  Width="34" />
-                        <TextBlock  Text="MSample/s" HorizontalAlignment="Left" Margin="422,12,0,0"
-                                VerticalAlignment="Top"   Height="24" />
-                        <Label  HorizontalAlignment="Left" Margin="19,10,0,0"
+                        <TextBlock Text="MSample/s" HorizontalAlignment="Left" Margin="422,12,0,0"
+                                   VerticalAlignment="Top" Height="24" />
+                        <Label HorizontalAlignment="Left" Margin="19,10,0,0"
                                Content="Freq Axis/MHz : " VerticalAlignment="Top" Width="95" Height="26"
                                RenderTransformOrigin="0.41,-0.225" />
                         <Button x:Name="ToggleButton" Content="START" HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom" Width="67" Click="ToggleButton_OnClick" Margin="0,0,10,6"
                                 Height="22" RenderTransformOrigin="-4.984,-2.155" />
-                        <TextBox x:Name="TbConsumerSpeed" HorizontalAlignment="Left" Height="24" Margin="370,12,0,0" TextWrapping="Wrap" Text="Speed" VerticalAlignment="Top" Width="47"/>
-                        <Label x:Name="label" Content="Processing Speed" HorizontalAlignment="Left" Margin="256,9,0,0" VerticalAlignment="Top"/>
+                        <TextBox x:Name="TbConsumerSpeed" HorizontalAlignment="Left" Height="24" Margin="370,12,0,0"
+                                 TextWrapping="Wrap" Text="Speed" VerticalAlignment="Top" Width="47" />
+                        <Label x:Name="label" Content="Processing Speed" HorizontalAlignment="Left" Margin="256,9,0,0"
+                               VerticalAlignment="Top" />
                     </Grid>
                 </Grid>
 
@@ -177,7 +179,8 @@
                                VerticalAlignment="Top" />
                         <TextBox x:Name="TbZeroFillFactor" HorizontalAlignment="Left" Height="23" Margin="112,73,0,0"
                                  TextWrapping="Wrap" Text="{Binding ZeroFillFactor}" VerticalAlignment="Top" Width="54" />
-                        <TextBox x:Name="TbCenterSpanLength" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="286,74,0,17"
+                        <TextBox x:Name="TbCenterSpanLength" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                 Margin="286,74,0,17"
                                  TextWrapping="Wrap" Text="{Binding CenterSpanLength}" Width="54" Height="23" />
 
                         <ComboBox x:Name="CbCorrector"
@@ -204,7 +207,8 @@
                         <Label x:Name="label17" Content="Resolution" HorizontalAlignment="Left"
                                VerticalAlignment="Top" Margin="0,3,0,0" />
                         <TextBox x:Name="TbDispPoints" HorizontalAlignment="Left" Height="23" Margin="112,4,0,0"
-                                 TextWrapping="Wrap" Text="{Binding DispPoints}" VerticalAlignment="Top" Width="54" RenderTransformOrigin="0.498,0.93" />
+                                 TextWrapping="Wrap" Text="{Binding DispPoints}" VerticalAlignment="Top" Width="54"
+                                 RenderTransformOrigin="0.498,0.93" />
                     </Grid>
                     <Grid Row="4">
                         <Button x:Name="BnPath" Content="Set Save&#xD;&#xA;Directory" HorizontalAlignment="Left"

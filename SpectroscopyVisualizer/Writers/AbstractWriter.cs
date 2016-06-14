@@ -5,54 +5,37 @@ using System.Threading.Tasks;
 namespace SpectroscopyVisualizer.Writers
 {
     /// <summary>
-    /// An interface declared for data saving.
+    ///     A base implementation.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IWriter<in T>
+    public abstract class AbstractWriter<T> : IWriter<T>
     {
         /// <summary>
-        /// The state of the Writer.
-        /// </summary>
-        bool IsOn { get; set; }
-        
-        /// <summary>
-        /// Save data.
-        /// </summary>
-        /// <param name="data"></param>
-        void Enqueue(T data);
-    }
-
-    /// <summary>
-    /// A base implementation.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public abstract class Writer<T> : IWriter<T>
-    {
-        /// <summary>
-        /// Create an instance.
+        ///     Create an instance.
         /// </summary>
         /// <param name="on">On or off.</param>
-        protected Writer(bool on)
+        protected AbstractWriter(bool on)
         {
             IsOn = on;
         }
 
         /// <summary>
-        /// The queue storing data to be saved.
+        ///     The queue storing data to be saved.
         /// </summary>
         protected ConcurrentQueue<T> Queue { get; } = new ConcurrentQueue<T>();
+
         /// <summary>
-        /// The state whether the Writer is saving data.
+        ///     The state whether the Writer is saving data.
         /// </summary>
         protected bool IsProcessing { get; set; }
 
         /// <summary>
-        /// The state of the Writer.
+        ///     The state of the Writer.
         /// </summary>
         public bool IsOn { get; set; }
 
         /// <summary>
-        /// Enqueue a new data to save.
+        ///     Enqueue a new data to save.
         /// </summary>
         /// <param name="data"></param>
         public void Enqueue(T data)
@@ -77,7 +60,7 @@ namespace SpectroscopyVisualizer.Writers
         }
 
         /// <summary>
-        /// Save data element in the queue.
+        ///     Save data element in the queue.
         /// </summary>
         /// <param name="dequeue">The dequeued element</param>
         protected abstract void ConsumeElement(T dequeue);

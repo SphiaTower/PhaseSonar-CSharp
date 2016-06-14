@@ -4,12 +4,12 @@ using PhaseSonar.Utils;
 namespace SpectroscopyVisualizer.Writers
 {
     /// <summary>
-    /// A writer writing data sampled.
+    ///     A Writer writing data sampled.
     /// </summary>
-    public class SampleWriter : DiskWriterBase<double[]>
+    public class SampleWriter : AbstractDiskWriter<double[]>
     {
         /// <summary>
-        /// Create an instance.
+        ///     Create an instance.
         /// </summary>
         /// <param name="directory">The directory.</param>
         /// <param name="prefix">The prefix of the file.</param>
@@ -19,7 +19,7 @@ namespace SpectroscopyVisualizer.Writers
         }
 
         /// <summary>
-        /// Called when start consuming a dequeued element.
+        ///     Called when start consuming a dequeued element.
         /// </summary>
         /// <param name="dequeue"></param>
         /// <param name="basePath"></param>
@@ -31,7 +31,8 @@ namespace SpectroscopyVisualizer.Writers
             {
                 Toolbox.SerializeData(basePath + TimeStamp + "-" + fileIndex + Suffix, dequeue);
                 return true;
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 return false;
             }

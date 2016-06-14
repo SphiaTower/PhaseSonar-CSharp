@@ -3,11 +3,12 @@ using NationalInstruments.Examples.StreamToDiskConsole;
 using NationalInstruments.ModularInstruments.NIScope;
 using SpectroscopyVisualizer.Writers;
 
-namespace SpectroscopyVisualizer.Producers {
-    public class SampleProducer : ProducerBase
+namespace SpectroscopyVisualizer.Producers
+{
+    public class SampleProducer : AbstractProducer
     {
         private readonly Sampler _sampler;
-        
+
         public SampleProducer(Sampler sampler, SampleWriter writer)
         {
             Writer = writer;

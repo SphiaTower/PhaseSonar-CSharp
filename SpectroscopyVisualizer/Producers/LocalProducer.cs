@@ -3,8 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
-using PhaseSonar.Utils;
 using JetBrains.Annotations;
+using PhaseSonar.Utils;
 
 namespace SpectroscopyVisualizer.Producers
 {

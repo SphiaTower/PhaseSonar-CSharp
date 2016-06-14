@@ -14,10 +14,7 @@ using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Factories
 {
-    /// <summary>
-    ///     TODO: apply the abstract factory pattern
-    /// </summary>
-    public class ParallelInjector
+    public class SerialInjector
     {
         [NotNull]
         public static ISlicer NewSlicer()
@@ -42,11 +39,18 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        public static SerialAccumulator NewAccumulator()
+        public static Accumulator NewAccumulator()
         {
-            return new SerialAccumulator(
+            var threadNum = GeneralConfigurations.Get().ThreadNum;
+            var correctors = new List<ICorrector>(threadNum);
+            for (var i = 0; i < threadNum; i++)
+            {
+                correctors.Add(NewCorrector());
+            }
+            return new ParallelAccumulator(
                 NewSlicer(),
-                NewCorrector());
+                correctors);
+//                return new SerialAccumulator(NewSlicer(),NewCorrector());
         }
 
         [NotNull]
@@ -85,7 +89,6 @@ namespace SpectroscopyVisualizer.Factories
                         new AccFlipMertzCorrector(NewApodizer(), fuzzyPeriodLength,
                             CorrectorConfigurations.Get().ZeroFillFactor,
                             CorrectorConfigurations.Get().CenterSpanLength/2);
-
                 case CorrectorType.Fake:
                     return
                         new FakeCorrector(NewApodizer(), fuzzyPeriodLength, CorrectorConfigurations.Get().ZeroFillFactor);
@@ -133,17 +136,13 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        public static AbstractConsumer<double[]> NewConsumer(IProducer producer, DisplayAdapter adapter, SpectrumWriter writer)
+        public static AbstractConsumer<double[]> NewConsumer(IProducer producer, CanvasView view,
+            HorizontalAxisView horizontalAxisView, VerticalAxisView verticalAxisView, bool cameraOn)
         {
-            var threadNum = GeneralConfigurations.Get().ThreadNum;
-            var accumulators = new List<SerialAccumulator>(threadNum);
-            for (var i = 0; i < threadNum; i++)
-            {
-                accumulators.Add(NewAccumulator());
-            }
-            return new ParallelSpectroscopyVisualizer(producer.BlockingQueue, accumulators,
-                adapter,
-                writer);
+            return new SerialSpectroscopyVisualizer(producer.BlockingQueue,
+                NewAccumulator(),
+                NewAdapter(view, horizontalAxisView, verticalAxisView),
+                NewSpectrumWriter(cameraOn));
         }
     }
 }

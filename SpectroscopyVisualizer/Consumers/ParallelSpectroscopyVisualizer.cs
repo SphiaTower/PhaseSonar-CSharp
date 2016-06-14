@@ -6,67 +6,67 @@ using System.Windows.Media;
 using JetBrains.Annotations;
 using PhaseSonar.Analyzers;
 using PhaseSonar.Correctors;
-using SpectroscopyVisualizer.Writers;
 using SpectroscopyVisualizer.Presenters;
+using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Consumers
 {
     /// <summary>
-    /// A parallel version of <see cref="SpectroscopyVisualizer{T}"/> which dequeues elements parallelly.
+    ///     A parallel version of <see cref="SerialSpectroscopyVisualizer" /> which dequeues elements parallelly.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class ParallelSpectroscopyVisualizer<T> : UiConsumer<double[]> where T : ISpectrum
+    public class ParallelSpectroscopyVisualizer : AbstractConsumer<double[]>
     {
         private const string Lock = "lock";
         private double[] _dummyAxis;
-        private int _refreshCnt;
 
         /// <summary>
-        /// Create an instance.
+        ///     Create an instance.
         /// </summary>
         /// <param name="blockingQueue">The queue containing all elements to be consumed.</param>
-        /// <param name="view">The view for display.</param>
         /// <param name="accumulators">A list of accumulators processing the data sampled parallelly.</param>
         /// <param name="adapter">An adapter for display.</param>
         /// <param name="writer">A Writer for data storage.</param>
         public ParallelSpectroscopyVisualizer(
             BlockingCollection<double[]> blockingQueue,
-            CanvasView view,
-            List<SerialAccumulator<T>> accumulators,
+            List<SerialAccumulator> accumulators,
             DisplayAdapter adapter,
-            Writer<T> writer)
-            : base(blockingQueue, view, adapter)
+            SpectrumWriter writer)
+            : base(blockingQueue)
         {
             Accumulators = accumulators;
+            Adapter = adapter;
+            Axis = new AxisBuilder(adapter.WavefromView);
             Writer = writer;
         }
 
         /// <summary>
-        /// A list of accumulators processing the data sampled parallelly.
+        ///     A list of accumulators processing the data sampled parallelly.
         /// </summary>
-        public List<SerialAccumulator<T>> Accumulators { get; }
+        public List<SerialAccumulator> Accumulators { get; }
+
         /// <summary>
-        /// The accumulation of spectra.
+        ///     The accumulation of spectra.
         /// </summary>
         [CanBeNull]
         public ISpectrum SumSpectrum { get; protected set; }
 
         /// <summary>
-        /// A Writer for data storage.
+        ///     A Writer for data storage.
         /// </summary>
-        public Writer<T> Writer { get; }
+        public SpectrumWriter Writer { get; }
+
+
+        private AxisBuilder Axis { get; }
 
         /// <summary>
-        /// Save data.
+        ///     <see cref="DisplayAdapter" />
         /// </summary>
-        public override bool Save
-        {
-            get { return Writer.IsOn; }
-            set { Writer.IsOn = value; }
-        }
+        public DisplayAdapter Adapter { get; set; }
+
+        public CanvasView View => Adapter.WavefromView;
 
         /// <summary>
-        /// Start consuming.
+        ///     Start consuming.
         /// </summary>
         public override void Consume()
         {
@@ -111,7 +111,8 @@ namespace SpectroscopyVisualizer.Consumers
         }
 
         /// <summary>
-        /// This method is not implemented due to the bad design of the class hierarchy.// TODO Rewrite the consumer base class.
+        ///     This method is not implemented due to the bad design of the class hierarchy.// TODO Rewrite the consumer base
+        ///     class.
         /// </summary>
         /// <param name="item">The element</param>
         /// <returns>Consumed successfully or not</returns>
@@ -120,8 +121,8 @@ namespace SpectroscopyVisualizer.Consumers
             throw new NotImplementedException();
         }
 
-    
-        private bool ConsumeElement([NotNull] double[] item, Accumulator<T> accumulator)
+
+        private bool ConsumeElement([NotNull] double[] item, Accumulator accumulator)
         {
             var elementSpectrum = accumulator.Accumulate(item);
             if (elementSpectrum == null)
@@ -142,11 +143,12 @@ namespace SpectroscopyVisualizer.Consumers
             OnDataUpdatedInBackground(elementSpectrum);
             return true;
         }
+
         /// <summary>
-        /// Called when a new element is processed in the background.
+        ///     Called when a new element is processed in the background.
         /// </summary>
         /// <param name="single">The processed spetrum of a newly dequeued element.</param>
-        protected void OnDataUpdatedInBackground([NotNull] T single)
+        protected void OnDataUpdatedInBackground([NotNull] ISpectrum single)
         {
             var averAll = Adapter.SampleAverageAndSquare(SumSpectrum);
             var averSingle = Adapter.SampleAverageAndSquare(single);
@@ -164,7 +166,6 @@ namespace SpectroscopyVisualizer.Consumers
                 View.DrawWaveform(averSinglePts, Colors.Red);
                 View.DrawWaveform(averAllPts);
                 // todo: bug: buffer cleared while closure continues
-                _refreshCnt++;
             }
                 );
         }

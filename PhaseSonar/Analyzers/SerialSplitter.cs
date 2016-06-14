@@ -9,8 +9,7 @@ namespace PhaseSonar.Analyzers
     ///     A SerialSplitter which splits gas and reference and accumulates results in a pulse sequence respectively.
     ///     TODO: This class may have bugs.
     /// </summary>
-    /// <typeparam name="T">The type of the spectrum</typeparam>
-    public sealed class SerialSplitter<T> : BaseAnalyzer where T : ISpectrum
+    public sealed class SerialSplitter : SingleDataRecordProcessor
     {
         /// <summary>
         ///     Create a splitter.
@@ -19,15 +18,15 @@ namespace PhaseSonar.Analyzers
         ///     <see cref="ISlicer" />
         /// </param>
         /// <param name="corrector">
-        ///     <see cref="ICorrector{T}" />
+        ///     <see cref="ICorrector" />
         /// </param>
-        public SerialSplitter(ISlicer slicer, ICorrector<T> corrector) : base(slicer)
+        public SerialSplitter(ISlicer slicer, ICorrector corrector) : base(slicer)
         {
 //todo
-            Strategy = new SerialStrategy<T>(corrector);
+            Strategy = new SerialStrategy(corrector);
         }
 
-        private IAnalyzerStrategy<T> Strategy { get; }
+        private IAnalyzerStrategy Strategy { get; }
 
 
         /// <summary>
@@ -37,7 +36,7 @@ namespace PhaseSonar.Analyzers
         /// <returns>The splitted result</returns>
         /// <exception cref="IndexOutOfRangeException">Thrown when the data does not contain two components</exception>
         [CanBeNull]
-        public SplitResult<T> Split(double[] pulseSequence)
+        public SplitResult Split(double[] pulseSequence)
         {
             var list = Slicer.Slice(pulseSequence);
             if (list == null)
@@ -53,7 +52,7 @@ namespace PhaseSonar.Analyzers
             {
                 throw new IndexOutOfRangeException("Split result must contain two SpecInfos");
             }
-            return SplitResult<T>.EitherAndOther(specInfos[0], specInfos[1]);
+            return SplitResult.EitherAndOther(specInfos[0], specInfos[1]);
         }
     }
 
@@ -61,9 +60,9 @@ namespace PhaseSonar.Analyzers
     ///     A container for gas and reference spectra
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class SplitResult<T>
+    public class SplitResult
     {
-        private SplitResult(T gas, T reference)
+        private SplitResult(ISpectrum gas, ISpectrum reference)
         {
             Gas = gas;
             Reference = reference;
@@ -72,12 +71,12 @@ namespace PhaseSonar.Analyzers
         /// <summary>
         ///     The spectrum of the gas
         /// </summary>
-        public T Gas { get; }
+        public ISpectrum Gas { get; }
 
         /// <summary>
         ///     The spectrum of the reference
         /// </summary>
-        public T Reference { get; }
+        public ISpectrum Reference { get; }
 
         /// <summary>
         ///     Create an instance with source and reference known
@@ -85,9 +84,9 @@ namespace PhaseSonar.Analyzers
         /// <param name="source">The source spectrum</param>
         /// <param name="reference">The reference spectrum</param>
         /// <returns></returns>
-        public static SplitResult<T> SourceAndRef(T source, T reference)
+        public static SplitResult SourceAndRef(ISpectrum source, ISpectrum reference)
         {
-            return new SplitResult<T>(source, reference);
+            return new SplitResult(source, reference);
         }
 
         /// <summary>
@@ -96,7 +95,7 @@ namespace PhaseSonar.Analyzers
         /// <param name="either">A spectrum</param>
         /// <param name="other">Another spectrum</param>
         /// <returns></returns>
-        public static SplitResult<T> EitherAndOther(T either, T other)
+        public static SplitResult EitherAndOther(ISpectrum either, ISpectrum other)
         {
 //            return either.Amplitudes.Sum() >= other.Amplitudes.Sum()
 //                ? SourceAndRef(either, other)

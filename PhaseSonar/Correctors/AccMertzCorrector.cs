@@ -10,7 +10,7 @@ namespace PhaseSonar.Correctors
     public class AccMertzCorrector : MertzCorrector
     {
         /// <summary>
-        /// Create an instance. <see cref="ICorrector{T}"/>
+        /// Create an instance. <see cref="ICorrector"/>
         /// </summary>
         /// <param name="apodizer"></param>
         /// <param name="fuzzyPulseLength"></param>

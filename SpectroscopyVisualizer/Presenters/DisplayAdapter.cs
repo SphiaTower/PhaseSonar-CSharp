@@ -5,9 +5,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using PhaseSonar.Correctors;
 using JetBrains.Annotations;
 using NationalInstruments.Restricted;
+using PhaseSonar.Correctors;
 
 namespace SpectroscopyVisualizer.Presenters
 {
@@ -17,7 +17,7 @@ namespace SpectroscopyVisualizer.Presenters
         private readonly HorizontalAxisView _horizontalAxisView;
         private readonly double _sampleRateInMHz;
         private readonly VerticalAxisView _verticalAxisView;
-        private readonly CanvasView _wavefromView;
+        public CanvasView WavefromView { get; }
         private double _endFreqInMHz;
         private Point _lastPoint;
         private double _max;
@@ -31,9 +31,9 @@ namespace SpectroscopyVisualizer.Presenters
 
         public DisplayAdapter(CanvasView wavefromView, HorizontalAxisView horizontalAxisView,
             VerticalAxisView verticalAxisView, int dispPointNum, double samplingRate, int startFreqInMHz = 0,
-            int endFreqInMHz = 50)
+            int endFreqInMHz = 50)  // todo hard coded 0 and 50
         {
-            _wavefromView = wavefromView;
+            WavefromView = wavefromView;
             _horizontalAxisView = horizontalAxisView;
             _verticalAxisView = verticalAxisView;
             _sampleRateInMHz = samplingRate/1e6;
@@ -74,14 +74,14 @@ namespace SpectroscopyVisualizer.Presenters
 
                 if (!(zoomEnd - _zoomStart <= 12))
                 {
-                    var zoomCommand = new ZoomCommand(_zoomStart, zoomEnd, _wavefromView, this);
+                    var zoomCommand = new ZoomCommand(_zoomStart, zoomEnd, WavefromView, this);
                     _cmdStack.Push(zoomCommand);
                     zoomCommand.Invoke();
                     ResetYScale();
                 }
                 else
                 {
-                    _wavefromView.ClearLine();
+                    WavefromView.ClearLine();
                 }
 
                 _mouseDown = false;
@@ -107,13 +107,13 @@ namespace SpectroscopyVisualizer.Presenters
                     ResetYScale();
                 }
             };
-            _wavefromView.DrawGrid();
+            WavefromView.DrawGrid();
         }
 
         public int DispPointsCnt { get; set; }
 
-        public double ScreenHeight => _wavefromView.ScopeHeight;
-        public double ScreenWidth => _wavefromView.ScopeWidth;
+        public double ScreenHeight => WavefromView.ScopeHeight;
+        public double ScreenWidth => WavefromView.ScopeWidth;
 
         public double EndFreqInMHz
         {
@@ -145,7 +145,7 @@ namespace SpectroscopyVisualizer.Presenters
 
             var changed = PropertyChanged;
 
-            if (changed != null) changed(this, e);
+            changed?.Invoke(this, e);
         }
 
         public PointCollection CreateGraphPoints(double[] xAxis, double[] yAxis)
@@ -298,7 +298,7 @@ namespace SpectroscopyVisualizer.Presenters
             ResetYScale();
             _horizontalAxisView.DrawRuler(StartFreqInMHz, EndFreqInMHz);
             _verticalAxisView.DrawRuler(_min, _max);
-            _wavefromView.DrawGrid();
+            WavefromView.DrawGrid();
         }
     }
 

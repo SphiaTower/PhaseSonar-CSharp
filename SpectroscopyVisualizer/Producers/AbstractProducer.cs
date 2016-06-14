@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 
 namespace SpectroscopyVisualizer.Producers
 {
-    public abstract class ProducerBase : IProducer
+    public abstract class AbstractProducer : IProducer
     {
         private bool IsOn { get; set; } = true;
-        public BlockingCollection<double[]> BlockingQueue { get; } = new BlockingCollection<double[]>(24); // todo config
+        public BlockingCollection<double[]> BlockingQueue { get; } = new BlockingCollection<double[]>(24);
+        // todo config
         public int HistoryProductCnt { get; private set; }
 
         public void Produce()

@@ -1,19 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 
-namespace SpectroscopyVisualizer.Presenters {
-    public class SwitchButton {
-        public Button Button { get; }
-        private bool _state;
-        private readonly Action _turnOn;
+namespace SpectroscopyVisualizer.Presenters
+{
+    public class SwitchButton
+    {
         private readonly Action _turnOff;
-        private string OnText { get; }
-        private string OffText { get; }
+        private readonly Action _turnOn;
+        private bool _state;
+
         public SwitchButton(Button button, bool state, string onText, string offText, Action turnOn, Action turnOff)
         {
             _state = state;
@@ -23,6 +18,10 @@ namespace SpectroscopyVisualizer.Presenters {
             OnText = onText;
             OffText = offText;
         }
+
+        public Button Button { get; }
+        private string OnText { get; }
+        private string OffText { get; }
 
         public void Toggle()
         {

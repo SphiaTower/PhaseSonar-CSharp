@@ -45,6 +45,14 @@ namespace PhaseSonar.Utils
         }
 
         /// <summary>
+        /// Write string array to a given path line by line.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="data"></param>
+        public static void WriteStringArray(string path, [NotNull] string[] data) {
+            File.WriteAllLines(path, data);
+        }
+        /// <summary>
         /// Serialize data into binary format to a given path.
         /// </summary>
         /// <param name="path"></param>

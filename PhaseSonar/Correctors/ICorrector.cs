@@ -5,15 +5,14 @@ namespace PhaseSonar.Correctors
     /// <summary>
     /// A corrector that corrects the phase of the temporal data of one pulse.
     /// </summary>
-    /// <typeparam name="T">The type of the spectrum</typeparam>
-    public interface ICorrector<out T> where T:ISpectrum
+    public interface ICorrector
     {
         /// <summary>
         /// Get the buffer which stores the latest output
         /// </summary>
         /// <returns>The buffer which stores the latest output</returns>
         [NotNull]
-        T OutputSpetrumBuffer();
+        ISpectrum OutputSpetrumBuffer();
 
         /// <summary>
         /// The length of the output

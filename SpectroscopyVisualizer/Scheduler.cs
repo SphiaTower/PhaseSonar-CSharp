@@ -6,40 +6,40 @@ using SpectroscopyVisualizer.Producers;
 namespace SpectroscopyVisualizer
 {
     /// <summary>
-    /// A scheduler scheduling the producer and the consumer.
+    ///     A scheduler scheduling the producer and the consumer.
     /// </summary>
     public class Scheduler
     {
         /// <summary>
-        /// A stopwatch.
-        /// </summary>
-        public StopWatch Watch { get; } = new StopWatch();
-
-        /// <summary>
-        /// Create a scheduler.
+        ///     Create a scheduler.
         /// </summary>
         /// <param name="producer"></param>
         /// <param name="consumer"></param>
-        public Scheduler(IProducer producer, UiConsumer<double[]> consumer)
+        public Scheduler(IProducer producer, AbstractConsumer<double[]> consumer)
         {
             Producer = producer;
             Consumer = consumer;
         }
 
         /// <summary>
-        /// The producer
+        ///     A stopwatch.
+        /// </summary>
+        public StopWatch Watch { get; } = new StopWatch();
+
+        /// <summary>
+        ///     The producer
         /// </summary>
         [NotNull]
         public IProducer Producer { get; protected set; }
 
         /// <summary>
-        /// The consumer
+        ///     The consumer
         /// </summary>
         [NotNull]
-        public UiConsumer<double[]> Consumer { get; protected set; }
+        public AbstractConsumer<double[]> Consumer { get; protected set; }
 
         /// <summary>
-        /// Start the system.
+        ///     Start the system.
         /// </summary>
         public void Start()
         {
@@ -50,7 +50,7 @@ namespace SpectroscopyVisualizer
 
 
         /// <summary>
-        /// Stop the system.
+        ///     Stop the system.
         /// </summary>
         public void Stop()
         {

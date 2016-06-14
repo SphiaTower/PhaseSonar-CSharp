@@ -7,14 +7,12 @@ using JetBrains.Annotations;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using NationalInstruments.Restricted;
-using PhaseSonar.Correctors;
 using PhaseSonar.Utils;
 using SpectroscopyVisualizer.Configs;
-using SpectroscopyVisualizer.Consumers;
-using SpectroscopyVisualizer.Writers;
 using SpectroscopyVisualizer.Factories;
 using SpectroscopyVisualizer.Presenters;
 using SpectroscopyVisualizer.Producers;
+using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer
 {
@@ -53,14 +51,16 @@ namespace SpectroscopyVisualizer
             HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
             VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
 
+
             SwitchButton = new SwitchButton(ToggleButton, false, "STOP", "START", TurnOn, TurnOff);
 
 //            Toolbox.SerializeData(@"D:\\configuration.bin",CorrectorConfigs.Get());
-            SizeChanged += (sender, args) => { Scheduler?.Consumer.Adapter.OnWindowZoomed(); };
+            SizeChanged += (sender, args) => { Adapter?.OnWindowZoomed(); };
         }
 
         private SwitchButton SwitchButton { get; }
-
+        [CanBeNull]
+        public DisplayAdapter Adapter { get; set; }
 
         public CanvasView CanvasView { get; }
         public HorizontalAxisView HorizontalAxisView { get; }
@@ -94,6 +94,8 @@ namespace SpectroscopyVisualizer
 
         private void TurnOn()
         {
+
+
             IProducer producer;
             if (DeveloperMode())
             {
@@ -101,36 +103,38 @@ namespace SpectroscopyVisualizer
             }
             else
             {
-                producer = Injector.NewProducer(IsChecked(CbCaptureSample));
+                producer = SerialInjector.NewProducer(IsChecked(CbCaptureSample));
             }
-            var uiConsumer = ParallelInjector.NewConsumer(producer, CanvasView, HorizontalAxisView, VerticalAxisView,
-                IsChecked(CbCaptureSpec));
-           
+            Adapter = ParallelInjector.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
+            Writer = ParallelInjector.NewSpectrumWriter(IsChecked(CbCaptureSample));
+            var consumer = ParallelInjector.NewConsumer(producer, Adapter,Writer);
             try
             {
-                uiConsumer.Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
-                uiConsumer.Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
+                Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
+                Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
             }
             catch (Exception)
             {
             }
-            Scheduler = new Scheduler(producer, uiConsumer);
-            uiConsumer.FailEvent += UiConsumerOnFailEvent;
-            uiConsumer.ConsumeEvent += UiConsumerOnConsumeEvent;
+            Scheduler = new Scheduler(producer, consumer);
+            consumer.FailEvent += ConsumerOnFailEvent;
+            consumer.ConsumeEvent += ConsumerOnConsumeEvent;
 
-            TbStartFreq.DataContext = Scheduler.Consumer.Adapter;
-            TbEndFreq.DataContext = Scheduler.Consumer.Adapter;
+            TbStartFreq.DataContext = Adapter;
+            TbEndFreq.DataContext = Adapter;
             Scheduler.Start();
         }
+        [CanBeNull]
+        public SpectrumWriter Writer { get; set; }
 
-        private void UiConsumerOnConsumeEvent(object sender)
+        private void ConsumerOnConsumeEvent(object sender)
         {
             var sizeInM = SamplingConfigurations.Get().RecordLength/1e6;
             Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 var consumedCnt = Scheduler?.Consumer.ConsumedCnt;
                 var elapsedSeconds = Scheduler?.Watch.ElapsedSeconds();
-                var speed = consumedCnt * sizeInM / elapsedSeconds;
+                var speed = consumedCnt*sizeInM/elapsedSeconds;
                 if (speed.HasValue)
                 {
                     TbConsumerSpeed.Text = speed.Value.ToString("F3");
@@ -138,7 +142,7 @@ namespace SpectroscopyVisualizer
             });
         }
 
-        private void UiConsumerOnFailEvent(object sender)
+        private void ConsumerOnFailEvent(object sender)
         {
             Scheduler?.Stop();
             MessageBox.Show("It seems that the source is invalid.");
@@ -170,7 +174,7 @@ namespace SpectroscopyVisualizer
 
         private void CbCaptureSpec_OnChecked(object sender, RoutedEventArgs e)
         {
-            if (Scheduler != null) Scheduler.Consumer.Save = IsChecked(CbCaptureSpec);
+            if (Writer != null) Writer.IsOn = IsChecked(CbCaptureSpec);
         }
 
         private void DecodeFiles_OnClick(object sender, RoutedEventArgs e)
@@ -218,9 +222,9 @@ namespace SpectroscopyVisualizer
             if (fileNames.IsEmpty()) return;
             GeneralConfigurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
             TbSavePath.Text = GeneralConfigurations.Get().Directory;
-            var producer = Injector.NewProducer(fileNames);
+            var producer = SerialInjector.NewProducer(fileNames);
 
-            var consumer = Injector.NewConsumer(producer, CanvasView, HorizontalAxisView, VerticalAxisView,
+            var consumer = SerialInjector.NewConsumer(producer, CanvasView, HorizontalAxisView, VerticalAxisView,
                 IsChecked(CbCaptureSpec));
             Scheduler = new Scheduler(producer, consumer);
             Scheduler.Start();

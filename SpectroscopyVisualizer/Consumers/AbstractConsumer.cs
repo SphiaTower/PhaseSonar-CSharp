@@ -1,69 +1,60 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using System.Windows;
-using PhaseSonar.Utils;
 using JetBrains.Annotations;
+using PhaseSonar.Utils;
 
 namespace SpectroscopyVisualizer.Consumers
 {
     /// <summary>
-    /// A base implementation of <see cref="IConsumer"/>
+    ///     A base implementation of <see cref="IConsumer" />
     /// </summary>
     /// <typeparam name="T">The type of elements consumed</typeparam>
-    public abstract class Consumer<T> : IConsumer
+    public abstract class AbstractConsumer<T> : IConsumer
     {
         /// <summary>
-        /// The present number of failures that occurs continuously.
-        /// </summary>
-        public int ContinuousFailCnt { get; protected set; }
-
-        /// <summary>
-        /// Create a Consumer.
-        /// </summary>
-        /// <param name="blockingQueue">The queue which containing elements to be consumed</param>
-        protected Consumer([NotNull] BlockingCollection<T> blockingQueue)
-        {
-            Toolbox.RequireNonNull(blockingQueue, "blockingQueue");
-            BlockingQueue = blockingQueue;
-        }
-        /// <summary>
-        /// The event handler for <see cref="Consumer{T}.FailEvent"/>
+        ///     The event handler for <see cref="AbstractConsumer{T}.FailEvent" />
         /// </summary>
         /// <param name="sender"></param>
         public delegate void ConsumerFailEventHandler(object sender);
+
         /// <summary>
-        /// The event handler for <see cref="Consumer{T}.ConsumeEvent"/>
+        ///     The event handler for <see cref="AbstractConsumer{T}.ConsumeEvent" />
         /// </summary>
         /// <param name="sender"></param>
         public delegate void ElementConsumedEventHandler(object sender);
 
         /// <summary>
-        /// An event fired when consumer failed to consume continuously.
+        ///     Create a Consumer.
         /// </summary>
-        public event ConsumerFailEventHandler FailEvent;
-        /// <summary>
-        /// An event fired invoked when an element is consumed successfully.
-        /// </summary>
-        public event ElementConsumedEventHandler ConsumeEvent;
+        /// <param name="blockingQueue">The queue which containing elements to be consumed</param>
+        protected AbstractConsumer([NotNull] BlockingCollection<T> blockingQueue)
+        {
+            Toolbox.RequireNonNull(blockingQueue, "blockingQueue");
+            BlockingQueue = blockingQueue;
+        }
 
         /// <summary>
-        /// The time to block when the <see cref="BlockingQueue"/> is empty.
+        ///     The present number of failures that occurs continuously.
+        /// </summary>
+        public int ContinuousFailCnt { get; protected set; }
+
+        /// <summary>
+        ///     The time to block when the <see cref="BlockingQueue" /> is empty.
         /// </summary>
         public int MillisecondsTimeout { get; set; } = 10000;
 
         /// <summary>
-        /// The queue containing all items to be consumed.
+        ///     The queue containing all items to be consumed.
         /// </summary>
         protected BlockingCollection<T> BlockingQueue { get; }
 
         /// <summary>
-        /// The state of the consumer, on or off.
+        ///     The state of the consumer, on or off.
         /// </summary>
         protected bool IsOn { get; set; }
 
         /// <summary>
-        /// Stop consuming.
+        ///     Stop consuming.
         /// </summary>
         public void Stop()
         {
@@ -71,12 +62,12 @@ namespace SpectroscopyVisualizer.Consumers
         }
 
         /// <summary>
-        /// The number of elements have been consumed.
+        ///     The number of elements have been consumed.
         /// </summary>
         public int ConsumedCnt { get; protected set; }
 
         /// <summary>
-        /// Reset the state of the consumer.
+        ///     Reset the state of the consumer.
         /// </summary>
         public virtual void Reset()
         {
@@ -85,7 +76,7 @@ namespace SpectroscopyVisualizer.Consumers
         }
 
         /// <summary>
-        /// Start consuming.
+        ///     Start consuming.
         /// </summary>
         public virtual void Consume()
         {
@@ -119,7 +110,17 @@ namespace SpectroscopyVisualizer.Consumers
         }
 
         /// <summary>
-        /// Fire an <see cref="FailEvent"/>
+        ///     An event fired when consumer failed to consume continuously.
+        /// </summary>
+        public event ConsumerFailEventHandler FailEvent;
+
+        /// <summary>
+        ///     An event fired invoked when an element is consumed successfully.
+        /// </summary>
+        public event ElementConsumedEventHandler ConsumeEvent;
+
+        /// <summary>
+        ///     Fire an <see cref="FailEvent" />
         /// </summary>
         protected void FireFailEvent()
         {
@@ -127,7 +128,7 @@ namespace SpectroscopyVisualizer.Consumers
         }
 
         /// <summary>
-        /// Fire an <see cref="ConsumeEvent"/>
+        ///     Fire an <see cref="ConsumeEvent" />
         /// </summary>
         protected void FireConsumeEvent()
         {
@@ -135,7 +136,7 @@ namespace SpectroscopyVisualizer.Consumers
         }
 
         /// <summary>
-        /// Comsume an element dequeued from the queue.
+        ///     Comsume an element dequeued from the queue.
         /// </summary>
         /// <param name="item">The element</param>
         /// <returns>Consumed successfully or not</returns>

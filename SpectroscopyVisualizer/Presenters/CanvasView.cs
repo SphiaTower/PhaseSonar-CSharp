@@ -76,7 +76,7 @@ namespace SpectroscopyVisualizer.Presenters
                 {
                     Points = linePts,
                     Stroke = new SolidColorBrush(Colors.DarkGray),
-                    StrokeDashArray = new DoubleCollection() { 1,1}
+                    StrokeDashArray = new DoubleCollection {1, 1}
                 };
                 Canvas.Children.Add(line);
             }
@@ -88,7 +88,7 @@ namespace SpectroscopyVisualizer.Presenters
                 {
                     Points = linePts,
                     Stroke = new SolidColorBrush(Colors.DarkGray),
-                    StrokeDashArray = new DoubleCollection() { 1, 1 }
+                    StrokeDashArray = new DoubleCollection {1, 1}
                 };
                 Canvas.Children.Add(line);
             }

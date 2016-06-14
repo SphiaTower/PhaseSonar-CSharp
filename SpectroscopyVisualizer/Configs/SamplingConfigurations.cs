@@ -25,11 +25,6 @@ namespace SpectroscopyVisualizer.Configs
             RecordLengthInM = recordLengthInM;
         }
 
-        internal void Register(SamplingConfigurations samplingConfigurations)
-        {
-            _singleton = samplingConfigurations;
-        }
-
         public string DeviceName { get; set; }
         public int Channel { get; set; }
         public double SamplingRateInMHz { get; set; }
@@ -37,6 +32,11 @@ namespace SpectroscopyVisualizer.Configs
         public long RecordLengthInM { get; set; }
         public long RecordLength => (long) (RecordLengthInM*1e6);
         public double Range { get; set; }
+
+        internal void Register(SamplingConfigurations samplingConfigurations)
+        {
+            _singleton = samplingConfigurations;
+        }
 
         public void Bind(Control deviceName, Control channel, Control samplingRateInMHz, Control recordLengthInM,
             Control range)

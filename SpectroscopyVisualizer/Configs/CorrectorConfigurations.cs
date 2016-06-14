@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Runtime.Serialization;
 using System.Windows.Controls;
 
 namespace SpectroscopyVisualizer.Configs
@@ -68,6 +67,5 @@ namespace SpectroscopyVisualizer.Configs
             cbCorrectorType.DataContext = this;
             cbApodizationType.DataContext = this;
         }
-
     }
 }

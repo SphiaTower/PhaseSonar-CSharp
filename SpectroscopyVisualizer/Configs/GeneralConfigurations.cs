@@ -22,11 +22,12 @@ namespace SpectroscopyVisualizer.Configs
         public int ThreadNum { get; set; }
         public int DispPoints { get; set; }
 
-        internal void Register(GeneralConfigurations generalConfigurations) {
+        public string Directory { get; set; }
+
+        internal void Register(GeneralConfigurations generalConfigurations)
+        {
             _singleton = generalConfigurations;
         }
-
-        public string Directory { get; set; }
 
 
         public void Bind(Control repetitionRate, Control threadNum, Control dispPoints, Control savePath)

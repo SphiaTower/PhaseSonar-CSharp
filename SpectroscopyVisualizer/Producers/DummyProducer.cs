@@ -3,7 +3,7 @@ using PhaseSonar.Utils;
 
 namespace SpectroscopyVisualizer.Producers
 {
-    public class DummyProducer : ProducerBase
+    public class DummyProducer : AbstractProducer
     {
         private readonly double[] _backup;
 

@@ -79,7 +79,7 @@
     <Compile Include="Correctors\AccFlipMertzCorrector.cs" />
     <Compile Include="Correctors\AccMertzCorrector.cs" />
     <Compile Include="Analyzers\Accumulator.cs" />
-    <Compile Include="Analyzers\BaseAnalyzer.cs" />
+    <Compile Include="Analyzers\SingleDataRecordProcessor.cs" />
     <Compile Include="Analyzers\IAnalyzerStrategy.cs" />
     <Compile Include="Correctors\BaseCorrector.cs" />
     <Compile Include="Correctors\FakeCorrector.cs" />

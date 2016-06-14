@@ -5,25 +5,23 @@ using PhaseSonar.Slicers;
 namespace PhaseSonar.Analyzers
 {
     /// <summary>
-    /// A parallel accumulator
+    ///     A parallel accumulator
     /// </summary>
-    /// <typeparam name="T">The type of the spectrum.</typeparam>
-    public sealed class ParallelAccumulator<T> : Accumulator<T> where T : ISpectrum {
-        
+    public sealed class ParallelAccumulator : Accumulator
+    {
         /// <summary>
-        /// The strategy it uses.
-        /// </summary>
-        protected override IAnalyzerStrategy<T> Strategy { get; set; }
-
-
-        /// <summary>
-        /// Create a parallel accumulator.
+        ///     Create a parallel accumulator.
         /// </summary>
         /// <param name="slicer">A slicer</param>
         /// <param name="correctors">Working correctors</param>
-        public ParallelAccumulator(ISlicer slicer, List<ICorrector<T>> correctors) : base(slicer)
+        public ParallelAccumulator(ISlicer slicer, List<ICorrector> correctors) : base(slicer)
         {
-            Strategy = new ParallelStrategy<T>(correctors);
+            Strategy = new ParallelStrategy(correctors);
         }
+
+        /// <summary>
+        ///     The strategy it uses.
+        /// </summary>
+        protected override IAnalyzerStrategy Strategy { get; set; }
     }
 }

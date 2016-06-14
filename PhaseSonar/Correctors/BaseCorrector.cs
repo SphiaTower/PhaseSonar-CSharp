@@ -11,10 +11,10 @@ namespace PhaseSonar.Correctors
     /// The base structure of a corrector
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class BaseCorrector<T> : ICorrector<T> where T : ISpectrum
+    public abstract class BaseCorrector<T> : ICorrector where T : ISpectrum
     {
         /// <summary>
-        /// Create an prototype. <see cref="ICorrector{T}"/>
+        /// Create an prototype. <see cref="ICorrector"/>
         /// </summary>
         /// <param name="apodizer"></param>
         /// <param name="fuzzyPulseLength"></param>
@@ -73,7 +73,7 @@ namespace PhaseSonar.Correctors
         /// Get the buffer which stores the latest output
         /// </summary>
         /// <returns>The buffer which stores the latest output</returns>
-        public T OutputSpetrumBuffer() {
+        public ISpectrum OutputSpetrumBuffer() {
             return SpectrumBuffer;
         }
 

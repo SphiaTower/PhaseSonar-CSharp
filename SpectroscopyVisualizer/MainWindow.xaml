@@ -84,18 +84,25 @@
                                  Text="{Binding Path=EndFreqInMHz,Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                  VerticalAlignment="Top" HorizontalAlignment="Right"
                                  Width="34" />
-                        <TextBlock Text="MSample/s" HorizontalAlignment="Left" Margin="422,12,0,0"
-                                   VerticalAlignment="Top" Height="24" />
+
                         <Label HorizontalAlignment="Left" Margin="19,10,0,0"
                                Content="Freq Axis/MHz : " VerticalAlignment="Top" Width="95" Height="26"
                                RenderTransformOrigin="0.41,-0.225" />
                         <Button x:Name="ToggleButton" Content="START" HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom" Width="67" Click="ToggleButton_OnClick" Margin="0,0,10,6"
                                 Height="22" RenderTransformOrigin="-4.984,-2.155" />
-                        <TextBox x:Name="TbConsumerSpeed" HorizontalAlignment="Left" Height="24" Margin="370,12,0,0"
-                                 TextWrapping="Wrap" Text="Speed" VerticalAlignment="Top" Width="47" />
-                        <Label x:Name="label" Content="Processing Speed" HorizontalAlignment="Left" Margin="256,9,0,0"
+                        <TextBox x:Name="TbConsumerSpeed" HorizontalAlignment="Left" Height="21" Margin="281,12,0,0"
+                                 TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="47" />
+                        <Label x:Name="label" Content="Speed" HorizontalAlignment="Left" Margin="230,9,0,0"
                                VerticalAlignment="Top" />
+                        <Label Content="MSample/s" HorizontalAlignment="Left" Margin="327,9,0,0"
+                                   VerticalAlignment="Top" Height="24" RenderTransformOrigin="2.667,0.471" />
+                        <Label x:Name="label_Copy" Content="Data" HorizontalAlignment="Left" Margin="407,10,0,0"
+                        	VerticalAlignment="Top" />
+                        <TextBox x:Name="TbTotalData" HorizontalAlignment="Left" Height="16" Margin="444,14,0,0"
+                        	TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="28" />
+                        <Label Content="MSample" HorizontalAlignment="Left" Margin="472,8,0,0"
+                        	VerticalAlignment="Top" Height="24" RenderTransformOrigin="2.667,0.471" />
                     </Grid>
                 </Grid>
 

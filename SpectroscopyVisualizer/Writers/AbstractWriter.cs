@@ -38,7 +38,7 @@ namespace SpectroscopyVisualizer.Writers
         ///     Enqueue a new data to save.
         /// </summary>
         /// <param name="data"></param>
-        public void Enqueue(T data)
+        public void Write(T data)
         {
             if (!IsOn)
             {

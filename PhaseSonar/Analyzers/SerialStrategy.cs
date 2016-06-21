@@ -32,7 +32,7 @@ namespace PhaseSonar.Analyzers
         /// <param name="pulseLength">The length of every pulse</param>
         /// <param name="crestIndex">The index of the crest in the pulse</param>
         /// <returns>The processed result of the pulse sequence, or null if failed</returns>
-        public List<ISpectrum> Process(double[] pulseSequence, List<List<int>> startIndicesList, int pulseLength,
+        public List<ISpectrum> Process(double[] pulseSequence, IList<IList<int>> startIndicesList, int pulseLength,
             int crestIndex)
         {
             _corrector.ClearBuffer(); //todo 1st time 
@@ -41,7 +41,7 @@ namespace PhaseSonar.Analyzers
                     startIndices => CorrectSequentially(pulseSequence, startIndices, pulseLength, crestIndex)).ToList();
         }
 
-        private ISpectrum CorrectSequentially(double[] pulseSequence, List<int> startIndices, int pulseLength,
+        private ISpectrum CorrectSequentially(double[] pulseSequence, IList<int> startIndices, int pulseLength,
             int crestIndex)
         {
             foreach (var startIndex in startIndices)

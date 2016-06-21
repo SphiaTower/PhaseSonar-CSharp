@@ -5,7 +5,7 @@ using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Producers
 {
-    public class SampleProducer : AbstractProducer
+    public class SampleProducer : AbstractProducer<SampleRecord>
     {
         private readonly Sampler _sampler;
 
@@ -22,17 +22,17 @@ namespace SpectroscopyVisualizer.Producers
             while (_sampler.Status() != ScopeAcquisitionStatus.Complete
                    || BlockingQueue.Count == BlockingQueue.BoundedCapacity)
             {
-                Thread.Sleep(1000); // todo
+                Thread.Sleep(10); // todo
             }
         }
 
-        protected override double[] RetrieveData()
+        protected override SampleRecord RetrieveData()
         {
             var pulseSequence = _sampler.Retrieve();
-            if (Writer.IsOn) Writer.Enqueue(pulseSequence);
-            return pulseSequence;
+            SampleRecord record = new SampleRecord(pulseSequence,HistoryProductCnt);
+            if (Writer.IsOn) Writer.Write(record);
+            return record;
         }
 
-        //todo
     }
 }

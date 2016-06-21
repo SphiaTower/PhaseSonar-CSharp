@@ -33,19 +33,26 @@ namespace PhaseSonar.Slicers
         /// Slice the pulse sequence, without considering multiple components.
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence, usually a sampled record</param>
-        /// <returns>Start indices of pulses. All indices are grouped into one list. The size of the list returned is 1.</returns>
-        public virtual List<List<int>> Slice([NotNull] double[] pulseSequence)
+        /// <param name="startIndicesList">Start indices of pulses. All indices are grouped into one list. The size of the list returned is 1.</param>
+        /// <returns>Whether slicing succeeded</returns>
+        public virtual bool Slice(double[] pulseSequence, out IList<IList<int>> startIndicesList)
         {
-            var crestIndices = Finder.Find(pulseSequence);
-            if (crestIndices == null)
+            startIndicesList = new List<IList<int>>(1);
+            IList<int> crestIndices;
+            if (Finder.Find(pulseSequence,out crestIndices))
             {
-                return null;
+                SlicedPeriodLength = AnalyzePeriodLength(crestIndices);
+                IList<int> startIndices;
+                if (FindStartIndices(pulseSequence, crestIndices, SlicedPeriodLength,out startIndices))
+                {
+                    startIndicesList.Add(startIndices);
+                    return true;
+                }
             }
-            SlicedPeriodLength = AnalyzePeriodLength(crestIndices);
-            var startIndices = FindStartIndices(pulseSequence, crestIndices, SlicedPeriodLength);
-            return startIndices == null ? null : new List<List<int>>(1) {startIndices};
+            return false;
         }
 
+      
 
         /// <summary>
         /// The pulse length after sliced.
@@ -79,11 +86,11 @@ namespace PhaseSonar.Slicers
         /// <param name="crestIndices">The indices of all crests.</param>
         /// <param name="periodLength">The common pulse length.</param>
         /// <returns>The start indices for all the slices.</returns>
-        [CanBeNull]
-        protected virtual List<int> FindStartIndices([NotNull] double[] pulseSequence, [NotNull] List<int> crestIndices,
-            int periodLength)
+        protected virtual bool FindStartIndices([NotNull] double[] pulseSequence,  [NotNull] IList<int> crestIndices,
+            int periodLength,out IList<int> startIndices)
         {
             var length = pulseSequence.Length;
+            startIndices = crestIndices; // todo deep clone
             for (var i = 0; i < crestIndices.Count; i++)
             {
                 crestIndices[i] -= CrestIndex;
@@ -95,13 +102,13 @@ namespace PhaseSonar.Slicers
             }
             if (crestIndices.Count == 0)
             {
-                return null;
+                return false;
             }
             if (crestIndices.Last() + periodLength >= length)
             {
                 crestIndices.RemoveAt(crestIndices.Count - 1);
             }
-            return crestIndices.Count == 0 ? null : crestIndices;
+            return crestIndices.Count != 0;
         }
     }
 }

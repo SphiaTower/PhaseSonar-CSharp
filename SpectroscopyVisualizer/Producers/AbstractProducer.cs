@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 
 namespace SpectroscopyVisualizer.Producers
 {
-    public abstract class AbstractProducer : IProducer
+    public abstract class AbstractProducer<T> : IProducer<T>
     {
         private bool IsOn { get; set; } = true;
-        public BlockingCollection<double[]> BlockingQueue { get; } = new BlockingCollection<double[]>(24);
+        public BlockingCollection<T> BlockingQueue { get; } = new BlockingCollection<T>(24);
         // todo config
         public int HistoryProductCnt { get; private set; }
 
@@ -24,7 +24,7 @@ namespace SpectroscopyVisualizer.Producers
         public void Reset()
         {
             HistoryProductCnt = 0;
-            double[] disposed;
+            T disposed;
             while (BlockingQueue.TryTake(out disposed))
             {
             }
@@ -32,7 +32,7 @@ namespace SpectroscopyVisualizer.Producers
 
         protected abstract void Wait();
 
-        protected abstract double[] RetrieveData();
+        protected abstract T RetrieveData();
 
         protected virtual void DoInBackground()
         {

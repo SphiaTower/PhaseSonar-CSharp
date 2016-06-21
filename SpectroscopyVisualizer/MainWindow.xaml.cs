@@ -96,17 +96,17 @@ namespace SpectroscopyVisualizer
         {
 
 
-            IProducer producer;
+            IProducer<SampleRecord> producer;
             if (DeveloperMode())
             {
                 producer = new DummyProducer();
             }
             else
             {
-                producer = SerialInjector.NewProducer(IsChecked(CbCaptureSample));
+                producer = ParallelInjector.NewProducer(IsChecked(CbCaptureSample));
             }
             Adapter = ParallelInjector.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
-            Writer = ParallelInjector.NewSpectrumWriter(IsChecked(CbCaptureSample));
+            Writer = ParallelInjector.NewSpectrumWriter(IsChecked(CbCaptureSpec));
             var consumer = ParallelInjector.NewConsumer(producer, Adapter,Writer);
             try
             {
@@ -135,9 +135,10 @@ namespace SpectroscopyVisualizer
                 var consumedCnt = Scheduler?.Consumer.ConsumedCnt;
                 var elapsedSeconds = Scheduler?.Watch.ElapsedSeconds();
                 var speed = consumedCnt*sizeInM/elapsedSeconds;
-                if (speed.HasValue)
+                if (consumedCnt.HasValue)
                 {
                     TbConsumerSpeed.Text = speed.Value.ToString("F3");
+                    TbTotalData.Text = (consumedCnt.Value*sizeInM).ToString();
                 }
             });
         }
@@ -188,8 +189,8 @@ namespace SpectroscopyVisualizer
                     {
                         var deserializeData = Toolbox.DeserializeData<double[]>(path);
                         Toolbox.WriteData(path.Replace("binary", "temporal"), deserializeData);
-                        MessageBox.Show("decoding finished");
                     });
+                    MessageBox.Show("decoding finished");
                 });
             }
         }
@@ -222,10 +223,10 @@ namespace SpectroscopyVisualizer
             if (fileNames.IsEmpty()) return;
             GeneralConfigurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
             TbSavePath.Text = GeneralConfigurations.Get().Directory;
-            var producer = SerialInjector.NewProducer(fileNames);
-
-            var consumer = SerialInjector.NewConsumer(producer, CanvasView, HorizontalAxisView, VerticalAxisView,
-                IsChecked(CbCaptureSpec));
+            var producer = ParallelInjector.NewProducer(fileNames);
+            Adapter = ParallelInjector.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
+            Writer = ParallelInjector.NewSpectrumWriter(IsChecked(CbCaptureSpec));
+            var consumer = ParallelInjector.NewConsumer(producer, Adapter, Writer);
             Scheduler = new Scheduler(producer, consumer);
             Scheduler.Start();
             Scheduler = null;

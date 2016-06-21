@@ -117,17 +117,21 @@
     <Compile Include="Configs\CorrectorConfigurations.cs" />
     <Compile Include="Configs\SliceConfigurations.cs" />
     <Compile Include="Consumers\IConsumer.cs" />
+    <Compile Include="Consumers\ParallelConsumer.cs" />
     <Compile Include="Consumers\ParallelSpectroscopyVisualizer.cs" />
+    <Compile Include="Consumers\SerialConsumer.cs" />
+    <Compile Include="Consumers\TracedSpectrum.cs" />
+    <Compile Include="Producers\SampleRecord.cs" />
     <Compile Include="Scheduler.cs" />
     <Compile Include="Writers\IWriter.cs" />
     <Compile Include="Writers\AbstractWriter.cs" />
     <Compile Include="Writers\AbstractDiskWriter.cs" />
     <Compile Include="Writers\SampleWriter.cs" />
+    <Compile Include="Writers\SpectrumExtension.cs" />
     <Compile Include="Writers\SpectrumWriter.cs" />
     <Compile Include="EnumBindingSourceExtension.cs" />
     <Compile Include="EnumToBooleanConverter.cs" />
     <Compile Include="Factories\ParallelInjector.cs" />
-    <Compile Include="Factories\SerialInjector.cs" />
     <Compile Include="Presenters\HorizontalAxisView.cs" />
     <Compile Include="Presenters\SwitchButton.cs" />
     <Compile Include="Presenters\VerticalAxisView.cs" />
@@ -156,7 +160,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Consumers\SerialSpectroscopyVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

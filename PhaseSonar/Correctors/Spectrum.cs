@@ -29,7 +29,7 @@ namespace PhaseSonar.Correctors
         ///     Try to add up another spectrum. The added spectrum must be of the same type.
         /// </summary>
         /// <param name="another"></param>
-        void TryAbsorb([NotNull] ISpectrum another);
+        bool TryAbsorb([NotNull] ISpectrum another);
 
         /// <summary>
         ///     Get the intensity of the accumulated data at a specified index.
@@ -37,7 +37,24 @@ namespace PhaseSonar.Correctors
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
         double Intensity(int index);
+        /// <summary>
+        ///     Get the real part of the accumulated data at a specified index.
+        /// </summary>
+        /// <param name="index">The index of the data</param>
+        /// <returns>The intensity at the input index</returns>
+        double Real(int index);  
+        /// <summary>
+        ///     Get the imag part of the accumulated data at a specified index.
+        /// </summary>
+        /// <param name="index">The index of the data</param>
+        /// <returns>The intensity at the input index</returns>
+        double Imag(int index);
 
+        /// <summary>
+        ///     Check whether the spectrum has the imag part or not.
+        /// </summary>
+        /// <returns></returns>
+        bool HasImag();
         /// <summary>
         ///     Get the average intensity of the data at a specified index.
         /// </summary>
@@ -50,17 +67,7 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <returns>The size of the data container</returns>
         int Length();
-        /// <summary>
-        ///     Get the string representation of the data at a specified index.
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        string ToString(int index);
-        /// <summary>
-        ///     Get the string representation of the whole data array.
-        /// </summary>
-        /// <returns></returns>
-        string[] ToStringArray();
+
     }
 
     /// <summary>
@@ -138,12 +145,18 @@ namespace PhaseSonar.Correctors
         ///     Try to add up another spectrum. The added spectrum must be of the same type.
         /// </summary>
         /// <param name="another"></param>
-        public void TryAbsorb(ISpectrum another)
+        public bool TryAbsorb(ISpectrum another)
         {
-            var realSpectrum = another as RealSpectrum;
-            if (realSpectrum == null) throw new InvalidCastException();
-            Functions.AddTo(AmplitudeArray, realSpectrum.AmplitudeArray);
-            PulseCount += realSpectrum.PulseCount;
+            if (Length()!=another.Length()||another.HasImag())
+            {
+                return false;
+            }
+            for (var i = 0; i < AmplitudeArray.Length; i++)
+            {
+                AmplitudeArray[i] += another.Real(i);
+            }
+            PulseCount += another.PulseCount;
+            return true;
         }
 
         /// <summary>
@@ -154,6 +167,35 @@ namespace PhaseSonar.Correctors
         public double Intensity(int index)
         {
             return AmplitudeArray[index]*AmplitudeArray[index];
+        }
+
+        /// <summary>
+        ///     Get the real part of the accumulated data at a specified index.
+        /// </summary>
+        /// <param name="index">The index of the data</param>
+        /// <returns>The intensity at the input index</returns>
+        public double Real(int index)
+        {
+            return AmplitudeArray[index];
+        }
+
+        /// <summary>
+        ///     Get the imag part of the accumulated data at a specified index.
+        /// </summary>
+        /// <param name="index">The index of the data</param>
+        /// <returns>The intensity at the input index</returns>
+        public double Imag(int index)
+        {
+            return 0;
+        }
+
+        /// <summary>
+        ///     Check whether the spectrum has the imag part or not.
+        /// </summary>
+        /// <returns></returns>
+        public bool HasImag()
+        {
+            return false;
         }
 
         /// <summary>
@@ -198,6 +240,11 @@ namespace PhaseSonar.Correctors
             }
             return array;
         }
+
+        /// <summary>
+        /// A unique id used to verify the source of the spectrum.
+        /// </summary>
+        public int ID { get; set; }
     }
 
     /// <summary>
@@ -268,13 +315,21 @@ namespace PhaseSonar.Correctors
         ///     Try to add up another spectrum. The added spectrum must be of the same type.
         /// </summary>
         /// <param name="another"></param>
-        public void TryAbsorb(ISpectrum another)
+        public bool TryAbsorb(ISpectrum another)
         {
-            var complexSpectrum = another as ComplexSpectrum;
-            if (complexSpectrum == null) throw new InvalidCastException();
-            Functions.ForceAddTo(RealArray, complexSpectrum.RealArray);
-            Functions.ForceAddTo(ImagArray, complexSpectrum.ImagArray);
-            PulseCount += complexSpectrum.PulseCount;
+            if (Length()!=another.Length()||!another.HasImag())
+            {
+                return false;
+            }
+            for (var i = 0; i < RealArray.Length; i++)
+            {
+                RealArray[i] += another.Real(i);
+            }
+            for (var i = 0; i < RealArray.Length; i++) {
+                ImagArray[i] += another.Imag(i);
+            }
+            PulseCount += another.PulseCount;
+            return true;
         }
 
         /// <summary>
@@ -285,6 +340,35 @@ namespace PhaseSonar.Correctors
         public double Intensity(int index)
         {
             return RealArray[index]*RealArray[index] + ImagArray[index]*ImagArray[index];
+        }
+
+        /// <summary>
+        ///     Get the real part of the accumulated data at a specified index.
+        /// </summary>
+        /// <param name="index">The index of the data</param>
+        /// <returns>The intensity at the input index</returns>
+        public double Real(int index)
+        {
+            return RealArray[index];
+        }
+
+        /// <summary>
+        ///     Get the imag part of the accumulated data at a specified index.
+        /// </summary>
+        /// <param name="index">The index of the data</param>
+        /// <returns>The intensity at the input index</returns>
+        public double Imag(int index)
+        {
+            return ImagArray[index];
+        }
+
+        /// <summary>
+        ///     Check whether the spectrum has the imag part or not.
+        /// </summary>
+        /// <returns></returns>
+        public bool HasImag()
+        {
+            return true;
         }
 
         /// <summary>
@@ -313,20 +397,33 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public string ToString(int index) {
-            return RealArray[index]+"+"+ImagArray[index]+"j";
+        public string ToString(int index)
+        {
+            var imag = ImagArray[index];
+            if (imag >= 0)
+            {
+                return RealArray[index] + "+" + imag + "j";
+            }
+            return RealArray[index] + "" + imag + "j";
         }
 
         /// <summary>
         ///     Get the string representation of the whole data array.
         /// </summary>
         /// <returns></returns>
-        public string[] ToStringArray() {
+        public string[] ToStringArray()
+        {
             var array = new string[Length()];
-            for (var i = 0; i < array.Length; i++) {
+            for (var i = 0; i < array.Length; i++)
+            {
                 array[i] = ToString(i);
             }
             return array;
         }
+
+        /// <summary>
+        /// A unique id used to verify the source of the spectrum.
+        /// </summary>
+        public int ID { get; set; }
     }
 }

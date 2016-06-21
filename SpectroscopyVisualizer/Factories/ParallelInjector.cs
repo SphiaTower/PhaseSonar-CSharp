@@ -123,7 +123,7 @@ namespace SpectroscopyVisualizer.Factories
         [NotNull]
         public static SpectrumWriter NewSpectrumWriter(bool on)
         {
-            return new SpectrumWriter(GeneralConfigurations.Get().Directory, "captured-sq-aver-", on);
+            return new SpectrumWriter(GeneralConfigurations.Get().Directory, "aver-spec-", on);
         }
 
         [NotNull]
@@ -133,7 +133,7 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        public static AbstractConsumer<double[]> NewConsumer(IProducer producer, DisplayAdapter adapter, SpectrumWriter writer)
+        public static AbstractConsumer<SampleRecord> NewConsumer(IProducer<SampleRecord> producer, DisplayAdapter adapter, SpectrumWriter writer)
         {
             var threadNum = GeneralConfigurations.Get().ThreadNum;
             var accumulators = new List<SerialAccumulator>(threadNum);

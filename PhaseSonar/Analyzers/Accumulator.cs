@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using PhaseSonar.Correctors;
 using PhaseSonar.Slicers;
 
@@ -31,14 +32,15 @@ namespace PhaseSonar.Analyzers
         [CanBeNull]
         public ISpectrum Accumulate(double[] pulseSequence)
         {
-            var startIndicesList = Slicer.Slice(pulseSequence);
-            if (startIndicesList == null)
+            IList<IList<int>> startIndicesList;
+            if (Slicer.Slice(pulseSequence, out startIndicesList))
             {
-                return null;
+                var spectra = Strategy.Process(pulseSequence, startIndicesList, Slicer.SlicedPeriodLength, Slicer.CrestIndex);
+                return spectra?[0];
             }
+            return null;
 
-            var spectra = Strategy.Process(pulseSequence, startIndicesList, Slicer.SlicedPeriodLength, Slicer.CrestIndex);
-            return spectra?[0];
+
         }
     }
 }

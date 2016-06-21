@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using PhaseSonar.Analyzers;
 using PhaseSonar.Correctors;
 using SpectroscopyVisualizer.Presenters;
+using SpectroscopyVisualizer.Producers;
 using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Consumers
@@ -14,7 +15,7 @@ namespace SpectroscopyVisualizer.Consumers
     /// <summary>
     ///     A parallel version of <see cref="SerialSpectroscopyVisualizer" /> which dequeues elements parallelly.
     /// </summary>
-    public class ParallelSpectroscopyVisualizer : AbstractConsumer<double[]>
+    public class ParallelSpectroscopyVisualizer : ParallelConsumer<SampleRecord,Accumulator>
     {
         private const string Lock = "lock";
         private double[] _dummyAxis;
@@ -27,11 +28,11 @@ namespace SpectroscopyVisualizer.Consumers
         /// <param name="adapter">An adapter for display.</param>
         /// <param name="writer">A Writer for data storage.</param>
         public ParallelSpectroscopyVisualizer(
-            BlockingCollection<double[]> blockingQueue,
+            BlockingCollection<SampleRecord> blockingQueue,
             List<SerialAccumulator> accumulators,
             DisplayAdapter adapter,
             SpectrumWriter writer)
-            : base(blockingQueue)
+            : base(blockingQueue, accumulators)
         {
             Accumulators = accumulators;
             Adapter = adapter;
@@ -65,66 +66,10 @@ namespace SpectroscopyVisualizer.Consumers
 
         public CanvasView View => Adapter.WavefromView;
 
-        /// <summary>
-        ///     Start consuming.
-        /// </summary>
-        public override void Consume()
+
+        protected override bool ConsumeElement([NotNull] SampleRecord record, Accumulator accumulator)
         {
-            SumSpectrum?.Clear();
-
-            IsOn = true;
-            Task.Run(() =>
-            {
-                Parallel.ForEach(Accumulators, accumulator =>
-                {
-                    while (IsOn)
-                    {
-                        double[] raw;
-                        if (!BlockingQueue.TryTake(out raw, MillisecondsTimeout)) break;
-                        if (!IsOn) return;
-                        if (ConsumeElement(raw, accumulator))
-                        {
-                            lock (this)
-                            {
-                                ContinuousFailCnt = 0;
-                                ConsumedCnt++;
-                                FireConsumeEvent();
-                            }
-                        }
-                        else
-                        {
-                            lock (this)
-                            {
-                                ContinuousFailCnt++;
-                                if (ContinuousFailCnt >= 10)
-                                {
-                                    FireFailEvent();
-                                    //                            Application.Current.Dispatcher.InvokeAsync(()=>onConsumeFailed?.Invoke());
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    IsOn = false;
-                });
-            });
-        }
-
-        /// <summary>
-        ///     This method is not implemented due to the bad design of the class hierarchy.// TODO Rewrite the consumer base
-        ///     class.
-        /// </summary>
-        /// <param name="item">The element</param>
-        /// <returns>Consumed successfully or not</returns>
-        public override bool ConsumeElement(double[] item)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        private bool ConsumeElement([NotNull] double[] item, Accumulator accumulator)
-        {
-            var elementSpectrum = accumulator.Accumulate(item);
+            var elementSpectrum = accumulator.Accumulate(record.PulseSequence);
             if (elementSpectrum == null)
             {
                 return false;
@@ -140,6 +85,7 @@ namespace SpectroscopyVisualizer.Consumers
                     SumSpectrum.TryAbsorb(elementSpectrum);
                 }
             }
+            if (Writer.IsOn) Writer.Write(new TracedSpectrum(elementSpectrum,record.ID.ToString()));
             OnDataUpdatedInBackground(elementSpectrum);
             return true;
         }
@@ -147,13 +93,12 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     Called when a new element is processed in the background.
         /// </summary>
-        /// <param name="single">The processed spetrum of a newly dequeued element.</param>
-        protected void OnDataUpdatedInBackground([NotNull] ISpectrum single)
+        /// <param name="singleSpectrum">The processed spetrum of a newly dequeued element.</param>
+        /// <param name="id"></param>
+        protected void OnDataUpdatedInBackground([NotNull] ISpectrum singleSpectrum)
         {
             var averAll = Adapter.SampleAverageAndSquare(SumSpectrum);
-            var averSingle = Adapter.SampleAverageAndSquare(single);
-
-            if (Writer.IsOn) Writer.Enqueue(single);
+            var averSingle = Adapter.SampleAverageAndSquare(singleSpectrum);
 
             _dummyAxis = _dummyAxis ?? Axis.DummyAxis(averAll);
             View.InvokeAsync(() =>
@@ -168,6 +113,15 @@ namespace SpectroscopyVisualizer.Consumers
                 // todo: bug: buffer cleared while closure continues
             }
                 );
+        }
+
+        protected override void OnStop()
+        {
+            base.OnStop();
+            if (Writer.IsOn)
+            {
+                Writer.Write(new TracedSpectrum(SumSpectrum,"accumulated"));
+            }
         }
     }
 }

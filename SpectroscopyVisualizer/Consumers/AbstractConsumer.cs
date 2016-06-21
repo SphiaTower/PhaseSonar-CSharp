@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PhaseSonar.Utils;
+using SpectroscopyVisualizer.Producers;
 
 namespace SpectroscopyVisualizer.Consumers
 {
@@ -59,7 +60,18 @@ namespace SpectroscopyVisualizer.Consumers
         public void Stop()
         {
             IsOn = false;
+            OnStop();
         }
+
+        protected virtual void OnStop()
+        {
+            
+        }
+
+        /// <summary>
+        ///     Start consuming.
+        /// </summary>
+        public abstract void Consume();
 
         /// <summary>
         ///     The number of elements have been consumed.
@@ -75,39 +87,7 @@ namespace SpectroscopyVisualizer.Consumers
             ContinuousFailCnt = 0;
         }
 
-        /// <summary>
-        ///     Start consuming.
-        /// </summary>
-        public virtual void Consume()
-        {
-            IsOn = true;
-            Task.Run(() =>
-            {
-                while (IsOn)
-                {
-                    T raw;
-                    if (!BlockingQueue.TryTake(out raw, MillisecondsTimeout)) break;
-                    if (!IsOn) return;
-                    if (ConsumeElement(raw))
-                    {
-                        ContinuousFailCnt = 0;
-                        ConsumedCnt++;
-                        FireConsumeEvent();
-                    }
-                    else
-                    {
-                        ContinuousFailCnt++;
-                        if (ContinuousFailCnt >= 10)
-                        {
-                            FireFailEvent();
-//                            Application.Current.Dispatcher.InvokeAsync(()=>onConsumeFailed?.Invoke());
-                            break;
-                        }
-                    }
-                }
-                IsOn = false;
-            });
-        }
+       
 
         /// <summary>
         ///     An event fired when consumer failed to consume continuously.
@@ -135,11 +115,6 @@ namespace SpectroscopyVisualizer.Consumers
             ConsumeEvent?.Invoke(this);
         }
 
-        /// <summary>
-        ///     Comsume an element dequeued from the queue.
-        /// </summary>
-        /// <param name="item">The element</param>
-        /// <returns>Consumed successfully or not</returns>
-        public abstract bool ConsumeElement([NotNull] T item);
+      
     }
 }

@@ -3,7 +3,7 @@ using PhaseSonar.Utils;
 
 namespace SpectroscopyVisualizer.Producers
 {
-    public class DummyProducer : AbstractProducer
+    public class DummyProducer : AbstractProducer<SampleRecord>
     {
         private readonly double[] _backup;
 
@@ -21,7 +21,7 @@ namespace SpectroscopyVisualizer.Producers
         {
         }
 
-        protected override double[] RetrieveData()
+        protected override SampleRecord RetrieveData()
         {
             var r = _random.NextDouble() + 0.5;
             for (var i = 0; i < _pulse.Length/8; i++)
@@ -30,7 +30,7 @@ namespace SpectroscopyVisualizer.Producers
             }
 //            double[] array = new double[_backup.Length];
 //            Array.Copy(_backup,array,array.Length);
-            return _pulse;
+            return new SampleRecord(_pulse,HistoryProductCnt);
         }
     }
 }

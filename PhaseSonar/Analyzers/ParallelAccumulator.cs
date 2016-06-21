@@ -14,7 +14,7 @@ namespace PhaseSonar.Analyzers
         /// </summary>
         /// <param name="slicer">A slicer</param>
         /// <param name="correctors">Working correctors</param>
-        public ParallelAccumulator(ISlicer slicer, List<ICorrector> correctors) : base(slicer)
+        public ParallelAccumulator(ISlicer slicer, IList<ICorrector> correctors) : base(slicer)
         {
             Strategy = new ParallelStrategy(correctors);
         }

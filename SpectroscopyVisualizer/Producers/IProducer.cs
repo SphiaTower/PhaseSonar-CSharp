@@ -2,9 +2,9 @@
 
 namespace SpectroscopyVisualizer.Producers
 {
-    public interface IProducer
+    public interface IProducer<T>
     {
-        BlockingCollection<double[]> BlockingQueue { get; }
+        BlockingCollection<T> BlockingQueue { get; }
         int HistoryProductCnt { get; }
         void Produce();
         void Stop();

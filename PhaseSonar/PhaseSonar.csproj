@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="Analyzers\ParallelAccumulator.cs" />
     <Compile Include="Analyzers\SerialAccumulator.cs" />
+    <Compile Include="Analyzers\SplitResult.cs" />
     <Compile Include="Correctors\Spectrum.cs" />
     <Compile Include="Correctors\AccFlipMertzCorrector.cs" />
     <Compile Include="Correctors\AccMertzCorrector.cs" />
@@ -88,6 +89,8 @@
     <Compile Include="Analyzers\SerialStrategy.cs" />
     <Compile Include="Maths\Functions.cs" />
     <Compile Include="Correctors\ICorrector.cs" />
+    <Compile Include="Slicers\ICrestFinder.cs" />
+    <Compile Include="Slicers\IntelligentAbsoluteCrestFinder.cs" />
     <Compile Include="Slicers\ISlicer.cs" />
     <Compile Include="Maths\Interpolator.cs" />
     <Compile Include="Maths\RampGenerator.cs" />

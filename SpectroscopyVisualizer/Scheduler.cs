@@ -15,7 +15,7 @@ namespace SpectroscopyVisualizer
         /// </summary>
         /// <param name="producer"></param>
         /// <param name="consumer"></param>
-        public Scheduler(IProducer producer, AbstractConsumer<double[]> consumer)
+        public Scheduler(IProducer<SampleRecord> producer, AbstractConsumer<SampleRecord> consumer)
         {
             Producer = producer;
             Consumer = consumer;
@@ -30,13 +30,13 @@ namespace SpectroscopyVisualizer
         ///     The producer
         /// </summary>
         [NotNull]
-        public IProducer Producer { get; protected set; }
+        public IProducer<SampleRecord> Producer { get; protected set; }
 
         /// <summary>
         ///     The consumer
         /// </summary>
         [NotNull]
-        public AbstractConsumer<double[]> Consumer { get; protected set; }
+        public AbstractConsumer<SampleRecord> Consumer { get; protected set; }
 
         /// <summary>
         ///     Start the system.

@@ -11,30 +11,33 @@ namespace PhaseSonar.Slicers
     public class RefSlicer : SimpleSlicer
     {
         /// <summary>
-        /// Slice the pulse sequence.
+        /// Slice the pulse sequence, without considering multiple components.
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence, usually a sampled record</param>
-        /// <returns>Start indices of pulses of 2 components, for example, gas and reference</returns>
-        public override List<List<int>> Slice(double[] pulseSequence)
+        /// <param name="startIndicesList">Start indices of pulses. All indices are grouped into one list. The size of the list returned is 1.</param>
+        /// <returns>Whether slicing succeeded</returns>
+        public override bool Slice(double[] pulseSequence, out IList<IList<int>> startIndicesList)
         {
-            // TODO: adjust threshold
-            var crestIndices = Finder.Find(pulseSequence);
-            if (crestIndices == null)
+            IList<int> crestIndices;
+            if (Finder.Find(pulseSequence,out crestIndices))
             {
-                return null;
+                var tuple = Group(crestIndices);
+                SlicedPeriodLength = AnalyzePeriodLength(crestIndices);
+                IList<int> startIndices1, startIndices2;
+
+                if (FindStartIndices(pulseSequence, tuple.Item1, SlicedPeriodLength, out startIndices1) &&
+                    FindStartIndices(pulseSequence, tuple.Item2, SlicedPeriodLength, out startIndices2))
+                {
+                    startIndicesList = new List<IList<int>>(2) {startIndices1,startIndices2};
+                    return true;
+                }
             }
-            var tuple = Group(crestIndices);
-            SlicedPeriodLength = AnalyzePeriodLength(crestIndices);
-            var startIndices1 = FindStartIndices(pulseSequence, tuple.Item1, SlicedPeriodLength);
-            var startIndices2 = FindStartIndices(pulseSequence, tuple.Item2, SlicedPeriodLength);
-            if (startIndices1==null||startIndices2==null)
-            {
-                return null;
-            }
-            return new List<List<int>>(2) {startIndices1, startIndices2};
+            startIndicesList = new List<IList<int>>(0);
+            return false;
         }
 
-        private static Tuple<List<int>, List<int>> Group(List<int> crestIndices)
+    
+        private static Tuple<List<int>, List<int>> Group(IList<int> crestIndices)
         {
             var group1 = new List<int>();
             var group2 = new List<int>();

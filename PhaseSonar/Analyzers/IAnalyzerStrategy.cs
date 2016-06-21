@@ -21,7 +21,7 @@ namespace PhaseSonar.Analyzers
         /// <param name="crestIndex">The index of the crest in the pulse</param>
         /// <returns>The processed result of the pulse sequence, or null if failed</returns>
         [CanBeNull]
-        List<ISpectrum> Process(double[] pulseSequence, [NotNull] List<List<int>> startIndicesList, int pulseLength,
+        List<ISpectrum> Process(double[] pulseSequence, [NotNull] IList<IList<int>> startIndicesList, int pulseLength,
             int crestIndex);
     }
 }

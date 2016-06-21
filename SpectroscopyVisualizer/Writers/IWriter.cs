@@ -12,9 +12,9 @@
         bool IsOn { get; set; }
 
         /// <summary>
-        ///     Save data.
+        ///     Enqueue the data to save.
         /// </summary>
         /// <param name="data"></param>
-        void Enqueue(T data);
+        void Write(T data);
     }
 }

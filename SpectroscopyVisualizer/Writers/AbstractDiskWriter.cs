@@ -14,7 +14,6 @@ namespace SpectroscopyVisualizer.Writers
         /// </summary>
         protected const string Suffix = ".txt";
 
-        private int _fileIndex;
 
         /// <summary>
         ///     Create an instance.
@@ -26,7 +25,6 @@ namespace SpectroscopyVisualizer.Writers
         {
             BasePath = Path.Combine(directory, prefix);
         }
-
         /// <summary>
         ///     The time-stamp of the data saved.
         /// </summary>
@@ -37,29 +35,5 @@ namespace SpectroscopyVisualizer.Writers
         /// </summary>
         protected string BasePath { get; }
 
-        /// <summary>
-        ///     Save data element in the queue.
-        /// </summary>
-        /// <param name="dequeue">The dequeued element</param>
-        protected override void ConsumeElement(T dequeue)
-        {
-            /*   if (_fileIndex == -1)
-            {
-                _fileIndex = GetMaxIndex(_directory) + 1; // todo buggy
-            }*/
-            if (WriteData(dequeue, BasePath, _fileIndex)) // todo badly designed callback
-            {
-                _fileIndex++;
-            }
-        }
-
-        /// <summary>
-        ///     Called when start consuming a dequeued element.
-        /// </summary>
-        /// <param name="dequeue"></param>
-        /// <param name="basePath"></param>
-        /// <param name="fileIndex"></param>
-        /// <returns>True if consumed successfully.</returns>
-        protected abstract bool WriteData(T dequeue, string basePath, int fileIndex);
     }
 }

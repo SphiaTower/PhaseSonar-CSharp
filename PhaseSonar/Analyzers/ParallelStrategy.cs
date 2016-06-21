@@ -12,13 +12,13 @@ namespace PhaseSonar.Analyzers
     /// </summary>
     public class ParallelStrategy : IAnalyzerStrategy
     {
-        private readonly List<ICorrector> _workers;
+        private readonly IList<ICorrector> _workers;
 
         /// <summary>
         ///     Create a parallel strategy.
         /// </summary>
         /// <param name="correctors">The workers for correcting pulses</param>
-        public ParallelStrategy(List<ICorrector> correctors)
+        public ParallelStrategy(IList<ICorrector> correctors)
         {
             _workers = correctors;
         }
@@ -34,20 +34,26 @@ namespace PhaseSonar.Analyzers
         /// <param name="pulseLength">The length of every pulse</param>
         /// <param name="crestIndex"></param>
         /// <returns>The processed result of the pulse sequence, or null if failed</returns>
-        public List<ISpectrum> Process(double[] pulseSequence, [NotNull] List<List<int>> startIndicesList,
+        public List<ISpectrum> Process(double[] pulseSequence, [NotNull] IList<IList<int>> startIndicesList,
             int pulseLength, int crestIndex)
         {
-            _workers.ForEach(corrector => corrector.ClearBuffer());
+            foreach (var corrector in _workers)
+            {
+                corrector.ClearBuffer();
+            }
             return
                 startIndicesList.Select(
                     startIndices => CorrectParallelly(pulseSequence, startIndices, pulseLength, crestIndex)).ToList();
         }
 
-        private ISpectrum CorrectParallelly(double[] pulseSequence, List<int> startIndices, int pulseLength,
+        private ISpectrum CorrectParallelly(double[] pulseSequence, IList<int> startIndices, int pulseLength,
             int crestIndex)
         {
             var queue = new ConcurrentQueue<int>();
-            startIndices.ForEach(item => queue.Enqueue(item));
+            foreach (var startIndex in startIndices)
+            {
+                queue.Enqueue(startIndex);
+            }
 
             Parallel.ForEach(
                 _workers,

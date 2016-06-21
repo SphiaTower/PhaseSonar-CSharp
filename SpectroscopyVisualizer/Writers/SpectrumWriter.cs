@@ -1,9 +1,10 @@
 ﻿using PhaseSonar.Correctors;
 using PhaseSonar.Utils;
+using SpectroscopyVisualizer.Consumers;
 
 namespace SpectroscopyVisualizer.Writers
 {
-    public class SpectrumWriter : AbstractDiskWriter<ISpectrum>
+    public class SpectrumWriter : AbstractDiskWriter<TracedSpectrum>
     {
         /// <summary>
         ///     Create an instance.
@@ -19,14 +20,11 @@ namespace SpectroscopyVisualizer.Writers
         ///     Called when start consuming a dequeued element.
         /// </summary>
         /// <param name="dequeue"></param>
-        /// <param name="basePath"></param>
-        /// <param name="fileIndex"></param>
         /// <returns>True if consumed successfully.</returns>
-        protected override bool WriteData(ISpectrum dequeue, string basePath, int fileIndex)
+        protected override void ConsumeElement(TracedSpectrum dequeue)
         {
-            Toolbox.WriteStringArray(basePath + "t" + TimeStamp + "-" + fileIndex + "-n" + dequeue.PulseCount + Suffix,
+            Toolbox.WriteStringArray(BasePath + "-" + dequeue.Tag + "-n" + dequeue.PulseCount + Suffix,
                 dequeue.ToStringArray());
-            return true;
         }
     }
 }

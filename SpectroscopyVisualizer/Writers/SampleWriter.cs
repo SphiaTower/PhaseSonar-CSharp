@@ -1,12 +1,13 @@
 ﻿using System;
 using PhaseSonar.Utils;
+using SpectroscopyVisualizer.Producers;
 
 namespace SpectroscopyVisualizer.Writers
 {
     /// <summary>
     ///     A Writer writing data sampled.
     /// </summary>
-    public class SampleWriter : AbstractDiskWriter<double[]>
+    public class SampleWriter : AbstractDiskWriter<SampleRecord>
     {
         /// <summary>
         ///     Create an instance.
@@ -22,19 +23,16 @@ namespace SpectroscopyVisualizer.Writers
         ///     Called when start consuming a dequeued element.
         /// </summary>
         /// <param name="dequeue"></param>
-        /// <param name="basePath"></param>
-        /// <param name="fileIndex"></param>
         /// <returns>True if consumed successfully.</returns>
-        protected override bool WriteData(double[] dequeue, string basePath, int fileIndex)
+        protected override void ConsumeElement(SampleRecord dequeue) // todo
         {
             try
             {
-                Toolbox.SerializeData(basePath + TimeStamp + "-" + fileIndex + Suffix, dequeue);
-                return true;
+                Toolbox.SerializeData(BasePath +  "-" + dequeue.ID + Suffix, dequeue.PulseSequence);
             }
             catch (Exception)
             {
-                return false;
+                // todo
             }
         }
     }

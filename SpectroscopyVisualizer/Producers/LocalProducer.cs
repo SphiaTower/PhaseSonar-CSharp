@@ -8,7 +8,7 @@ using PhaseSonar.Utils;
 
 namespace SpectroscopyVisualizer.Producers
 {
-    public class LocalProducer : IProducer
+    public class LocalProducer : IProducer<SampleRecord> // TODO!!!!
     {
         private readonly IEnumerable<string> _paths;
 
@@ -21,7 +21,12 @@ namespace SpectroscopyVisualizer.Producers
         [CanBeNull]
         public Action OnDataLoadedListener { get; set; }
 
-        public BlockingCollection<double[]> BlockingQueue { get; } = new BlockingCollection<double[]>();
+        public BlockingCollection<SampleRecord> BlockingQueue { get; } = new BlockingCollection<SampleRecord>();
+
+        int IProducer<SampleRecord>.HistoryProductCnt
+        {
+            get { throw new NotImplementedException(); }
+        }
 
         public void Produce()
         {
@@ -30,7 +35,7 @@ namespace SpectroscopyVisualizer.Producers
                 foreach (var path in _paths)
                 {
                     var doubles = Toolbox.Read(path);
-                    BlockingQueue.Add(doubles);
+                    BlockingQueue.Add(new SampleRecord(doubles,0));
                     Application.Current.Dispatcher.Invoke(OnDataLoadedListener);
                 }
             });
@@ -40,16 +45,11 @@ namespace SpectroscopyVisualizer.Producers
         {
         }
 
-        int IProducer.HistoryProductCnt { get; }
 
         public void Reset()
         {
             throw new NotImplementedException();
         }
 
-        public int HistoryProductCnt()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -1,16 +1,14 @@
-﻿using System;
-using System.Diagnostics;
-using PhaseSonar.Maths;
+﻿using PhaseSonar.Maths;
 
 namespace PhaseSonar.Correctors
 {
     /// <summary>
-    /// A modified mertz corrector which keep on accumulating results until cleared.
+    ///     A modified mertz corrector which keep on accumulating results until cleared.
     /// </summary>
     public class AccMertzCorrector : MertzCorrector
     {
         /// <summary>
-        /// Create an instance. <see cref="ICorrector"/>
+        ///     Create an instance. <see cref="ICorrector" />
         /// </summary>
         /// <param name="apodizer"></param>
         /// <param name="fuzzyPulseLength"></param>

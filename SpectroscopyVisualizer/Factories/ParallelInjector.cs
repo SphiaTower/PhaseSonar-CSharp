@@ -33,7 +33,7 @@ namespace SpectroscopyVisualizer.Factories
         public static ICrestFinder NewCrestFinder()
         {
             var config = GeneralConfigurations.Get();
-            return new AbsoluteCrestFinder(// todo change back
+            return new AbsoluteCrestFinder( // todo change back
                 config.RepetitionRate,
                 SamplingConfigurations.Get().SamplingRate,
                 SliceConfigurations.Get().PointsBeforeCrest,
@@ -114,9 +114,9 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        public static LocalProducer NewProducer(IEnumerable<string> paths)
+        public static DiskProducer NewProducer(IEnumerable<string> paths)
         {
-            return new LocalProducer(paths);
+            return new DiskProducer(paths);
         }
 
 
@@ -133,7 +133,8 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        public static AbstractConsumer<SampleRecord> NewConsumer(IProducer<SampleRecord> producer, DisplayAdapter adapter, SpectrumWriter writer)
+        public static AbstractConsumer<SampleRecord> NewConsumer(IProducer<SampleRecord> producer,
+            DisplayAdapter adapter, SpectrumWriter writer)
         {
             var threadNum = GeneralConfigurations.Get().ThreadNum;
             var accumulators = new List<SerialAccumulator>(threadNum);

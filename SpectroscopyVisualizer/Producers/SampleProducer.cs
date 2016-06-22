@@ -5,34 +5,53 @@ using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Producers
 {
+    /// <summary>
+    ///     A producer which retrieves data via an ADC with NI-Scope.
+    /// </summary>
     public class SampleProducer : AbstractProducer<SampleRecord>
     {
         private readonly Sampler _sampler;
 
+        /// <summary>
+        ///     Create a SampleProducer.
+        /// </summary>
+        /// <param name="sampler">
+        ///     <see cref="Sampler" />
+        /// </param>
+        /// <param name="writer">
+        ///     <see cref="SampleWriter" />
+        /// </param>
         public SampleProducer(Sampler sampler, SampleWriter writer)
         {
             Writer = writer;
             _sampler = sampler;
         }
 
+        /// <see cref="SampleWriter" />
         public SampleWriter Writer { get; set; }
 
-        protected override void Wait()
+        /// <summary>
+        ///     A callback called before retrieving data in this turn.
+        /// </summary>
+        protected override void OnPreRetrieve()
         {
             while (_sampler.Status() != ScopeAcquisitionStatus.Complete
                    || BlockingQueue.Count == BlockingQueue.BoundedCapacity)
             {
-                Thread.Sleep(10); // todo
+                Thread.Sleep(10); // todo modify this param, and the 2nd cmp maybe redundant
             }
         }
 
+        /// <summary>
+        ///     Retrieve data into the blocking queue.
+        /// </summary>
+        /// <returns></returns>
         protected override SampleRecord RetrieveData()
         {
             var pulseSequence = _sampler.Retrieve();
-            SampleRecord record = new SampleRecord(pulseSequence,HistoryProductCnt);
+            var record = new SampleRecord(pulseSequence, HistoryProductCnt);
             if (Writer.IsOn) Writer.Write(record);
             return record;
         }
-
     }
 }

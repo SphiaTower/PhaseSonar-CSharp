@@ -44,7 +44,7 @@ namespace PhaseSonar.Slicers
         public int LeftThreshold { get; }
 
         /// <summary>
-        /// Find the crests in a pulse sequence.
+        ///     Find the crests in a pulse sequence.
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence containing multiple pulses</param>
         /// <returns>The indices of the crests</returns>

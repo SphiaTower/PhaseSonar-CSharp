@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using PhaseSonar.Utils;
 using JetBrains.Annotations;
 
 namespace PhaseSonar.Maths
 {
     /// <summary>
-    /// A set of static helper functions.
+    ///     A set of static helper functions.
     /// </summary>
     public class Functions
     {
-
         /// <summary>
-        /// Copy array.
+        ///     Copy array.
         /// </summary>
         /// <param name="array"></param>
         /// <param name="start"></param>
@@ -30,11 +28,11 @@ namespace PhaseSonar.Maths
 //            {
 //                copy[i] = array[j];
 //            }
-            Array.Copy(array,start,copy,0,count);
+            Array.Copy(array, start, copy, 0, count);
         }
 
         /// <summary>
-        /// Shallow clone array.
+        ///     Shallow clone array.
         /// </summary>
         /// <param name="array"></param>
         /// <typeparam name="T"></typeparam>
@@ -42,12 +40,12 @@ namespace PhaseSonar.Maths
         public static T[] Clone<T>(T[] array)
         {
             var copy = new T[array.Length];
-            Array.Copy(array,copy,array.Length);
+            Array.Copy(array, copy, array.Length);
             return copy;
         }
 
         /// <summary>
-        /// Multiply 2 vectors in place.
+        ///     Multiply 2 vectors in place.
         /// </summary>
         /// <param name="array"></param>
         /// <param name="weight"></param>
@@ -66,7 +64,7 @@ namespace PhaseSonar.Maths
         }
 
         /// <summary>
-        /// Add 2 arrays int a new one.
+        ///     Add 2 arrays int a new one.
         /// </summary>
         /// <param name="array1"></param>
         /// <param name="array2"></param>
@@ -88,12 +86,12 @@ namespace PhaseSonar.Maths
         }
 
         /// <summary>
-        /// Add 2 arrays in place.
+        ///     Add 2 arrays in place.
         /// </summary>
         /// <param name="target"></param>
         /// <param name="adder"></param>
         /// <exception cref="ArithmeticException"></exception>
-        public static void AddTo([NotNull]double[] target, [NotNull]double[] adder)
+        public static void AddTo([NotNull] double[] target, [NotNull] double[] adder)
         {
             var length = target.Length;
             if (adder.Length != length)
@@ -105,21 +103,24 @@ namespace PhaseSonar.Maths
                 target[i] += adder[i];
             }
         }
+
         /// <summary>
-        /// Add 2 arrays in place, regardless of the extra length.
+        ///     Add 2 arrays in place, regardless of the extra length.
         /// </summary>
         /// <param name="target"></param>
         /// <param name="adder"></param>
-        public static void ForceAddTo([NotNull]double[] target, [NotNull]double[] adder) {
+        public static void ForceAddTo([NotNull] double[] target, [NotNull] double[] adder)
+        {
             var length = target.Length;
-            for (var i = 0; i < length; i++) {
+            for (var i = 0; i < length; i++)
+            {
                 target[i] += adder[i];
             }
         }
 
 
         /// <summary>
-        /// Allocate linespace.
+        ///     Allocate linespace.
         /// </summary>
         /// <param name="start"></param>
         /// <param name="stop"></param>
@@ -133,7 +134,7 @@ namespace PhaseSonar.Maths
         }
 
         /// <summary>
-        /// Allocate linespace in space.
+        ///     Allocate linespace in space.
         /// </summary>
         /// <param name="start"></param>
         /// <param name="stop"></param>
@@ -159,7 +160,7 @@ namespace PhaseSonar.Maths
         }
 
         /// <summary>
-        /// Add arrays up.
+        ///     Add arrays up.
         /// </summary>
         /// <param name="arrays"></param>
         /// <returns></returns>
@@ -180,12 +181,12 @@ namespace PhaseSonar.Maths
         }
 
         /// <summary>
-        /// Clear an array.
+        ///     Clear an array.
         /// </summary>
         /// <param name="array"></param>
-        public static void Clear([NotNull]double[] array)
+        public static void Clear([NotNull] double[] array)
         {
-            Array.Clear(array,0,array.Length);
+            Array.Clear(array, 0, array.Length);
         }
     }
 }

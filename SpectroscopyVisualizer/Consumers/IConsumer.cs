@@ -1,7 +1,7 @@
 ﻿namespace SpectroscopyVisualizer.Consumers
 {
     /// <summary>
-    ///     An interface defined for all consumers.
+    ///     An interface for all consumers.
     /// </summary>
     public interface IConsumer
     {

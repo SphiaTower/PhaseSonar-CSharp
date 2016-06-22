@@ -1,24 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PhaseSonar.Correctors;
 using PhaseSonar.Utils;
 
 namespace PhaseSonar.Slicers
 {
     /// <summary>
-    /// A slicer for pulse sequences with 2 components, for example, gas and ref
+    ///     A slicer for pulse sequences with 2 components, for example, gas and ref
     /// </summary>
     public class RefSlicer : SimpleSlicer
     {
         /// <summary>
-        /// Slice the pulse sequence, without considering multiple components.
+        ///     Create a crest finder
+        /// </summary>
+        /// <param name="finder"></param>
+        public RefSlicer(ICrestFinder finder) : base(finder)
+        {
+        }
+
+        /// <summary>
+        ///     Slice the pulse sequence, without considering multiple components.
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence, usually a sampled record</param>
         /// <returns>Whether slicing succeeded</returns>
         public override IList<IList<int>> Slice(double[] pulseSequence)
         {
-            IList<int> crestIndices = Finder.Find(pulseSequence);
+            var crestIndices = Finder.Find(pulseSequence);
             if (crestIndices.NotEmpty())
             {
                 var tuple = Group(crestIndices);
@@ -28,13 +35,13 @@ namespace PhaseSonar.Slicers
                 if (FindStartIndices(pulseSequence, tuple.Item1, SlicedPeriodLength, out startIndices1) &&
                     FindStartIndices(pulseSequence, tuple.Item2, SlicedPeriodLength, out startIndices2))
                 {
-                    return new List<IList<int>>(2) {startIndices1,startIndices2};
+                    return new List<IList<int>>(2) {startIndices1, startIndices2};
                 }
             }
             return new List<IList<int>>(0);
         }
 
-    
+
         private static Tuple<List<int>, List<int>> Group(IList<int> crestIndices)
         {
             var group1 = new List<int>();
@@ -77,14 +84,6 @@ namespace PhaseSonar.Slicers
             var distance = crestIndex - firstIndex;
             var ratio = (double) distance/periodLength;
             return Math.Abs(ratio - Math.Round(ratio)) < range;
-        }
-
-        /// <summary>
-        /// Create a crest finder
-        /// </summary>
-        /// <param name="finder"></param>
-        public RefSlicer(ICrestFinder finder) : base(finder)
-        {
         }
     }
 }

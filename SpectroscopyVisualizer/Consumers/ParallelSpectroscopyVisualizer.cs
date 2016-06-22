@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using JetBrains.Annotations;
 using PhaseSonar.Analyzers;
@@ -13,9 +11,10 @@ using SpectroscopyVisualizer.Writers;
 namespace SpectroscopyVisualizer.Consumers
 {
     /// <summary>
-    ///     A parallel version of <see cref="SerialSpectroscopyVisualizer" /> which dequeues elements parallelly.
+    ///     A parallel SpectroscopyVisualizer which dequeues elements parallelly, processes them and sends result to display
+    ///     layer.
     /// </summary>
-    public class ParallelSpectroscopyVisualizer : ParallelConsumer<SampleRecord,Accumulator>
+    public class ParallelSpectroscopyVisualizer : ParallelConsumer<SampleRecord, Accumulator>
     {
         private const string Lock = "lock";
         private double[] _dummyAxis;
@@ -64,23 +63,30 @@ namespace SpectroscopyVisualizer.Consumers
         /// </summary>
         public DisplayAdapter Adapter { get; set; }
 
-        public CanvasView View => Adapter.WavefromView;
 
-
-        protected override bool ConsumeElement([NotNull] SampleRecord record, Accumulator accumulator)
+        /// <summary>
+        ///     Consume element in a branch.
+        /// </summary>
+        /// <param name="element">The product</param>
+        /// <param name="worker">The worker in this branch.</param>
+        /// <returns>Whether consuming succeeds.</returns>
+        protected override bool ConsumeElement([NotNull] SampleRecord element, Accumulator worker)
         {
-
-            var elementSpectrum = accumulator.Accumulate(record.PulseSequence);
+            var elementSpectrum = worker.Accumulate(element.PulseSequence);
             elementSpectrum.IfPresent(spectrum =>
             {
-                lock (Lock) {
-                    if (SumSpectrum == null) {
+                lock (Lock)
+                {
+                    if (SumSpectrum == null)
+                    {
                         SumSpectrum = spectrum.Clone();
-                    } else {
+                    }
+                    else
+                    {
                         SumSpectrum.TryAbsorb(spectrum);
                     }
                 }
-                if (Writer.IsOn) Writer.Write(new TracedSpectrum(spectrum, record.ID.ToString()));
+                if (Writer.IsOn) Writer.Write(new TracedSpectrum(spectrum, element.Id.ToString()));
                 OnDataUpdatedInBackground(spectrum);
             });
             return elementSpectrum.IsPresent();
@@ -90,33 +96,35 @@ namespace SpectroscopyVisualizer.Consumers
         ///     Called when a new element is processed in the background.
         /// </summary>
         /// <param name="singleSpectrum">The processed spetrum of a newly dequeued element.</param>
-        /// <param name="id"></param>
         protected void OnDataUpdatedInBackground([NotNull] ISpectrum singleSpectrum)
         {
             var averAll = Adapter.SampleAverageAndSquare(SumSpectrum);
             var averSingle = Adapter.SampleAverageAndSquare(singleSpectrum);
 
             _dummyAxis = _dummyAxis ?? Axis.DummyAxis(averAll);
-            View.InvokeAsync(() =>
+            Adapter.WavefromView.InvokeAsync(() =>
             {
                 var averSinglePts = Adapter.CreateGraphPoints(_dummyAxis, averSingle);
                 var averAllPts = Adapter.CreateGraphPoints(_dummyAxis, averAll);
                 // todo: why does lines above must be exec in the UI thread??
-                View.ClearWaveform();
+                Adapter.WavefromView.ClearWaveform();
                 //                View.Canvas.Children.RemoveRange(0,2);
-                View.DrawWaveform(averSinglePts, Colors.Red);
-                View.DrawWaveform(averAllPts);
+                Adapter.WavefromView.DrawWaveform(averSinglePts, Colors.Red);
+                Adapter.WavefromView.DrawWaveform(averAllPts);
                 // todo: bug: buffer cleared while closure continues
             }
                 );
         }
 
+        /// <summary>
+        ///     Called when the consumer is stopped.
+        /// </summary>
         protected override void OnStop()
         {
             base.OnStop();
             if (Writer.IsOn)
             {
-                Writer.Write(new TracedSpectrum(SumSpectrum,"accumulated"));
+                Writer.Write(new TracedSpectrum(SumSpectrum, "accumulated"));
             }
         }
     }

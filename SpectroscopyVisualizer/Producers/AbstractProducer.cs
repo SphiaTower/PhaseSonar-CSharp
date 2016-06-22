@@ -4,23 +4,46 @@ using System.Threading.Tasks;
 
 namespace SpectroscopyVisualizer.Producers
 {
+    /// <summary>
+    ///     An skeletal implementation of IProducer.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class AbstractProducer<T> : IProducer<T>
     {
-        private bool IsOn { get; set; } = true;
-        public BlockingCollection<T> BlockingQueue { get; } = new BlockingCollection<T>(24);
-        // todo config
+        /// <summary>
+        ///     Whether the producer is on or off.
+        /// </summary>
+        protected bool IsOn { get; set; } = true;
+
+        /// <summary>
+        ///     The queue containing all products.
+        /// </summary>
+        public BlockingCollection<T> BlockingQueue { get; } = new BlockingCollection<T>(24); // todo config
+
+        /// <summary>
+        ///     The count of product.
+        /// </summary>
         public int HistoryProductCnt { get; private set; }
 
-        public void Produce()
+        /// <summary>
+        ///     Start Producing.
+        /// </summary>
+        public void Start()
         {
             Task.Run((Action) DoInBackground);
         }
 
+        /// <summary>
+        ///     Stop Producing.
+        /// </summary>
         public void Stop()
         {
             IsOn = false;
         }
 
+        /// <summary>
+        ///     Reset the status of the producer.
+        /// </summary>
         public void Reset()
         {
             HistoryProductCnt = 0;
@@ -30,29 +53,39 @@ namespace SpectroscopyVisualizer.Producers
             }
         }
 
-        protected abstract void Wait();
+        /// <summary>
+        ///     A callback called before retrieving data in this turn.
+        /// </summary>
+        protected abstract void OnPreRetrieve();
 
+        /// <summary>
+        ///     Retrieve data into the blocking queue.
+        /// </summary>
+        /// <returns></returns>
         protected abstract T RetrieveData();
 
+        /// <summary>
+        ///     The main flow of producer, executed in a backgound thread.
+        /// </summary>
         protected virtual void DoInBackground()
         {
             IsOn = true;
             while (IsOn)
             {
-                Wait();
-                if (!IsOn) break;
+                OnPreRetrieve();
+                T data;
                 try
                 {
-                    var record = RetrieveData();
-                    BlockingQueue.Add(record);
-                    HistoryProductCnt++;
+                    data = RetrieveData();
                 }
-                catch (Exception e)
+                catch (Exception ignored)
                 {
-                    // todo
+                    continue;
                 }
+                if (!IsOn) break;
+                BlockingQueue.Add(data);
+                HistoryProductCnt++;
             }
-            // _sampler.Release();
         }
     }
 }

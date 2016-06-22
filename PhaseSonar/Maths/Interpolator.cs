@@ -3,7 +3,7 @@ using MathNet.Numerics.Interpolation;
 namespace PhaseSonar.Maths
 {
     /// <summary>
-    /// An interpolator which interpolates data
+    ///     An interpolator which interpolates data
     /// </summary>
     public class Interpolator
     {
@@ -11,7 +11,7 @@ namespace PhaseSonar.Maths
         private readonly double[] _oldAxis;
 
         /// <summary>
-        /// Create an interpolator which interpolates data of the specified size
+        ///     Create an interpolator which interpolates data of the specified size
         /// </summary>
         /// <param name="oldSize">The size of data before interpolation</param>
         /// <param name="newSize">The size of data after interpolation</param>
@@ -25,8 +25,9 @@ namespace PhaseSonar.Maths
             _nexAxis = new double[newSize];
             Functions.LineSpaceInPlace(0, oldSize - 1, newSize, _nexAxis);
         }
+
         /// <summary>
-        /// Interpolate the data into a larger size
+        ///     Interpolate the data into a larger size
         /// </summary>
         /// <param name="original">The data to be interpolated</param>
         /// <param name="interpolated">The output interpolated data</param>

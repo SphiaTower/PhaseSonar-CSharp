@@ -137,7 +137,7 @@
     <Compile Include="Presenters\VerticalAxisView.cs" />
     <Compile Include="Producers\DummyProducer.cs" />
     <Compile Include="Producers\IProducer.cs" />
-    <Compile Include="Producers\LocalProducer.cs" />
+    <Compile Include="Producers\DiskProducer.cs" />
     <Compile Include="Configs\SamplingConfigurations.cs" />
     <Compile Include="Presenters\CanvasView.cs" />
     <Compile Include="Presenters\AxisBuilder.cs" />

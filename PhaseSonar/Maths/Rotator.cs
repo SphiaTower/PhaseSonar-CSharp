@@ -3,11 +3,10 @@ using System;
 namespace PhaseSonar.Maths
 {
     /// <summary>
-    /// A Rotator takes an array as input and do fftshift on it or symmetrize it.
+    ///     A Rotator takes an array as input and do fftshift on it or symmetrize it.
     /// </summary>
     public class Rotator
     {
-      
         private double[] _aux;
 
         private double[] Allocate(int size)
@@ -18,8 +17,9 @@ namespace PhaseSonar.Maths
             }
             return _aux;
         }
+
         /// <summary>
-        /// Swap the two halves of the array, like a fftshift operation
+        ///     Swap the two halves of the array, like a fftshift operation
         /// </summary>
         /// <param name="array">The array to be rotated</param>
         public void Rotate(double[] array)
@@ -38,8 +38,9 @@ namespace PhaseSonar.Maths
                 array[i] = _aux[j];
             }
         }
+
         /// <summary>
-        /// Rotate the array to center the crest of array
+        ///     Rotate the array to center the crest of array
         /// </summary>
         /// <param name="array">The array to be symmetrized</param>
         /// <param name="crestIndex">The index to be rotated to the center of the array</param>

@@ -1,6 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
-using PhaseSonar.Correctors;
+﻿using PhaseSonar.Correctors;
 using PhaseSonar.Slicers;
 
 namespace PhaseSonar.Analyzers

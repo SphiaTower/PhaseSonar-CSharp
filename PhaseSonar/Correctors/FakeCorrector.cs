@@ -4,26 +4,30 @@ using PhaseSonar.Maths;
 namespace PhaseSonar.Correctors
 {
     /// <summary>
-    /// A fake corrector which just balances and symmetrizes the data and does no phase correction
+    ///     A fake corrector which just balances and symmetrizes the data and does no phase correction
     /// </summary>
     public class FakeCorrector : BaseCorrector<ComplexSpectrum>
     {
         /// <summary>
-        /// Create a fake corrector.
+        ///     Create a fake corrector.
         /// </summary>
-        /// <param name="apodizer"><see cref="BaseCorrector{T}"/></param>
-        /// <param name="fuzzyPulseLength"><see cref="BaseCorrector{T}"/></param>
-        /// <param name="zeroFillFactor"><see cref="BaseCorrector{T}"/></param>
+        /// <param name="apodizer">
+        ///     <see cref="BaseCorrector{T}" />
+        /// </param>
+        /// <param name="fuzzyPulseLength">
+        ///     <see cref="BaseCorrector{T}" />
+        /// </param>
+        /// <param name="zeroFillFactor">
+        ///     <see cref="BaseCorrector{T}" />
+        /// </param>
         public FakeCorrector(IApodizer apodizer, int fuzzyPulseLength, int zeroFillFactor)
             : base(apodizer, fuzzyPulseLength, zeroFillFactor)
         {
-
         }
 
 
-
         /// <summary>
-        /// Correct a pulse
+        ///     Correct a pulse
         /// </summary>
         /// <param name="pulseSequence">The pulse sequence that the pulse contains in</param>
         /// <param name="startIndex">The start index of the pulse in the pulse sequence</param>
@@ -47,9 +51,7 @@ namespace PhaseSonar.Correctors
 
             double[] fftReal, fftImag;
             FourierTransformer.TransformForward(ZeroFilledArray, out fftReal, out fftImag);
-            SpectrumBuffer.TryAbsorb(new ComplexSpectrum(fftReal,fftImag,1));
+            SpectrumBuffer.TryAbsorb(new ComplexSpectrum(fftReal, fftImag, 1));
         }
-     
-
     }
 }

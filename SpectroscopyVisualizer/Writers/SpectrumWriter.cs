@@ -1,9 +1,11 @@
-﻿using PhaseSonar.Correctors;
-using PhaseSonar.Utils;
+﻿using PhaseSonar.Utils;
 using SpectroscopyVisualizer.Consumers;
 
 namespace SpectroscopyVisualizer.Writers
 {
+    /// <summary>
+    /// A writer for <see cref="TracedSpectrum"/>
+    /// </summary>
     public class SpectrumWriter : AbstractDiskWriter<TracedSpectrum>
     {
         /// <summary>

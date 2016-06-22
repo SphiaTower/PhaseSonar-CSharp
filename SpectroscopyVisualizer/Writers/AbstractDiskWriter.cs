@@ -25,6 +25,7 @@ namespace SpectroscopyVisualizer.Writers
         {
             BasePath = Path.Combine(directory, prefix);
         }
+
         /// <summary>
         ///     The time-stamp of the data saved.
         /// </summary>
@@ -34,6 +35,5 @@ namespace SpectroscopyVisualizer.Writers
         ///     The base path containing the directory and the prefix.
         /// </summary>
         protected string BasePath { get; }
-
     }
 }

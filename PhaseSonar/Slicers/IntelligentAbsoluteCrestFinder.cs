@@ -31,8 +31,8 @@ namespace PhaseSonar.Slicers
             {
                 var crestIndices = base.Find(pulseSequence);
                 var cmp = CompareRepFreq(pulseSequence.Length, crestIndices);
-                if (cmp > 0) VerticalThreshold *=1.2;
-                else if (cmp < 0) VerticalThreshold *=0.9;
+                if (cmp > 0) VerticalThreshold *= 1.2;
+                else if (cmp < 0) VerticalThreshold *= 0.9;
                 else return crestIndices;
             }
             return base.Find(pulseSequence);

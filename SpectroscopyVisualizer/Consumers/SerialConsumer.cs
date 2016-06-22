@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace SpectroscopyVisualizer.Consumers {
-    public abstract class SerialConsumer<TProduct>:AbstractConsumer<TProduct> {
+namespace SpectroscopyVisualizer.Consumers
+{
+    /// <summary>
+    ///     A serial consumer which takes products out one by one.
+    /// </summary>
+    /// <typeparam name="TProduct"></typeparam>
+    public abstract class SerialConsumer<TProduct> : AbstractConsumer<TProduct>
+    {
         /// <summary>
         ///     Create a Consumer.
         /// </summary>
@@ -19,20 +21,27 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <summary>
         ///     Start consuming.
         /// </summary>
-        public override void Consume() {
+        public override void Consume()
+        {
             IsOn = true;
-            Task.Run(() => {
-                while (IsOn) {
+            Task.Run(() =>
+            {
+                while (IsOn)
+                {
                     TProduct raw;
                     if (!BlockingQueue.TryTake(out raw, MillisecondsTimeout)) break;
                     if (!IsOn) return;
-                    if (ConsumeElement(raw)) {
+                    if (ConsumeElement(raw))
+                    {
                         ContinuousFailCnt = 0;
                         ConsumedCnt++;
                         FireConsumeEvent();
-                    } else {
+                    }
+                    else
+                    {
                         ContinuousFailCnt++;
-                        if (ContinuousFailCnt >= 10) {
+                        if (ContinuousFailCnt >= 10)
+                        {
                             FireFailEvent();
                             break;
                         }
@@ -41,6 +50,7 @@ namespace SpectroscopyVisualizer.Consumers {
                 IsOn = false;
             });
         }
+
         /// <summary>
         ///     Comsume an element dequeued from the queue.
         /// </summary>

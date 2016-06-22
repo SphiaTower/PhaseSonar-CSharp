@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace PhaseSonar.Maths
 {
     /// <summary>
-    /// A static generator for ramp functions, which caches the result.
+    ///     A static generator for ramp functions, which caches the result.
     /// </summary>
     public class RampGenerator
     {
@@ -28,9 +28,10 @@ namespace PhaseSonar.Maths
                 return _rampCache;
             }
         }
+
         /// <summary>
-        /// Generate a triangular array, the value of which is 1 at the crest, and 0 at head and tail.
-        /// The result is cached globally.
+        ///     Generate a triangular array, the value of which is 1 at the crest, and 0 at head and tail.
+        ///     The result is cached globally.
         /// </summary>
         /// <param name="length">The length of the output array</param>
         /// <param name="crestIndex">The index of the crest of array</param>

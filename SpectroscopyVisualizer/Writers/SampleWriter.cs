@@ -28,7 +28,7 @@ namespace SpectroscopyVisualizer.Writers
         {
             try
             {
-                Toolbox.SerializeData(BasePath +  "-" + dequeue.ID + Suffix, dequeue.PulseSequence);
+                Toolbox.SerializeData(BasePath + "-" + dequeue.Id + Suffix, dequeue.PulseSequence);
             }
             catch (Exception)
             {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using JetBrains.Annotations;
@@ -7,12 +6,12 @@ using JetBrains.Annotations;
 namespace PhaseSonar.Utils
 {
     /// <summary>
-    /// A utility toolbox.
+    ///     A utility toolbox.
     /// </summary>
     public class Toolbox
     {
         /// <summary>
-        /// Read data from a given path.
+        ///     Read data from a given path.
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
@@ -29,7 +28,7 @@ namespace PhaseSonar.Utils
         }
 
         /// <summary>
-        /// Write data to a given path.
+        ///     Write data to a given path.
         /// </summary>
         /// <param name="path"></param>
         /// <param name="data"></param>
@@ -45,15 +44,17 @@ namespace PhaseSonar.Utils
         }
 
         /// <summary>
-        /// Write string array to a given path line by line.
+        ///     Write string array to a given path line by line.
         /// </summary>
         /// <param name="path"></param>
         /// <param name="data"></param>
-        public static void WriteStringArray(string path, [NotNull] string[] data) {
+        public static void WriteStringArray(string path, [NotNull] string[] data)
+        {
             File.WriteAllLines(path, data);
         }
+
         /// <summary>
-        /// Serialize data into binary format to a given path.
+        ///     Serialize data into binary format to a given path.
         /// </summary>
         /// <param name="path"></param>
         /// <param name="data"></param>
@@ -67,7 +68,7 @@ namespace PhaseSonar.Utils
         }
 
         /// <summary>
-        /// Deserialize data in binary format from a given path.
+        ///     Deserialize data in binary format from a given path.
         /// </summary>
         /// <param name="path"></param>
         /// <typeparam name="T"></typeparam>
@@ -81,7 +82,7 @@ namespace PhaseSonar.Utils
         }
 
         /// <summary>
-        /// Require the argument not null.
+        ///     Require the argument not null.
         /// </summary>
         /// <param name="arg"></param>
         /// <param name="name"></param>
@@ -95,7 +96,7 @@ namespace PhaseSonar.Utils
         }
 
         /// <summary>
-        /// Require the argument not null.
+        ///     Require the argument not null.
         /// </summary>
         /// <param name="arg"></param>
         /// <exception cref="NullReferenceException"></exception>
@@ -107,10 +108,9 @@ namespace PhaseSonar.Utils
             }
         }
 
-       
 
         /// <summary>
-        /// Require arg to satisfy a function.
+        ///     Require arg to satisfy a function.
         /// </summary>
         /// <param name="arg"></param>
         /// <param name="func"></param>
@@ -124,7 +124,7 @@ namespace PhaseSonar.Utils
         }
 
         /// <summary>
-        /// Require arg to satisfy a function.
+        ///     Require arg to satisfy a function.
         /// </summary>
         /// <param name="arg"></param>
         /// <param name="func"></param>
@@ -138,7 +138,7 @@ namespace PhaseSonar.Utils
         }
 
         /// <summary>
-        /// Require arg to satisfy a function.
+        ///     Require arg to satisfy a function.
         /// </summary>
         /// <param name="arg"></param>
         /// <param name="func"></param>

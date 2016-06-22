@@ -37,12 +37,14 @@ namespace PhaseSonar.Correctors
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
         double Intensity(int index);
+
         /// <summary>
         ///     Get the real part of the accumulated data at a specified index.
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        double Real(int index);  
+        double Real(int index);
+
         /// <summary>
         ///     Get the imag part of the accumulated data at a specified index.
         /// </summary>
@@ -55,6 +57,7 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <returns></returns>
         bool HasImag();
+
         /// <summary>
         ///     Get the average intensity of the data at a specified index.
         /// </summary>
@@ -67,7 +70,6 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <returns>The size of the data container</returns>
         int Length();
-
     }
 
     /// <summary>
@@ -119,6 +121,11 @@ namespace PhaseSonar.Correctors
         public double[] AmplitudeArray { get; }
 
         /// <summary>
+        ///     A unique id used to verify the source of the spectrum.
+        /// </summary>
+        public int ID { get; set; }
+
+        /// <summary>
         ///     The number of pulses accumulated
         /// </summary>
         public int PulseCount { get; set; }
@@ -147,7 +154,7 @@ namespace PhaseSonar.Correctors
         /// <param name="another"></param>
         public bool TryAbsorb(ISpectrum another)
         {
-            if (Length()!=another.Length()||another.HasImag())
+            if (Length() != another.Length() || another.HasImag())
             {
                 return false;
             }
@@ -240,11 +247,6 @@ namespace PhaseSonar.Correctors
             }
             return array;
         }
-
-        /// <summary>
-        /// A unique id used to verify the source of the spectrum.
-        /// </summary>
-        public int ID { get; set; }
     }
 
     /// <summary>
@@ -287,6 +289,11 @@ namespace PhaseSonar.Correctors
         public double[] ImagArray { get; }
 
         /// <summary>
+        ///     A unique id used to verify the source of the spectrum.
+        /// </summary>
+        public int ID { get; set; }
+
+        /// <summary>
         ///     The number of pulses that are accumulated in this container.
         /// </summary>
         public int PulseCount { get; set; }
@@ -317,7 +324,7 @@ namespace PhaseSonar.Correctors
         /// <param name="another"></param>
         public bool TryAbsorb(ISpectrum another)
         {
-            if (Length()!=another.Length()||!another.HasImag())
+            if (Length() != another.Length() || !another.HasImag())
             {
                 return false;
             }
@@ -325,7 +332,8 @@ namespace PhaseSonar.Correctors
             {
                 RealArray[i] += another.Real(i);
             }
-            for (var i = 0; i < RealArray.Length; i++) {
+            for (var i = 0; i < RealArray.Length; i++)
+            {
                 ImagArray[i] += another.Imag(i);
             }
             PulseCount += another.PulseCount;
@@ -420,10 +428,5 @@ namespace PhaseSonar.Correctors
             }
             return array;
         }
-
-        /// <summary>
-        /// A unique id used to verify the source of the spectrum.
-        /// </summary>
-        public int ID { get; set; }
     }
 }

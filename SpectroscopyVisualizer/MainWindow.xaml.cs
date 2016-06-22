@@ -59,6 +59,7 @@ namespace SpectroscopyVisualizer
         }
 
         private SwitchButton SwitchButton { get; }
+
         [CanBeNull]
         public DisplayAdapter Adapter { get; set; }
 
@@ -68,6 +69,9 @@ namespace SpectroscopyVisualizer
 
         [CanBeNull]
         public Scheduler Scheduler { get; private set; }
+
+        [CanBeNull]
+        public SpectrumWriter Writer { get; set; }
 
 
         private static bool IsChecked(ToggleButton checkBox)
@@ -94,8 +98,6 @@ namespace SpectroscopyVisualizer
 
         private void TurnOn()
         {
-
-
             IProducer<SampleRecord> producer;
             if (DeveloperMode())
             {
@@ -107,7 +109,7 @@ namespace SpectroscopyVisualizer
             }
             Adapter = ParallelInjector.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
             Writer = ParallelInjector.NewSpectrumWriter(IsChecked(CbCaptureSpec));
-            var consumer = ParallelInjector.NewConsumer(producer, Adapter,Writer);
+            var consumer = ParallelInjector.NewConsumer(producer, Adapter, Writer);
             try
             {
                 Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
@@ -124,8 +126,6 @@ namespace SpectroscopyVisualizer
             TbEndFreq.DataContext = Adapter;
             Scheduler.Start();
         }
-        [CanBeNull]
-        public SpectrumWriter Writer { get; set; }
 
         private void ConsumerOnConsumeEvent(object sender)
         {

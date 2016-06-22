@@ -44,7 +44,7 @@ namespace SpectroscopyVisualizer
         public void Start()
         {
             Watch.Reset();
-            Producer.Produce();
+            Producer.Start();
             Consumer.Consume();
         }
 

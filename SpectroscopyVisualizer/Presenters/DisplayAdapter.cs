@@ -17,7 +17,6 @@ namespace SpectroscopyVisualizer.Presenters
         private readonly HorizontalAxisView _horizontalAxisView;
         private readonly double _sampleRateInMHz;
         private readonly VerticalAxisView _verticalAxisView;
-        public CanvasView WavefromView { get; }
         private double _endFreqInMHz;
         private Point _lastPoint;
         private double _max;
@@ -31,7 +30,7 @@ namespace SpectroscopyVisualizer.Presenters
 
         public DisplayAdapter(CanvasView wavefromView, HorizontalAxisView horizontalAxisView,
             VerticalAxisView verticalAxisView, int dispPointNum, double samplingRate, int startFreqInMHz = 0,
-            int endFreqInMHz = 50)  // todo hard coded 0 and 50
+            int endFreqInMHz = 50) // todo hard coded 0 and 50
         {
             WavefromView = wavefromView;
             _horizontalAxisView = horizontalAxisView;
@@ -109,6 +108,8 @@ namespace SpectroscopyVisualizer.Presenters
             };
             WavefromView.DrawGrid();
         }
+
+        public CanvasView WavefromView { get; }
 
         public int DispPointsCnt { get; set; }
 

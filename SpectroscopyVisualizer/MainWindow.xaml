@@ -21,9 +21,9 @@
                     <MenuItem Header="_Exit" />
                 </MenuItem>
                 <MenuItem Header="_Configs">
-                    <MenuItem Header="_Save Config" />
-                    <MenuItem Header="_Load Config File" />
-                    <MenuItem Header="_Set Current Configs as Default" />
+                    <MenuItem Header="_Save Config/TODO" />
+                    <MenuItem Header="_Load Config File/TODO" />
+                    <MenuItem Header="_Set Current Configs as Default/TODO" />
                 </MenuItem>
                 <MenuItem Header="_Tools">
                     <MenuItem Header="_Developer Mode" IsCheckable="True" IsChecked="False" />
@@ -96,13 +96,13 @@
                         <Label x:Name="label" Content="Speed" HorizontalAlignment="Left" Margin="230,9,0,0"
                                VerticalAlignment="Top" />
                         <Label Content="MSample/s" HorizontalAlignment="Left" Margin="327,9,0,0"
-                                   VerticalAlignment="Top" Height="24" RenderTransformOrigin="2.667,0.471" />
+                               VerticalAlignment="Top" Height="24" RenderTransformOrigin="2.667,0.471" />
                         <Label x:Name="label_Copy" Content="Data" HorizontalAlignment="Left" Margin="407,10,0,0"
-                        	VerticalAlignment="Top" />
+                               VerticalAlignment="Top" />
                         <TextBox x:Name="TbTotalData" HorizontalAlignment="Left" Height="20" Margin="444,14,0,0"
-                        	TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="38" />
+                                 TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="38" />
                         <Label Content="MSample" HorizontalAlignment="Left" Margin="487,9,0,0"
-                        	VerticalAlignment="Top" Height="24" RenderTransformOrigin="2.667,0.471" />
+                               VerticalAlignment="Top" Height="24" RenderTransformOrigin="2.667,0.471" />
                     </Grid>
                 </Grid>
 

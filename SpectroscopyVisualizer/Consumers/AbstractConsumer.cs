@@ -1,8 +1,6 @@
 ﻿using System.Collections.Concurrent;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PhaseSonar.Utils;
-using SpectroscopyVisualizer.Producers;
 
 namespace SpectroscopyVisualizer.Consumers
 {
@@ -63,11 +61,6 @@ namespace SpectroscopyVisualizer.Consumers
             OnStop();
         }
 
-        protected virtual void OnStop()
-        {
-            
-        }
-
         /// <summary>
         ///     Start consuming.
         /// </summary>
@@ -87,7 +80,13 @@ namespace SpectroscopyVisualizer.Consumers
             ContinuousFailCnt = 0;
         }
 
-       
+        /// <summary>
+        ///     Called when the consumer is stopped.
+        /// </summary>
+        protected virtual void OnStop()
+        {
+        }
+
 
         /// <summary>
         ///     An event fired when consumer failed to consume continuously.
@@ -114,7 +113,5 @@ namespace SpectroscopyVisualizer.Consumers
         {
             ConsumeEvent?.Invoke(this);
         }
-
-      
     }
 }

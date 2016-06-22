@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PhaseSonar.Correctors;
+﻿using PhaseSonar.Correctors;
 
-namespace SpectroscopyVisualizer.Consumers {
-    public class TracedSpectrum :ISpectrum
+namespace SpectroscopyVisualizer.Consumers
+{
+    /// <summary>
+    ///     A decorator class for <see cref="ISpectrum" />. It provides a <see cref="Tag" /> property to mark and trace the
+    ///     spectrum.
+    /// </summary>
+    public class TracedSpectrum : ISpectrum
     {
-        private ISpectrum _spectrum;
+        private readonly ISpectrum _spectrum;
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
         public TracedSpectrum(ISpectrum spectrum, string tag)
@@ -17,7 +17,11 @@ namespace SpectroscopyVisualizer.Consumers {
             Tag = tag;
         }
 
+        /// <summary>
+        ///     A Tag used to mark the instance.
+        /// </summary>
         public string Tag { get; set; }
+
         /// <summary>
         ///     The number of pulses that are accumulated in this container.
         /// </summary>

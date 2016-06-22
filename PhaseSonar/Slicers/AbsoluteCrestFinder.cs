@@ -44,12 +44,11 @@ namespace PhaseSonar.Slicers
         public int LeftThreshold { get; }
 
         /// <summary>
-        ///     Find the crests in a pulse sequence.
+        /// Find the crests in a pulse sequence.
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence containing multiple pulses</param>
-        /// <param name="crestIndices">The indices of crests</param>
-        /// <returns>Whether crests are found successfully</returns>
-        public virtual bool Find(double[] pulseSequence, out IList<int> crestIndices)
+        /// <returns>The indices of the crests</returns>
+        public virtual IList<int> Find(double[] pulseSequence)
         {
             var rightThreshold = SampleRate/(RepetitionRate + 200)/4.0;
 
@@ -57,7 +56,7 @@ namespace PhaseSonar.Slicers
             var maxIndex = 0;
             var i = 0;
 
-            crestIndices = new List<int>();
+            var crestIndices = new List<int>();
 
             foreach (var point in pulseSequence)
             {
@@ -83,7 +82,7 @@ namespace PhaseSonar.Slicers
                 }
                 i++;
             }
-            return crestIndices.Count != 0;
+            return crestIndices;
         }
     }
 }

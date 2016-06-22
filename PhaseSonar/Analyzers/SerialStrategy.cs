@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using PhaseSonar.Correctors;
 
 namespace PhaseSonar.Analyzers
@@ -32,6 +33,7 @@ namespace PhaseSonar.Analyzers
         /// <param name="pulseLength">The length of every pulse</param>
         /// <param name="crestIndex">The index of the crest in the pulse</param>
         /// <returns>The processed result of the pulse sequence, or null if failed</returns>
+        [NotNull]
         public List<ISpectrum> Process(double[] pulseSequence, IList<IList<int>> startIndicesList, int pulseLength,
             int crestIndex)
         {
@@ -41,6 +43,7 @@ namespace PhaseSonar.Analyzers
                     startIndices => CorrectSequentially(pulseSequence, startIndices, pulseLength, crestIndex)).ToList();
         }
 
+        [NotNull]
         private ISpectrum CorrectSequentially(double[] pulseSequence, IList<int> startIndices, int pulseLength,
             int crestIndex)
         {

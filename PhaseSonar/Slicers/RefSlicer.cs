@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using PhaseSonar.Correctors;
+using PhaseSonar.Utils;
 
 namespace PhaseSonar.Slicers
 {
@@ -14,12 +15,11 @@ namespace PhaseSonar.Slicers
         /// Slice the pulse sequence, without considering multiple components.
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence, usually a sampled record</param>
-        /// <param name="startIndicesList">Start indices of pulses. All indices are grouped into one list. The size of the list returned is 1.</param>
         /// <returns>Whether slicing succeeded</returns>
-        public override bool Slice(double[] pulseSequence, out IList<IList<int>> startIndicesList)
+        public override IList<IList<int>> Slice(double[] pulseSequence)
         {
-            IList<int> crestIndices;
-            if (Finder.Find(pulseSequence,out crestIndices))
+            IList<int> crestIndices = Finder.Find(pulseSequence);
+            if (crestIndices.NotEmpty())
             {
                 var tuple = Group(crestIndices);
                 SlicedPeriodLength = AnalyzePeriodLength(crestIndices);
@@ -28,12 +28,10 @@ namespace PhaseSonar.Slicers
                 if (FindStartIndices(pulseSequence, tuple.Item1, SlicedPeriodLength, out startIndices1) &&
                     FindStartIndices(pulseSequence, tuple.Item2, SlicedPeriodLength, out startIndices2))
                 {
-                    startIndicesList = new List<IList<int>>(2) {startIndices1,startIndices2};
-                    return true;
+                    return new List<IList<int>>(2) {startIndices1,startIndices2};
                 }
             }
-            startIndicesList = new List<IList<int>>(0);
-            return false;
+            return new List<IList<int>>(0);
         }
 
     

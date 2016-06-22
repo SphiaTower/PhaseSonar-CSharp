@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using PhaseSonar.Utils;
 
 namespace PhaseSonar.Slicers
 {
@@ -33,23 +34,19 @@ namespace PhaseSonar.Slicers
         /// Slice the pulse sequence, without considering multiple components.
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence, usually a sampled record</param>
-        /// <param name="startIndicesList">Start indices of pulses. All indices are grouped into one list. The size of the list returned is 1.</param>
         /// <returns>Whether slicing succeeded</returns>
-        public virtual bool Slice(double[] pulseSequence, out IList<IList<int>> startIndicesList)
+        public virtual IList<IList<int>> Slice(double[] pulseSequence)
         {
-            startIndicesList = new List<IList<int>>(1);
-            IList<int> crestIndices;
-            if (Finder.Find(pulseSequence,out crestIndices))
+            var startIndicesList = new List<IList<int>>(1);
+            IList<int> crestIndices = Finder.Find(pulseSequence);
+            if (crestIndices.IsEmpty()) return startIndicesList;
+            SlicedPeriodLength = AnalyzePeriodLength(crestIndices);
+            IList<int> startIndices;
+            if (FindStartIndices(pulseSequence, crestIndices, SlicedPeriodLength,out startIndices))
             {
-                SlicedPeriodLength = AnalyzePeriodLength(crestIndices);
-                IList<int> startIndices;
-                if (FindStartIndices(pulseSequence, crestIndices, SlicedPeriodLength,out startIndices))
-                {
-                    startIndicesList.Add(startIndices);
-                    return true;
-                }
+                startIndicesList.Add(startIndices);
             }
-            return false;
+            return startIndicesList;
         }
 
       

@@ -21,8 +21,7 @@ namespace PhaseSonar.Slicers
         /// Slice the pulse sequence.
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence, usually a sampled record</param>
-        /// <param name="startIndicesList">Start indices of pulses of different components, for example, gas and reference</param>
-        /// <returns>Whether slicing succeeded</returns>
-        bool Slice([NotNull]double[] pulseSequence,out IList<IList<int>> startIndicesList);
+        /// <returns>Start indices of pulses of different components, for example, gas and reference</returns>
+        IList<IList<int>> Slice([NotNull] double[] pulseSequence);
     }
 }

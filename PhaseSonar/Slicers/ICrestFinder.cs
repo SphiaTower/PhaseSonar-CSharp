@@ -17,8 +17,7 @@ namespace PhaseSonar.Slicers
         /// Find the crests in a pulse sequence.
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence containing multiple pulses</param>
-        /// <param name="crestIndices">The indices of crests</param>
-        /// <returns>Whether crests are found successfully</returns>
-        bool Find([NotNull]double[] pulseSequence,out IList<int> crestIndices);
+        /// <returns>The indices of the crests</returns>
+        IList<int> Find([NotNull] double[] pulseSequence);
     }
 }

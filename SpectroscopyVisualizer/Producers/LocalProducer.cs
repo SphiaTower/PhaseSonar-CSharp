@@ -28,6 +28,7 @@ namespace SpectroscopyVisualizer.Producers
             get { throw new NotImplementedException(); }
         }
 
+        
         public void Produce()
         {
             Task.Run(() =>
@@ -35,8 +36,11 @@ namespace SpectroscopyVisualizer.Producers
                 foreach (var path in _paths)
                 {
                     var doubles = Toolbox.Read(path);
-                    BlockingQueue.Add(new SampleRecord(doubles,0));
-                    Application.Current.Dispatcher.Invoke(OnDataLoadedListener);
+                    BlockingQueue.Add(new SampleRecord(doubles, 0));
+                    if (OnDataLoadedListener != null)
+                    {
+                        Application.Current.Dispatcher.Invoke(OnDataLoadedListener);
+                    }
                 }
             });
         }
@@ -50,6 +54,5 @@ namespace SpectroscopyVisualizer.Producers
         {
             throw new NotImplementedException();
         }
-
     }
 }

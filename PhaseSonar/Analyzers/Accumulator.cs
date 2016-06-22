@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using JetBrains.Annotations;
-using PhaseSonar.Correctors;
+﻿using PhaseSonar.Correctors;
 using PhaseSonar.Slicers;
+using PhaseSonar.Utils;
 
 namespace PhaseSonar.Analyzers
 {
@@ -28,19 +27,14 @@ namespace PhaseSonar.Analyzers
         ///     Process the pulse sequence and accumulate results of all pulses
         /// </summary>
         /// <param name="pulseSequence">The pulse sequence, often a sampled data record</param>
-        /// <returns>The accumulated spectrum of the pulse sequence, or null if failed</returns>
-        [CanBeNull]
-        public ISpectrum Accumulate(double[] pulseSequence)
+        /// <returns>The accumulated spectrum</returns>
+        public Maybe<ISpectrum> Accumulate(double[] pulseSequence)
         {
-            IList<IList<int>> startIndicesList;
-            if (Slicer.Slice(pulseSequence, out startIndicesList))
-            {
-                var spectra = Strategy.Process(pulseSequence, startIndicesList, Slicer.SlicedPeriodLength, Slicer.CrestIndex);
-                return spectra?[0];
-            }
-            return null;
-
-
+            var startIndicesList = Slicer.Slice(pulseSequence);
+            return startIndicesList.NotEmpty()
+                ? Maybe<ISpectrum>.Of(
+                    Strategy.Process(pulseSequence, startIndicesList, Slicer.SlicedPeriodLength, Slicer.CrestIndex)[0])
+                : Maybe<ISpectrum>.Empty();
         }
     }
 }

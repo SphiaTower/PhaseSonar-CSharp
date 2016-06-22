@@ -69,25 +69,21 @@ namespace SpectroscopyVisualizer.Consumers
 
         protected override bool ConsumeElement([NotNull] SampleRecord record, Accumulator accumulator)
         {
+
             var elementSpectrum = accumulator.Accumulate(record.PulseSequence);
-            if (elementSpectrum == null)
+            elementSpectrum.IfPresent(spectrum =>
             {
-                return false;
-            }
-            lock (Lock)
-            {
-                if (SumSpectrum == null)
-                {
-                    SumSpectrum = elementSpectrum.Clone();
+                lock (Lock) {
+                    if (SumSpectrum == null) {
+                        SumSpectrum = spectrum.Clone();
+                    } else {
+                        SumSpectrum.TryAbsorb(spectrum);
+                    }
                 }
-                else
-                {
-                    SumSpectrum.TryAbsorb(elementSpectrum);
-                }
-            }
-            if (Writer.IsOn) Writer.Write(new TracedSpectrum(elementSpectrum,record.ID.ToString()));
-            OnDataUpdatedInBackground(elementSpectrum);
-            return true;
+                if (Writer.IsOn) Writer.Write(new TracedSpectrum(spectrum, record.ID.ToString()));
+                OnDataUpdatedInBackground(spectrum);
+            });
+            return elementSpectrum.IsPresent();
         }
 
         /// <summary>

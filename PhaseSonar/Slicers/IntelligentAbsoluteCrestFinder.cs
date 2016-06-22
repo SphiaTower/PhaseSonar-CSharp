@@ -24,25 +24,18 @@ namespace PhaseSonar.Slicers
         ///     Find the crests in a pulse sequence.
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence containing multiple pulses</param>
-        /// <param name="crestIndices">The indices of crests</param>
         /// <returns>Whether crests are found successfully</returns>
-        public override bool Find(double[] pulseSequence, out IList<int> crestIndices)
+        public override IList<int> Find(double[] pulseSequence)
         {
             while (VerticalThreshold > 0.055) // todo move, now recorded
             {
-                if (base.Find(pulseSequence, out crestIndices))
-                {
-                    var cmp = CompareRepFreq(pulseSequence.Length, crestIndices);
-                    if (cmp > 0) VerticalThreshold *=1.2;
-                    else if (cmp < 0) VerticalThreshold *=0.9;
-                    else return true;
-                }
-                else
-                {
-                    VerticalThreshold *= 0.9;
-                }
+                var crestIndices = base.Find(pulseSequence);
+                var cmp = CompareRepFreq(pulseSequence.Length, crestIndices);
+                if (cmp > 0) VerticalThreshold *=1.2;
+                else if (cmp < 0) VerticalThreshold *=0.9;
+                else return crestIndices;
             }
-            return base.Find(pulseSequence, out crestIndices);
+            return base.Find(pulseSequence);
         }
 
         /// <summary>
@@ -51,11 +44,10 @@ namespace PhaseSonar.Slicers
         /// <param name="dataLength"></param>
         /// <param name="crests"></param>
         /// <returns></returns>
-        protected virtual int CompareRepFreq(int dataLength, [CanBeNull] IList<int> crests)
+        protected virtual int CompareRepFreq(int dataLength, [NotNull] IList<int> crests)
         {
             var temporalLength = dataLength/SampleRate;
-            var count = crests?.Count ?? 0;
-            var crestRepFreq = count/temporalLength;
+            var crestRepFreq = crests.Count/temporalLength;
             // todo comparison threshold
             if (crestRepFreq > RepetitionRate + 250) return 1;
             if (crestRepFreq < RepetitionRate - 250) return -1;

@@ -102,6 +102,8 @@
     <Compile Include="Analyzers\SerialSplitter.cs" />
     <Compile Include="Slicers\SimpleSlicer.cs" />
     <Compile Include="Slicers\SymmetrySlicer.cs" />
+    <Compile Include="Utils\ListExtension.cs" />
+    <Compile Include="Utils\Maybe.cs" />
     <Compile Include="Utils\StopWatch.cs" />
     <Compile Include="Utils\Toolbox.cs" />
   </ItemGroup>

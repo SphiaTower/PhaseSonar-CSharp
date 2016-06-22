@@ -99,9 +99,9 @@
                                    VerticalAlignment="Top" Height="24" RenderTransformOrigin="2.667,0.471" />
                         <Label x:Name="label_Copy" Content="Data" HorizontalAlignment="Left" Margin="407,10,0,0"
                         	VerticalAlignment="Top" />
-                        <TextBox x:Name="TbTotalData" HorizontalAlignment="Left" Height="16" Margin="444,14,0,0"
-                        	TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="28" />
-                        <Label Content="MSample" HorizontalAlignment="Left" Margin="472,8,0,0"
+                        <TextBox x:Name="TbTotalData" HorizontalAlignment="Left" Height="20" Margin="444,14,0,0"
+                        	TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="38" />
+                        <Label Content="MSample" HorizontalAlignment="Left" Margin="487,9,0,0"
                         	VerticalAlignment="Top" Height="24" RenderTransformOrigin="2.667,0.471" />
                     </Grid>
                 </Grid>

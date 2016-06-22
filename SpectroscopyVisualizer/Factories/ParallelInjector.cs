@@ -33,7 +33,7 @@ namespace SpectroscopyVisualizer.Factories
         public static ICrestFinder NewCrestFinder()
         {
             var config = GeneralConfigurations.Get();
-            return new IntelligentAbsoluteCrestFinder(
+            return new AbsoluteCrestFinder(// todo change back
                 config.RepetitionRate,
                 SamplingConfigurations.Get().SamplingRate,
                 SliceConfigurations.Get().PointsBeforeCrest,

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NationalInstruments.Restricted;
 
 namespace SpectroscopyVisualizer.Consumers
 {
@@ -32,18 +33,23 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     Start consuming.
         /// </summary>
-        public override void Consume()
+        public override void Start()
         {
             IsOn = true;
             Task.Run(() =>
             {
+                var empty = false;
                 Parallel.ForEach(Workers, worker =>
                 {
-                    while (IsOn)
+                    while (IsOn||!BlockingQueue.IsEmpty())
                     {
                         TProduct raw;
-                        if (!BlockingQueue.TryTake(out raw, MillisecondsTimeout)) break;
-                        if (!IsOn) return;
+                        if (!BlockingQueue.TryTake(out raw, MillisecondsTimeout))
+                        {
+                            empty = true;
+                            break;
+                        }
+//                        if (!IsOn && BlockingQueue.IsEmpty()) return;
                         if (ConsumeElement(raw, worker))
                         {
                             lock (this)
@@ -68,6 +74,10 @@ namespace SpectroscopyVisualizer.Consumers
                     }
                     IsOn = false;
                 });
+                if (empty)
+                {
+                    FireNoProductEvent();
+                }
             });
         }
 

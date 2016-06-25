@@ -18,11 +18,7 @@
         /// <summary>
         ///     Start consuming.
         /// </summary>
-        void Consume();
+        void Start();
 
-        /// <summary>
-        ///     Reset the state of the consumer.
-        /// </summary>
-        void Reset();
     }
 }

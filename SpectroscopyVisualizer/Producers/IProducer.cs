@@ -16,7 +16,7 @@ namespace SpectroscopyVisualizer.Producers
         /// <summary>
         ///     The count of product.
         /// </summary>
-        int HistoryProductCnt { get; }
+        int ProductCnt { get; }
 
         /// <summary>
         ///     Start Producing.
@@ -28,9 +28,5 @@ namespace SpectroscopyVisualizer.Producers
         /// </summary>
         void Stop();
 
-        /// <summary>
-        ///     Reset the status of the producer.
-        /// </summary>
-        void Reset();
     }
 }

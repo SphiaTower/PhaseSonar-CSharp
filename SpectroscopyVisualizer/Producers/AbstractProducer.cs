@@ -23,7 +23,7 @@ namespace SpectroscopyVisualizer.Producers
         /// <summary>
         ///     The count of product.
         /// </summary>
-        public int HistoryProductCnt { get; private set; }
+        public int ProductCnt { get; private set; }
 
         /// <summary>
         ///     Start Producing.
@@ -41,17 +41,6 @@ namespace SpectroscopyVisualizer.Producers
             IsOn = false;
         }
 
-        /// <summary>
-        ///     Reset the status of the producer.
-        /// </summary>
-        public void Reset()
-        {
-            HistoryProductCnt = 0;
-            T disposed;
-            while (BlockingQueue.TryTake(out disposed))
-            {
-            }
-        }
 
         /// <summary>
         ///     A callback called before retrieving data in this turn.
@@ -69,7 +58,6 @@ namespace SpectroscopyVisualizer.Producers
         /// </summary>
         protected virtual void DoInBackground()
         {
-            IsOn = true;
             while (IsOn)
             {
                 OnPreRetrieve();
@@ -83,9 +71,16 @@ namespace SpectroscopyVisualizer.Producers
                     continue;
                 }
                 if (!IsOn) break;
-                BlockingQueue.Add(data);
-                HistoryProductCnt++;
+                BlockingQueue.Add(data); // blocking method
+                OnDataEnqueued(data);
+                ProductCnt++;
             }
         }
+
+        protected virtual void OnDataEnqueued(T data)
+        {
+            
+        }
+
     }
 }

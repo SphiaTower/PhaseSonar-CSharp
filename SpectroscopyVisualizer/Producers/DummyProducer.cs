@@ -43,7 +43,7 @@ namespace SpectroscopyVisualizer.Producers
             }
 //            double[] array = new double[_backup.Length];
 //            Array.Copy(_backup,array,array.Length);
-            return new SampleRecord(_pulse, HistoryProductCnt);
+            return new SampleRecord(_pulse, ProductCnt);
         }
     }
 }

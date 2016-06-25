@@ -28,12 +28,16 @@ namespace SpectroscopyVisualizer.Writers
         {
             try
             {
-                Toolbox.SerializeData(BasePath + "-" + dequeue.Id + Suffix, dequeue.PulseSequence);
+                Toolbox.SerializeData(BasePath + dequeue.Id.Enclose("No") + Suffix, dequeue.PulseSequence);
             }
             catch (Exception)
             {
                 // todo
             }
         }
+
+       
+
     }
+
 }

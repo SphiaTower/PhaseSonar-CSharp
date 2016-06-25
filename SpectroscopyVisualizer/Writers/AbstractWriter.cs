@@ -2,20 +2,17 @@
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
-namespace SpectroscopyVisualizer.Writers
-{
+namespace SpectroscopyVisualizer.Writers {
     /// <summary>
     ///     A base implementation.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class AbstractWriter<T> : IWriter<T>
-    {
+    public abstract class AbstractWriter<T> : IWriter<T> {
         /// <summary>
         ///     Create an instance.
         /// </summary>
         /// <param name="on">On or off.</param>
-        protected AbstractWriter(bool on)
-        {
+        protected AbstractWriter(bool on) {
             IsOn = on;
         }
 
@@ -38,21 +35,17 @@ namespace SpectroscopyVisualizer.Writers
         ///     Enqueue a new data to save.
         /// </summary>
         /// <param name="data"></param>
-        public void Write(T data)
-        {
-            if (!IsOn)
-            {
+        public void Write(T data) {
+            if (!IsOn) {
                 throw new Exception("Writer is off");
             }
             Queue.Enqueue(data);
 
             if (IsProcessing) return;
             IsProcessing = true;
-            Task.Run(() =>
-            {
+            Task.Run(() => {
                 T dequeue;
-                while (Queue.TryDequeue(out dequeue))
-                {
+                while (Queue.TryDequeue(out dequeue)) {
                     ConsumeElement(dequeue);
                 }
                 IsProcessing = false;

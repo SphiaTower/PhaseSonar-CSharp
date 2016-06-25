@@ -25,7 +25,7 @@ namespace SpectroscopyVisualizer.Writers
         /// <returns>True if consumed successfully.</returns>
         protected override void ConsumeElement(TracedSpectrum dequeue)
         {
-            Toolbox.WriteStringArray(BasePath + "-" + dequeue.Tag + "-n" + dequeue.PulseCount + Suffix,
+            Toolbox.WriteStringArray(BasePath  + dequeue.Tag.Enclose("No") + dequeue.PulseCount.Enclose("Cnt") + Suffix,
                 dequeue.ToStringArray());
         }
     }

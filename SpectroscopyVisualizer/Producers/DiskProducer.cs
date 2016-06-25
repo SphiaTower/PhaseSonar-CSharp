@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using PhaseSonar.Utils;
 
 namespace SpectroscopyVisualizer.Producers
@@ -9,6 +11,7 @@ namespace SpectroscopyVisualizer.Producers
     public class DiskProducer : AbstractProducer<SampleRecord>
     {
         private readonly IEnumerator<string> _enumerator;
+        private readonly Regex _regex = new Regex("\\[No-(.+)\\]");
 
 
         /// <summary>
@@ -35,7 +38,14 @@ namespace SpectroscopyVisualizer.Producers
         {
             if (_enumerator.MoveNext())
             {
-                return new SampleRecord(Toolbox.Read(_enumerator.Current), HistoryProductCnt);
+                var path = _enumerator.Current;
+                var match = _regex.Match(path);
+                int num;
+                if (!int.TryParse(match.Value,out num))
+                {
+                    num = ProductCnt;
+                }
+                return new SampleRecord(Toolbox.DeserializeData<double[]>(path), num);
             }
             IsOn = false;
             return null;

@@ -35,10 +35,9 @@ namespace SpectroscopyVisualizer.Producers
         /// </summary>
         protected override void OnPreRetrieve()
         {
-            while (_sampler.Status() != ScopeAcquisitionStatus.Complete
-                   || BlockingQueue.Count == BlockingQueue.BoundedCapacity)
+            while (_sampler.Status() != ScopeAcquisitionStatus.Complete||BlockingQueue.Count==BlockingQueue.BoundedCapacity)
             {
-                Thread.Sleep(10); // todo modify this param, and the 2nd cmp maybe redundant
+                Thread.Sleep(10); 
             }
         }
 
@@ -49,9 +48,14 @@ namespace SpectroscopyVisualizer.Producers
         protected override SampleRecord RetrieveData()
         {
             var pulseSequence = _sampler.Retrieve();
-            var record = new SampleRecord(pulseSequence, HistoryProductCnt);
-            if (Writer.IsOn) Writer.Write(record);
+            var record = new SampleRecord(pulseSequence, ProductCnt);
             return record;
+        }
+
+        protected override void OnDataEnqueued(SampleRecord data)
+        {
+            base.OnDataEnqueued(data);
+            if (Writer.IsOn) Writer.Write(data);
         }
     }
 }

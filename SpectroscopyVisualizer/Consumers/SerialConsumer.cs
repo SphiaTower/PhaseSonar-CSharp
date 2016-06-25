@@ -21,7 +21,7 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     Start consuming.
         /// </summary>
-        public override void Consume()
+        public override void Start()
         {
             IsOn = true;
             Task.Run(() =>
@@ -29,7 +29,11 @@ namespace SpectroscopyVisualizer.Consumers
                 while (IsOn)
                 {
                     TProduct raw;
-                    if (!BlockingQueue.TryTake(out raw, MillisecondsTimeout)) break;
+                    if (!BlockingQueue.TryTake(out raw, MillisecondsTimeout))
+                    {
+                        FireNoProductEvent();
+                        break;
+                    }
                     if (!IsOn) return;
                     if (ConsumeElement(raw))
                     {

@@ -123,13 +123,13 @@ namespace SpectroscopyVisualizer.Factories
         [NotNull]
         public static SpectrumWriter NewSpectrumWriter(bool on)
         {
-            return new SpectrumWriter(GeneralConfigurations.Get().Directory, "aver-spec-", on);
+            return new SpectrumWriter(GeneralConfigurations.Get().Directory, "[Average][Spectrum]", on);
         }
 
         [NotNull]
         public static SampleWriter NewSampleWriter(bool on)
         {
-            return new SampleWriter(GeneralConfigurations.Get().Directory, "binary-", on);
+            return new SampleWriter(GeneralConfigurations.Get().Directory, "[Binary]", on);
         }
 
         [NotNull]

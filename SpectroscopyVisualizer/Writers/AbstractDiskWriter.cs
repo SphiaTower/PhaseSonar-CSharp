@@ -27,11 +27,6 @@ namespace SpectroscopyVisualizer.Writers
         }
 
         /// <summary>
-        ///     The time-stamp of the data saved.
-        /// </summary>
-        protected string TimeStamp { get; } = DateTime.Now.ToShortTimeString().Remove(2, 1);
-
-        /// <summary>
         ///     The base path containing the directory and the prefix.
         /// </summary>
         protected string BasePath { get; }

@@ -287,7 +287,6 @@ namespace SpectroscopyVisualizer.Presenters
             }
             return sampledAverPowerSpec;
         }
-
         public void RedrawAxis()
         {
             _horizontalAxisView.Canvas.Dispatcher.InvokeAsync(

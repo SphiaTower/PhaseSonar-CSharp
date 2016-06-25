@@ -35,5 +35,18 @@ namespace SpectroscopyVisualizer.Writers
             }
             return array;
         }
+
+        public static string Enclose(this string content) {
+            return "[" + content + "]";
+        }
+        public static string Enclose(this int content) {
+            return "[" + content + "]";
+        }
+        public static string Enclose(this string content,string key) {
+            return "[" +key+"-"+ content + "]";
+        }
+        public static string Enclose(this int content,string key) {
+            return "[" + key + "-" + content + "]";
+        }
     }
 }

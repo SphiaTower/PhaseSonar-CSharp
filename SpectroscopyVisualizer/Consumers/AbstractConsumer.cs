@@ -22,6 +22,8 @@ namespace SpectroscopyVisualizer.Consumers
         /// <param name="sender"></param>
         public delegate void ElementConsumedEventHandler(object sender);
 
+        public delegate void NoProductAvailableEventHandler(object sender);
+
         /// <summary>
         ///     Create a Consumer.
         /// </summary>
@@ -40,7 +42,7 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     The time to block when the <see cref="BlockingQueue" /> is empty.
         /// </summary>
-        public int MillisecondsTimeout { get; set; } = 10000;
+        public int MillisecondsTimeout { get; set; } = 2000;
 
         /// <summary>
         ///     The queue containing all items to be consumed.
@@ -64,21 +66,12 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     Start consuming.
         /// </summary>
-        public abstract void Consume();
+        public abstract void Start();
 
         /// <summary>
         ///     The number of elements have been consumed.
         /// </summary>
         public int ConsumedCnt { get; protected set; }
-
-        /// <summary>
-        ///     Reset the state of the consumer.
-        /// </summary>
-        public virtual void Reset()
-        {
-            ConsumedCnt = 0;
-            ContinuousFailCnt = 0;
-        }
 
         /// <summary>
         ///     Called when the consumer is stopped.
@@ -97,6 +90,13 @@ namespace SpectroscopyVisualizer.Consumers
         ///     An event fired invoked when an element is consumed successfully.
         /// </summary>
         public event ElementConsumedEventHandler ConsumeEvent;
+
+        public event NoProductAvailableEventHandler NoProductEvent;
+
+        protected void FireNoProductEvent()
+        {
+            NoProductEvent?.Invoke(this);
+        }
 
         /// <summary>
         ///     Fire an <see cref="FailEvent" />

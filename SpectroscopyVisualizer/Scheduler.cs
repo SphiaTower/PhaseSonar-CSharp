@@ -8,7 +8,7 @@ namespace SpectroscopyVisualizer
     /// <summary>
     ///     A scheduler scheduling the producer and the consumer.
     /// </summary>
-    public class Scheduler
+    public sealed class Scheduler
     {
         /// <summary>
         ///     Create a scheduler.
@@ -30,13 +30,13 @@ namespace SpectroscopyVisualizer
         ///     The producer
         /// </summary>
         [NotNull]
-        public IProducer<SampleRecord> Producer { get; protected set; }
+        public IProducer<SampleRecord> Producer { get; }
 
         /// <summary>
         ///     The consumer
         /// </summary>
         [NotNull]
-        public AbstractConsumer<SampleRecord> Consumer { get; protected set; }
+        public AbstractConsumer<SampleRecord> Consumer { get;  }
 
         /// <summary>
         ///     Start the system.
@@ -45,7 +45,7 @@ namespace SpectroscopyVisualizer
         {
             Watch.Reset();
             Producer.Start();
-            Consumer.Consume();
+            Consumer.Start();
         }
 
 
@@ -55,7 +55,9 @@ namespace SpectroscopyVisualizer
         public void Stop()
         {
             Producer.Stop();
-            Consumer.Stop();
+
+//            Consumer.Stop();
+//            Consumer.NoProductEvent += sender => { Consumer.Stop(); };
             /* var timeElapsed = _stopWatch.Reset();
 
             var historyProductCnt = Producer.HistoryProductCnt;
@@ -69,8 +71,7 @@ namespace SpectroscopyVisualizer
                 + nameof(timeElapsed) + ": " + timeElapsed
                 , "sampling stopped", MessageBoxButton.OK);
 */
-            Producer.Reset();
-            Consumer.Reset();
+
         }
     }
 }

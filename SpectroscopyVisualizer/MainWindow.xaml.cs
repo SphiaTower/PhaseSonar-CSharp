@@ -51,7 +51,6 @@ namespace SpectroscopyVisualizer
             HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
             VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
 
-
             SwitchButton = new SwitchButton(ToggleButton, false, "STOP", "START", TurnOn, TurnOff);
 
 //            Toolbox.SerializeData(@"D:\\configuration.bin",CorrectorConfigs.Get());
@@ -92,12 +91,11 @@ namespace SpectroscopyVisualizer
         private void TurnOff()
         {
             Scheduler?.Stop();
-            Scheduler = null;
-            GC.Collect();
         }
 
         private void TurnOn()
         {
+            GC.Collect();
             IProducer<SampleRecord> producer;
             if (DeveloperMode())
             {
@@ -188,7 +186,7 @@ namespace SpectroscopyVisualizer
                     files.ForEach(path =>
                     {
                         var deserializeData = Toolbox.DeserializeData<double[]>(path);
-                        Toolbox.WriteData(path.Replace("binary", "temporal"), deserializeData);
+                        Toolbox.WriteData(path.Replace("Binary", "Decoded"), deserializeData);
                     });
                     MessageBox.Show("decoding finished");
                 });
@@ -227,9 +225,17 @@ namespace SpectroscopyVisualizer
             Adapter = ParallelInjector.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
             Writer = ParallelInjector.NewSpectrumWriter(IsChecked(CbCaptureSpec));
             var consumer = ParallelInjector.NewConsumer(producer, Adapter, Writer);
+            consumer.FailEvent += ConsumerOnFailEvent;
+            consumer.ConsumeEvent += ConsumerOnConsumeEvent;
+            consumer.NoProductEvent += o =>
+            {
+                Scheduler?.Stop();
+                MessageBox.Show("processing finished");
+                Scheduler = null;
+            };
+            CbCaptureSpec.IsChecked = true;
             Scheduler = new Scheduler(producer, consumer);
-            Scheduler.Start();
-            Scheduler = null;
+            Scheduler?.Start();
         }
 
         private void About_OnClick(object sender, RoutedEventArgs e)

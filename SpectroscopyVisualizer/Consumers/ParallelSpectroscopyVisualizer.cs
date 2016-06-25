@@ -1,7 +1,10 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Windows.Media;
 using JetBrains.Annotations;
+using NationalInstruments.Restricted;
 using PhaseSonar.Analyzers;
 using PhaseSonar.Correctors;
 using SpectroscopyVisualizer.Presenters;
@@ -37,6 +40,14 @@ namespace SpectroscopyVisualizer.Consumers
             Adapter = adapter;
             Axis = new AxisBuilder(adapter.WavefromView);
             Writer = writer;
+            NoProductEvent += OnNoProductEvent;
+        }
+
+        private void OnNoProductEvent(object sender)
+        {
+            if (Writer.IsOn) {
+                Writer.Write(new TracedSpectrum(SumSpectrum, "accumulated"));
+            }
         }
 
         /// <summary>
@@ -119,11 +130,15 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     Called when the consumer is stopped.
         /// </summary>
-        protected override void OnStop()
+        protected override void OnStop()//todo delete
         {
             base.OnStop();
             if (Writer.IsOn)
             {
+                while (IsOn||!BlockingQueue.IsEmpty())
+                {
+                    Thread.Sleep(50);
+                }
                 Writer.Write(new TracedSpectrum(SumSpectrum, "accumulated"));
             }
         }

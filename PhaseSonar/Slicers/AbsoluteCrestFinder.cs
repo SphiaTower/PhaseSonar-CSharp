@@ -50,7 +50,7 @@ namespace PhaseSonar.Slicers
         /// <returns>The indices of the crests</returns>
         public virtual IList<int> Find(double[] pulseSequence)
         {
-            var rightThreshold = SampleRate/(RepetitionRate + 200)/4.0;
+            var rightThreshold = SampleRate/(RepetitionRate + 300);
 
             var maxValue = .0;
             var maxIndex = 0;

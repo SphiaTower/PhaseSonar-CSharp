@@ -56,21 +56,7 @@ namespace SpectroscopyVisualizer
         {
             Producer.Stop();
 
-//            Consumer.Stop();
-//            Consumer.NoProductEvent += sender => { Consumer.Stop(); };
-            /* var timeElapsed = _stopWatch.Reset();
-
-            var historyProductCnt = Producer.HistoryProductCnt;
-            var productInQueue = Producer.BlockingQueue.Count;
-            var productConsumed = historyProductCnt - productInQueue;
-
-            MessageBox.Show(
-                nameof(historyProductCnt) + ": " + historyProductCnt + '\n'
-                + nameof(productInQueue) + ": " + productInQueue + '\n'
-                + nameof(productConsumed) + ": " + productConsumed + '\n'
-                + nameof(timeElapsed) + ": " + timeElapsed
-                , "sampling stopped", MessageBoxButton.OK);
-*/
+            Consumer.Stop();
 
         }
     }

@@ -51,14 +51,7 @@ namespace PhaseSonar.Correctors
             // Side effect: _zeroFilledArray -> balanced, zero-filled temporal data
             Retrieve(pulseSequence, startIndex, pulseLength);
             // Side effect: _zeroFilledArray -> centreburst rotated to the centre
-            try
-            {
-                Rotator.Symmetrize(ZeroFilledArray, crestIndex);
-            }
-            catch (Exception)
-            {
-                return;
-            }
+            if (!Rotator.TrySymmetrize(ZeroFilledArray, crestIndex)) return;
             // Side effect: _centrePhase -> phase data of the centre double-sided span
             PreparePhaseCorrectionData(ZeroFilledArray);
             // Side effect: _interpolatedArray -> interpolated phase data
@@ -117,7 +110,34 @@ namespace PhaseSonar.Correctors
             FourierTransformer.TransformForward(_centrePhase, out fftReal, out fftImag);
             for (var i = 0; i < _centreSpan*2; i++)
             {
-                _centrePhase[i] = Math.Atan(fftImag[i]/fftReal[i]);
+                var real = fftReal[i];
+                var imag = fftImag[i];
+        
+//                _centrePhase[i] = Math.Atan(imag/real);
+                _centrePhase[i] = Phase(real, imag);
+            }
+        }
+
+        private double Phase(double real, double imag)
+        {
+            if (real != 0)
+            {
+                return Math.Atan(imag/real);
+            }
+            else
+            {
+                if (imag > 0)
+                {
+                    return Math.PI/2;
+                }
+                else if (imag < 0)
+                {
+                    return -Math.PI/2;
+                }
+                else
+                {
+                    return 0;
+                }
             }
         }
     }

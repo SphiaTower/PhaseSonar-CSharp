@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,6 +10,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using NationalInstruments.Restricted;
 using PhaseSonar.Utils;
 using SpectroscopyVisualizer.Configs;
+using SpectroscopyVisualizer.Consumers;
 using SpectroscopyVisualizer.Factories;
 using SpectroscopyVisualizer.Presenters;
 using SpectroscopyVisualizer.Producers;
@@ -118,11 +120,14 @@ namespace SpectroscopyVisualizer
             }
             Scheduler = new Scheduler(producer, consumer);
             consumer.FailEvent += ConsumerOnFailEvent;
+         
             consumer.ConsumeEvent += ConsumerOnConsumeEvent;
+         
 
             TbStartFreq.DataContext = Adapter;
             TbEndFreq.DataContext = Adapter;
             Scheduler.Start();
+            
         }
 
         private void ConsumerOnConsumeEvent(object sender)
@@ -241,6 +246,37 @@ namespace SpectroscopyVisualizer
         private void About_OnClick(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("A 2016 ST Workshop Production. All Rights Reserved.");
+        }
+
+        private void StartSample_OnClick(object sender, RoutedEventArgs e)
+        {
+            var total = int.Parse(TbTotalData.Text);
+            var producer = new FixedSampleProducer(ParallelInjector.NewSampler(), total);
+            Adapter = ParallelInjector.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
+            Writer = ParallelInjector.NewSpectrumWriter(IsChecked(CbCaptureSpec));
+            var threadNum = GeneralConfigurations.Get().ThreadNum;
+            var workers = new List<SpecialSampleWriter>(threadNum);
+            for (int i = 0; i < threadNum; i++)
+            {
+                workers.Add(new SpecialSampleWriter(GeneralConfigurations.Get().Directory,"[Binary]"));
+            }
+            var consumer = new DataSerializer(producer.BlockingQueue,workers);
+            consumer.FailEvent += ConsumerOnFailEvent;
+            consumer.ConsumeEvent += ConsumerOnConsumeEvent;
+            consumer.ConsumeEvent += o =>
+            {
+                if (consumer.ConsumedCnt >= total)
+                {
+                    Scheduler?.Stop();
+                }
+            };
+            consumer.NoProductEvent += o => {
+                Scheduler?.Stop();
+                MessageBox.Show("processing finished");
+                Scheduler = null;
+            };
+            Scheduler = new Scheduler(producer, consumer);
+            Scheduler?.Start();
         }
     }
 }

@@ -41,7 +41,7 @@ namespace SpectroscopyVisualizer.Consumers
                 var empty = false;
                 Parallel.ForEach(Workers, worker =>
                 {
-                    while (IsOn||!BlockingQueue.IsEmpty())
+                    while (IsOn)
                     {
                         TProduct raw;
                         if (!BlockingQueue.TryTake(out raw, MillisecondsTimeout))
@@ -49,7 +49,7 @@ namespace SpectroscopyVisualizer.Consumers
                             empty = true;
                             break;
                         }
-//                        if (!IsOn && BlockingQueue.IsEmpty()) return;
+                        if (!IsOn) return;
                         if (ConsumeElement(raw, worker))
                         {
                             lock (this)

@@ -154,7 +154,7 @@ namespace PhaseSonar.Correctors
         /// <param name="another"></param>
         public bool TryAbsorb(ISpectrum another)
         {
-            if (Length() != another.Length() || another.HasImag())
+            if (another.HasImag())
             {
                 return false;
             }
@@ -231,7 +231,8 @@ namespace PhaseSonar.Correctors
         /// <returns></returns>
         public string ToString(int index)
         {
-            return AmplitudeArray[index].ToString();
+            return AmplitudeArray[index].
+                ToString();
         }
 
         /// <summary>
@@ -324,7 +325,7 @@ namespace PhaseSonar.Correctors
         /// <param name="another"></param>
         public bool TryAbsorb(ISpectrum another)
         {
-            if (Length() != another.Length() || !another.HasImag())
+            if (!another.HasImag())
             {
                 return false;
             }

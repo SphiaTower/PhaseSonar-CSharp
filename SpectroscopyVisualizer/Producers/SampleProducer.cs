@@ -21,7 +21,7 @@ namespace SpectroscopyVisualizer.Producers
         /// <param name="writer">
         ///     <see cref="SampleWriter" />
         /// </param>
-        public SampleProducer(Sampler sampler, SampleWriter writer)
+        public SampleProducer(Sampler sampler, SampleWriter writer):base(24)
         {
             Writer = writer;
             _sampler = sampler;
@@ -35,7 +35,8 @@ namespace SpectroscopyVisualizer.Producers
         /// </summary>
         protected override void OnPreRetrieve()
         {
-            while (_sampler.Status() != ScopeAcquisitionStatus.Complete||BlockingQueue.Count==BlockingQueue.BoundedCapacity)
+            while (_sampler.Status() != ScopeAcquisitionStatus.Complete||
+                BlockingQueue.Count==BlockingQueue.BoundedCapacity)
             {
                 Thread.Sleep(10); 
             }
@@ -48,8 +49,7 @@ namespace SpectroscopyVisualizer.Producers
         protected override SampleRecord RetrieveData()
         {
             var pulseSequence = _sampler.Retrieve();
-            var record = new SampleRecord(pulseSequence, ProductCnt);
-            return record;
+            return new SampleRecord(pulseSequence, ProductCnt);
         }
 
         protected override void OnDataEnqueued(SampleRecord data)

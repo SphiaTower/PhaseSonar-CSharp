@@ -42,11 +42,15 @@ namespace PhaseSonar.Analyzers
         /// <returns></returns>
         public static SplitResult EitherAndOther(ISpectrum either, ISpectrum other)
         {
-//            return either.Amplitudes.Sum() >= other.Amplitudes.Sum()
-//                ? SourceAndRef(either, other)
-//                : SourceAndRef(other, either);
-            return null;
-            // todo
+            double eitherSum=0, otherSum=0;
+            for (int i = 0; i < either.Length(); i++)
+            {
+                eitherSum += either.Intensity(i);
+                otherSum += other.Intensity(i);
+            }
+            return eitherSum >= otherSum
+                ? SourceAndRef(either, other)
+                : SourceAndRef(other, either);
         }
     }
 }

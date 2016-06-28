@@ -65,6 +65,7 @@ namespace PhaseSonar.Utils
             var fileStream = file.OpenWrite();
             var binaryFormatter = new BinaryFormatter();
             binaryFormatter.Serialize(fileStream, data);
+            fileStream.Close();
         }
 
         /// <summary>

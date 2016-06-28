@@ -27,6 +27,6 @@ namespace SpectroscopyVisualizer.Producers
         ///     Stop Producing.
         /// </summary>
         void Stop();
-
+        int BoundedCapacity { get; set; }
     }
 }

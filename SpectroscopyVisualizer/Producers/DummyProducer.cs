@@ -16,7 +16,7 @@ namespace SpectroscopyVisualizer.Producers
         /// <summary>
         ///     Create an instance.
         /// </summary>
-        public DummyProducer()
+        public DummyProducer():base(24) // todo
         {
             _pulse = Toolbox.Read(@"C:\Buffer\pulse-5.txt");
             _backup = new double[_pulse.Length];

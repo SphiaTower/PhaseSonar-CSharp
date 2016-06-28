@@ -36,14 +36,8 @@ namespace PhaseSonar.Correctors
         public override void Correct(double[] pulseSequence, int startIndex, int pulseLength, int crestIndex)
         {
             Retrieve(pulseSequence, startIndex, pulseLength);
-            try
-            {
-                Rotator.Symmetrize(ZeroFilledArray, crestIndex);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                return;
-            }
+                if(!Rotator.TrySymmetrize(ZeroFilledArray, crestIndex)) return;
+            
             // Side effect: _zeroFilledArray -> apodized by a cached ramp
             Apodizer.Apodize(ZeroFilledArray);
             // Side effect: _zeroFilledArray -> centreburst rotated to the head and tail
@@ -51,6 +45,7 @@ namespace PhaseSonar.Correctors
 
             double[] fftReal, fftImag;
             FourierTransformer.TransformForward(ZeroFilledArray, out fftReal, out fftImag);
+            // length of fftReal is twice of spectrum buffer
             SpectrumBuffer.TryAbsorb(new ComplexSpectrum(fftReal, fftImag, 1));
         }
     }

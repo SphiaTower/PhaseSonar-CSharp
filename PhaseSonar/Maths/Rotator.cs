@@ -44,7 +44,7 @@ namespace PhaseSonar.Maths
         /// </summary>
         /// <param name="array">The array to be symmetrized</param>
         /// <param name="crestIndex">The index to be rotated to the center of the array</param>
-        public void Symmetrize(double[] array, int crestIndex)
+        public bool TrySymmetrize(double[] array, int crestIndex)
         {
             var length = array.Length;
             var centerIndex = length/2;
@@ -66,8 +66,9 @@ namespace PhaseSonar.Maths
             }
             else
             {
-                throw new ArgumentOutOfRangeException("try to symmetrize when crest is at tail");
+                return false;
             }
+            return true;
         }
     }
 }

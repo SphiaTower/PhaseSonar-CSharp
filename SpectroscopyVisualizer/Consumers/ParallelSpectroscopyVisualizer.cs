@@ -45,7 +45,13 @@ namespace SpectroscopyVisualizer.Consumers
 
         private void OnNoProductEvent(object sender)
         {
-            if (Writer.IsOn) {
+            WriteAccumulated();
+        }
+
+        private void WriteAccumulated()
+        {
+            if (Writer.IsOn)
+            {
                 Writer.Write(new TracedSpectrum(SumSpectrum, "accumulated"));
             }
         }
@@ -130,17 +136,9 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     Called when the consumer is stopped.
         /// </summary>
-        protected override void OnStop()//todo delete
+        protected override void OnStop()
         {
-            base.OnStop();
-            if (Writer.IsOn)
-            {
-                while (IsOn||!BlockingQueue.IsEmpty())
-                {
-                    Thread.Sleep(50);
-                }
-                Writer.Write(new TracedSpectrum(SumSpectrum, "accumulated"));
-            }
+            WriteAccumulated();
         }
     }
 }

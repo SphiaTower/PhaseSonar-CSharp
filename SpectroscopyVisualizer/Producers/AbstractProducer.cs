@@ -10,6 +10,14 @@ namespace SpectroscopyVisualizer.Producers
     /// <typeparam name="T"></typeparam>
     public abstract class AbstractProducer<T> : IProducer<T>
     {
+        public int BoundedCapacity { get; set; }
+
+        protected AbstractProducer(int boundedCapacity)
+        {
+            BoundedCapacity = boundedCapacity;
+            BlockingQueue = new BlockingCollection<T>(BoundedCapacity);
+        }
+
         /// <summary>
         ///     Whether the producer is on or off.
         /// </summary>
@@ -18,7 +26,7 @@ namespace SpectroscopyVisualizer.Producers
         /// <summary>
         ///     The queue containing all products.
         /// </summary>
-        public BlockingCollection<T> BlockingQueue { get; } = new BlockingCollection<T>(24); // todo config
+        public BlockingCollection<T> BlockingQueue { get; } // todo config
 
         /// <summary>
         ///     The count of product.
@@ -72,8 +80,8 @@ namespace SpectroscopyVisualizer.Producers
                 }
                 if (!IsOn) break;
                 BlockingQueue.Add(data); // blocking method
-                OnDataEnqueued(data);
                 ProductCnt++;
+                OnDataEnqueued(data);
             }
         }
 

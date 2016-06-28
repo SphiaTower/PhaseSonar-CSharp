@@ -27,6 +27,8 @@
                 </MenuItem>
                 <MenuItem Header="_Tools">
                     <MenuItem Header="_Developer Mode" IsCheckable="True" IsChecked="False" />
+                    <Separator />
+                    <MenuItem Header="_Start Sample..." Click="StartSample_OnClick" />
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="View Help" />

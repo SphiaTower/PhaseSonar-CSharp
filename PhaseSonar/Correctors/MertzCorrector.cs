@@ -120,7 +120,7 @@ namespace PhaseSonar.Correctors
 
         private double Phase(double real, double imag)
         {
-            if (real != 0)
+            if (Math.Abs(real) > 0.0000001)
             {
                 return Math.Atan(imag/real);
             }

@@ -42,7 +42,7 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     The time to block when the <see cref="BlockingQueue" /> is empty.
         /// </summary>
-        public int MillisecondsTimeout { get; set; } = 2000;
+        public int MillisecondsTimeout { get; set; } = 10000;
 
         /// <summary>
         ///     The queue containing all items to be consumed.

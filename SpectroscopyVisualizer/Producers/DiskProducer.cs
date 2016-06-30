@@ -18,7 +18,7 @@ namespace SpectroscopyVisualizer.Producers
         ///     Create an instance.
         /// </summary>
         /// <param name="paths">The paths of files to be processed.</param>
-        public DiskProducer(IEnumerable<string> paths):base(24) // todo
+        public DiskProducer(IEnumerable<string> paths):base(48) // todo
         {
             _enumerator = paths.GetEnumerator();
         }

@@ -43,7 +43,7 @@ namespace PhaseSonar.Slicers
             var startIndicesList = new List<IList<int>>(1);
             var crestIndices = Finder.Find(pulseSequence);
             if (crestIndices.IsEmpty()) return startIndicesList;
-            SlicedPeriodLength = AnalyzePeriodLength(crestIndices);
+            SlicedPeriodLength = MinPeriodLength(crestIndices);
             IList<int> startIndices;
             if (FindStartIndices(pulseSequence, crestIndices, SlicedPeriodLength, out startIndices))
             {
@@ -64,7 +64,7 @@ namespace PhaseSonar.Slicers
         /// </summary>
         /// <param name="crestIndices">The indices of crests.</param>
         /// <returns>The minimum of all the intervals.</returns>
-        protected static int AnalyzePeriodLength([NotNull] IList<int> crestIndices)
+        protected static int MinPeriodLength([NotNull] IList<int> crestIndices)
         {
             var min = int.MaxValue;
             for (var i = 1; i < crestIndices.Count; i++)
@@ -78,6 +78,20 @@ namespace PhaseSonar.Slicers
             return min;
         }
 
+
+        /// <summary>
+        ///     Get a common length for all the pulses.
+        /// </summary>
+        /// <param name="crestIndices">The indices of crests.</param>
+        /// <returns>The average of all the intervals.</returns>
+        protected static int AveragePeriodLength([NotNull] IList<int> crestIndices) {
+            var average = 0;
+            for (var i = 1; i < crestIndices.Count; i++) {
+                var diff = crestIndices[i] - crestIndices[i - 1];
+                average += diff;
+            }
+            return average/(crestIndices.Count - 1);
+        }
         /// <summary>
         ///     Map crest indices to start indices.
         /// </summary>

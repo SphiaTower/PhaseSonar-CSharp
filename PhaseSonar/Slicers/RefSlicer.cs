@@ -29,7 +29,7 @@ namespace PhaseSonar.Slicers
             if (crestIndices.NotEmpty())
             {
                 var tuple = Group(crestIndices);
-                SlicedPeriodLength = AnalyzePeriodLength(crestIndices);
+                SlicedPeriodLength = MinPeriodLength(crestIndices);
                 IList<int> startIndices1, startIndices2;
 
                 if (FindStartIndices(pulseSequence, tuple.Item1, SlicedPeriodLength, out startIndices1) &&

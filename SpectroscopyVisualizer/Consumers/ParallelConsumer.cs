@@ -2,25 +2,21 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using NationalInstruments.Restricted;
 
-namespace SpectroscopyVisualizer.Consumers
-{
+namespace SpectroscopyVisualizer.Consumers {
     /// <summary>
     ///     A consumer which takes and consumes products in parallel.
     /// </summary>
     /// <typeparam name="TProduct"></typeparam>
     /// <typeparam name="TWorker"></typeparam>
-    public abstract class ParallelConsumer<TProduct, TWorker> : AbstractConsumer<TProduct>
-    {
+    public abstract class ParallelConsumer<TProduct, TWorker> : AbstractConsumer<TProduct> {
         /// <summary>
         ///     Create a Consumer.
         /// </summary>
         /// <param name="blockingQueue">The queue which containing elements to be consumed</param>
         /// <param name="workers">A collection of workers consuming the products in parallel.</param>
         protected ParallelConsumer([NotNull] BlockingCollection<TProduct> blockingQueue,
-            [NotNull] IEnumerable<TWorker> workers) : base(blockingQueue)
-        {
+            [NotNull] IEnumerable<TWorker> workers) : base(blockingQueue) {
             Workers = workers;
         }
 
@@ -33,39 +29,29 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     Start consuming.
         /// </summary>
-        public override void Start()
-        {
+        public override void Start() {
             IsOn = true;
-            Task.Run(() =>
-            {
+            Task.Run(() => {
                 var empty = false;
-                Parallel.ForEach(Workers, worker =>
-                {
-                    while (IsOn)
-                    {
+                Parallel.ForEach(Workers, worker => {
+                    while (IsOn) {
                         TProduct raw;
-                        if (!BlockingQueue.TryTake(out raw, MillisecondsTimeout))
-                        {
+                        if (!BlockingQueue.TryTake(out raw, MillisecondsTimeout)) {
                             empty = true;
                             break;
                         }
                         if (!IsOn) return;
-                        if (ConsumeElement(raw, worker))
-                        {
-                            lock (this)
-                            {
+                        if (ConsumeElement(raw, worker)) {
+                            lock (this) {
                                 ContinuousFailCnt = 0;
                                 ConsumedCnt++;
                                 FireConsumeEvent();
                             }
                         }
-                        else
-                        {
-                            lock (this)
-                            {
+                        else {
+                            lock (this) {
                                 ContinuousFailCnt++;
-                                if (ContinuousFailCnt >= 10)
-                                {
+                                if (ContinuousFailCnt >= 10) {
                                     FireFailEvent();
                                     break;
                                 }
@@ -74,8 +60,7 @@ namespace SpectroscopyVisualizer.Consumers
                     }
                     IsOn = false;
                 });
-                if (empty)
-                {
+                if (empty) {
                     FireNoProductEvent();
                 }
             });

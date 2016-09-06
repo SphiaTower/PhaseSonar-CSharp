@@ -1,13 +1,11 @@
 ﻿using System;
 using PhaseSonar.Maths;
 
-namespace PhaseSonar.Correctors
-{
+namespace PhaseSonar.Correctors {
     /// <summary>
     ///     A phase corrector which implements the Mertz method.
     /// </summary>
-    public class MertzCorrector : BaseCorrector<RealSpectrum>
-    {
+    public class MertzCorrector : BaseCorrector<RealSpectrum> {
         private readonly double[] _centrePhase;
         private readonly int _centreSpan;
 
@@ -25,10 +23,8 @@ namespace PhaseSonar.Correctors
         /// <param name="centreSpan">The size of the centre span for phase extraction</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public MertzCorrector(IApodizer apodizer, int fuzzyPulseLength, int zeroFillFactor, int centreSpan)
-            : base(apodizer, fuzzyPulseLength, zeroFillFactor)
-        {
-            if (centreSpan <= 0)
-            {
+            : base(apodizer, fuzzyPulseLength, zeroFillFactor) {
+            if (centreSpan <= 0) {
                 throw new ArgumentOutOfRangeException("centreSpan must be positive");
             }
             _centreSpan = centreSpan;
@@ -46,8 +42,7 @@ namespace PhaseSonar.Correctors
         /// <param name="startIndex">The start index of the pulse in the pulse sequence</param>
         /// <param name="pulseLength">The length of the pulse</param>
         /// <param name="crestIndex">The number of points before the crest</param>
-        public override void Correct(double[] pulseSequence, int startIndex, int pulseLength, int crestIndex)
-        {
+        public override void Correct(double[] pulseSequence, int startIndex, int pulseLength, int crestIndex) {
             // Side effect: _zeroFilledArray -> balanced, zero-filled temporal data
             Retrieve(pulseSequence, startIndex, pulseLength);
             // Side effect: _zeroFilledArray -> centreburst rotated to the centre
@@ -65,8 +60,7 @@ namespace PhaseSonar.Correctors
             double[] fftReal, fftImag;
             FourierTransformer.TransformForward(ZeroFilledArray, out fftReal, out fftImag);
 
-            for (var i = 0; i < ZeroFilledLength/2; i++)
-            {
+            for (var i = 0; i < ZeroFilledLength/2; i++) {
                 var phase = _interpolatedArray[i];
                 var real = fftReal[i];
                 var imag = fftImag[i];
@@ -80,16 +74,14 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <param name="i"></param>
         /// <param name="specValue"></param>
-        protected virtual void WriteSpecPoint(int i, double specValue)
-        {
+        protected virtual void WriteSpecPoint(int i, double specValue) {
             SpectrumBuffer.AmplitudeArray[i] = specValue;
         }
 
         /// <summary>
         ///     Called when the correction is about to finish.
         /// </summary>
-        protected virtual void OnCorrected()
-        {
+        protected virtual void OnCorrected() {
             SpectrumBuffer.PulseCount = 1;
         }
 
@@ -98,8 +90,7 @@ namespace PhaseSonar.Correctors
         ///     Prepare the phase data for correction
         /// </summary>
         /// <param name="symmetryPulse">The symmetrized pulse</param>
-        public void PreparePhaseCorrectionData(double[] symmetryPulse)
-        {
+        public void PreparePhaseCorrectionData(double[] symmetryPulse) {
             var centerBurst = symmetryPulse.Length/2;
 //            Functions.CopyInto(symmetryPulse, centerBurst - _centreSpan, _centreSpan*2, _centrePhase);
             Array.Copy(symmetryPulse, centerBurst - _centreSpan, _centrePhase, 0, _centreSpan*2);
@@ -108,37 +99,26 @@ namespace PhaseSonar.Correctors
             Rotator.Rotate(_centrePhase);
             double[] fftReal, fftImag;
             FourierTransformer.TransformForward(_centrePhase, out fftReal, out fftImag);
-            for (var i = 0; i < _centreSpan*2; i++)
-            {
+            for (var i = 0; i < _centreSpan*2; i++) {
                 var real = fftReal[i];
                 var imag = fftImag[i];
-        
+
 //                _centrePhase[i] = Math.Atan(imag/real);
                 _centrePhase[i] = Phase(real, imag);
             }
         }
 
-        private double Phase(double real, double imag)
-        {
-            if (Math.Abs(real) > 0.0000001)
-            {
+        private double Phase(double real, double imag) {
+            if (Math.Abs(real) > 0.0000001) {
                 return Math.Atan(imag/real);
             }
-            else
-            {
-                if (imag > 0)
-                {
-                    return Math.PI/2;
-                }
-                else if (imag < 0)
-                {
-                    return -Math.PI/2;
-                }
-                else
-                {
-                    return 0;
-                }
+            if (imag > 0) {
+                return Math.PI/2;
             }
+            if (imag < 0) {
+                return -Math.PI/2;
+            }
+            return 0;
         }
     }
 }

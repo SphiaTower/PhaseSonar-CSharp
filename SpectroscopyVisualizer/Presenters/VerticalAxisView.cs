@@ -3,12 +3,9 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace SpectroscopyVisualizer.Presenters
-{
-    public class VerticalAxisView
-    {
-        public VerticalAxisView(Canvas canvas)
-        {
+namespace SpectroscopyVisualizer.Presenters {
+    public class VerticalAxisView {
+        public VerticalAxisView(Canvas canvas) {
             Canvas = canvas;
         }
 
@@ -17,23 +14,20 @@ namespace SpectroscopyVisualizer.Presenters
         public double Height => Canvas.ActualHeight;
         public double Width => Canvas.ActualWidth;
 
-        public void DrawRuler(double minValue, double maxValue)
-        {
+        public void DrawRuler(double minValue, double maxValue) {
             Canvas.Children.Clear();
             var height = Height;
             var width = Width;
             var depth = width/8;
             var baselinePts = new PointCollection(2) {new Point(width, 0), new Point(width, height)};
-            var baseline = new Polyline
-            {
+            var baseline = new Polyline {
                 Points = baselinePts,
                 Stroke = new SolidColorBrush(Colors.White),
                 StrokeThickness = 1
             };
             Canvas.Children.Add(baseline);
             var interval = height/10;
-            for (var i = 0; i < 11; i++)
-            {
+            for (var i = 0; i < 11; i++) {
 //                var points = new PointCollection(2) { new Point(width, i * interval), new Point(width-depth, i * interval) };
 //                var line = new Polyline {
 //                    Points = points,
@@ -61,8 +55,7 @@ namespace SpectroscopyVisualizer.Presenters
 
                 Canvas.Children.Add(textBlock);
             }
-            var label = new TextBlock
-            {
+            var label = new TextBlock {
                 Text = "I\nN\nT\nE\nN\nS\nI\nT\nY\n/\nV^2",
                 Foreground = new SolidColorBrush(Colors.White),
                 TextAlignment = TextAlignment.Center

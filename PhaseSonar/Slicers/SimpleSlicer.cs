@@ -3,21 +3,18 @@ using System.Linq;
 using JetBrains.Annotations;
 using PhaseSonar.Utils;
 
-namespace PhaseSonar.Slicers
-{
+namespace PhaseSonar.Slicers {
     /// <summary>
     ///     A basic slicer implementation which groups all slices into one list.
     /// </summary>
-    public class SimpleSlicer : ISlicer
-    {
+    public class SimpleSlicer : ISlicer {
         /// <summary>
         ///     Create a slicer.
         /// </summary>
         /// <param name="finder">
         ///     <see cref="ICrestFinder" />
         /// </param>
-        public SimpleSlicer(ICrestFinder finder)
-        {
+        public SimpleSlicer(ICrestFinder finder) {
             Finder = finder;
 
             // datalength/sampleRate*repetitionRate=pn
@@ -38,15 +35,13 @@ namespace PhaseSonar.Slicers
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence, usually a sampled record</param>
         /// <returns>Whether slicing succeeded</returns>
-        public virtual IList<IList<int>> Slice(double[] pulseSequence)
-        {
+        public virtual IList<IList<int>> Slice(double[] pulseSequence) {
             var startIndicesList = new List<IList<int>>(1);
             var crestIndices = Finder.Find(pulseSequence);
             if (crestIndices.IsEmpty()) return startIndicesList;
             SlicedPeriodLength = MinPeriodLength(crestIndices);
             IList<int> startIndices;
-            if (FindStartIndices(pulseSequence, crestIndices, SlicedPeriodLength, out startIndices))
-            {
+            if (FindStartIndices(pulseSequence, crestIndices, SlicedPeriodLength, out startIndices)) {
                 startIndicesList.Add(startIndices);
             }
             return startIndicesList;
@@ -64,14 +59,11 @@ namespace PhaseSonar.Slicers
         /// </summary>
         /// <param name="crestIndices">The indices of crests.</param>
         /// <returns>The minimum of all the intervals.</returns>
-        protected static int MinPeriodLength([NotNull] IList<int> crestIndices)
-        {
+        protected static int MinPeriodLength([NotNull] IList<int> crestIndices) {
             var min = int.MaxValue;
-            for (var i = 1; i < crestIndices.Count; i++)
-            {
+            for (var i = 1; i < crestIndices.Count; i++) {
                 var diff = crestIndices[i] - crestIndices[i - 1];
-                if (diff < min)
-                {
+                if (diff < min) {
                     min = diff;
                 }
             }
@@ -92,6 +84,7 @@ namespace PhaseSonar.Slicers
             }
             return average/(crestIndices.Count - 1);
         }
+
         /// <summary>
         ///     Map crest indices to start indices.
         /// </summary>
@@ -100,25 +93,20 @@ namespace PhaseSonar.Slicers
         /// <param name="periodLength">The common pulse length.</param>
         /// <returns>The start indices for all the slices.</returns>
         protected virtual bool FindStartIndices([NotNull] double[] pulseSequence, [NotNull] IList<int> crestIndices,
-            int periodLength, out IList<int> startIndices)
-        {
+            int periodLength, out IList<int> startIndices) {
             var length = pulseSequence.Length;
             startIndices = crestIndices; // todo deep clone
-            for (var i = 0; i < crestIndices.Count; i++)
-            {
+            for (var i = 0; i < crestIndices.Count; i++) {
                 crestIndices[i] -= CrestIndex;
             }
             // todo SliceFailedException
-            if (crestIndices[0] < 0)
-            {
+            if (crestIndices[0] < 0) {
                 crestIndices.RemoveAt(0);
             }
-            if (crestIndices.Count == 0)
-            {
+            if (crestIndices.Count == 0) {
                 return false;
             }
-            if (crestIndices.Last() + periodLength >= length)
-            {
+            if (crestIndices.Last() + periodLength >= length) {
                 crestIndices.RemoveAt(crestIndices.Count - 1);
             }
             return crestIndices.Count != 0;

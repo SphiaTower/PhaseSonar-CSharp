@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace PhaseSonar.Slicers
-{
+namespace PhaseSonar.Slicers {
     /// <summary>
     ///     A finder that identifies crests in a pulse sequence.
     /// </summary>
-    public interface ICrestFinder
-    {
+    public interface ICrestFinder {
         /// <summary>
         ///     The minimum number of points that is before the crest.
         /// </summary>

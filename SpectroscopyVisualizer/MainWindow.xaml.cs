@@ -16,15 +16,12 @@ using SpectroscopyVisualizer.Presenters;
 using SpectroscopyVisualizer.Producers;
 using SpectroscopyVisualizer.Writers;
 
-namespace SpectroscopyVisualizer
-{
+namespace SpectroscopyVisualizer {
     /// <summary>
     ///     Interaction logic for MainWindow.xaml, also the entrance of the whole program.
     /// </summary>
-    public partial class MainWindow : Window
-    {
-        public MainWindow()
-        {
+    public partial class MainWindow : Window {
+        public MainWindow() {
             InitializeComponent();
             SamplingConfigurations.Initialize(
                 "Dev2",
@@ -75,93 +72,76 @@ namespace SpectroscopyVisualizer
         public SpectrumWriter Writer { get; set; }
 
 
-        private static bool IsChecked(ToggleButton checkBox)
-        {
+        private static bool IsChecked(ToggleButton checkBox) {
             return checkBox.IsChecked != null && checkBox.IsChecked.Value;
         }
 
-        private bool DeveloperMode()
-        {
+        private bool DeveloperMode() {
             return TbChannel.Text == "256";
         }
 
-        private void ToggleButton_OnClick(object sender, RoutedEventArgs routedEventArgs)
-        {
+        private void ToggleButton_OnClick(object sender, RoutedEventArgs routedEventArgs) {
             SwitchButton.Toggle();
         }
 
-        private void TurnOff()
-        {
+        private void TurnOff() {
             Scheduler?.Stop();
         }
 
-        private void TurnOn()
-        {
+        private void TurnOn() {
             GC.Collect();
             IProducer<SampleRecord> producer;
-            if (DeveloperMode())
-            {
+            if (DeveloperMode()) {
                 producer = new DummyProducer();
             }
-            else
-            {
+            else {
                 producer = ParallelInjector.NewProducer(IsChecked(CbCaptureSample));
             }
             Adapter = ParallelInjector.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
             Writer = ParallelInjector.NewSpectrumWriter(IsChecked(CbCaptureSpec));
             var consumer = ParallelInjector.NewConsumer(producer, Adapter, Writer);
-            try
-            {
+            try {
                 Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
                 Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
             }
-            catch (Exception)
-            {
+            catch (Exception) {
             }
             Scheduler = new Scheduler(producer, consumer);
             consumer.FailEvent += ConsumerOnFailEvent;
-         
+
             consumer.ConsumeEvent += ConsumerOnConsumeEvent;
-         
+
 
             TbStartFreq.DataContext = Adapter;
             TbEndFreq.DataContext = Adapter;
             Scheduler.Start();
-            
         }
 
-        private void ConsumerOnConsumeEvent(object sender)
-        {
+        private void ConsumerOnConsumeEvent(object sender) {
             var sizeInM = SamplingConfigurations.Get().RecordLength/1e6;
-            Application.Current.Dispatcher.InvokeAsync(() =>
-            {
+            Application.Current.Dispatcher.InvokeAsync(() => {
                 var consumedCnt = Scheduler?.Consumer.ConsumedCnt;
                 var elapsedSeconds = Scheduler?.Watch.ElapsedSeconds();
                 var speed = consumedCnt*sizeInM/elapsedSeconds;
-                if (consumedCnt.HasValue)
-                {
+                if (consumedCnt.HasValue) {
                     TbConsumerSpeed.Text = speed.Value.ToString("F3");
                     TbTotalData.Text = (consumedCnt.Value*sizeInM).ToString();
                 }
             });
         }
 
-        private void ConsumerOnFailEvent(object sender)
-        {
+        private void ConsumerOnFailEvent(object sender) {
             Scheduler?.Stop();
             MessageBox.Show("It seems that the source is invalid.");
             Application.Current.Dispatcher.InvokeAsync(() => { SwitchButton.Toggle(false); });
         }
 
 
-        private void BnPath_Click(object sender, RoutedEventArgs e)
-        {
+        private void BnPath_Click(object sender, RoutedEventArgs e) {
             var dialog = new CommonOpenFileDialog {IsFolderPicker = true};
             var result = dialog.ShowDialog();
-            if (result == CommonFileDialogResult.Ok)
-            {
-                foreach (var fileName in dialog.FileNames)
-                {
+            if (result == CommonFileDialogResult.Ok) {
+                foreach (var fileName in dialog.FileNames) {
                     TbSavePath.Text = fileName;
                 }
             }
@@ -169,27 +149,21 @@ namespace SpectroscopyVisualizer
         }
 
 
-        private void OnCaptureSampleChecked(object sender, RoutedEventArgs e)
-        {
+        private void OnCaptureSampleChecked(object sender, RoutedEventArgs e) {
             var producer = Scheduler?.Producer as SampleProducer;
             if (producer == null) return;
             if (CbCaptureSample.IsChecked != null) producer.Writer.IsOn = CbCaptureSample.IsChecked.Value;
         }
 
-        private void CbCaptureSpec_OnChecked(object sender, RoutedEventArgs e)
-        {
+        private void CbCaptureSpec_OnChecked(object sender, RoutedEventArgs e) {
             if (Writer != null) Writer.IsOn = IsChecked(CbCaptureSpec);
         }
 
-        private void DecodeFiles_OnClick(object sender, RoutedEventArgs e)
-        {
+        private void DecodeFiles_OnClick(object sender, RoutedEventArgs e) {
             var files = SelectFiles();
-            if (!files.IsEmpty())
-            {
-                Task.Run(() =>
-                {
-                    files.ForEach(path =>
-                    {
+            if (!files.IsEmpty()) {
+                Task.Run(() => {
+                    files.ForEach(path => {
                         var deserializeData = Toolbox.DeserializeData<double[]>(path);
                         Toolbox.WriteData(path.Replace("Binary", "Decoded"), deserializeData);
                     });
@@ -198,11 +172,9 @@ namespace SpectroscopyVisualizer
             }
         }
 
-        private static string[] SelectFiles()
-        {
+        private static string[] SelectFiles() {
             // Create OpenFileDialog 
-            var dlg = new OpenFileDialog
-            {
+            var dlg = new OpenFileDialog {
                 DefaultExt = ".txt",
                 Filter = "Text documents (.txt)|*.txt",
                 Multiselect = true
@@ -213,15 +185,13 @@ namespace SpectroscopyVisualizer
 
             // Display OpenFileDialog by calling ShowDialog method 
             var result = dlg.ShowDialog();
-            if (result == true)
-            {
+            if (result == true) {
                 return dlg.FileNames;
             }
             return new string[0];
         }
 
-        private void LoadFiles_OnClick(object sender, RoutedEventArgs e)
-        {
+        private void LoadFiles_OnClick(object sender, RoutedEventArgs e) {
             var fileNames = SelectFiles();
             if (fileNames.IsEmpty()) return;
             GeneralConfigurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
@@ -232,8 +202,7 @@ namespace SpectroscopyVisualizer
             var consumer = ParallelInjector.NewConsumer(producer, Adapter, Writer);
             consumer.FailEvent += ConsumerOnFailEvent;
             consumer.ConsumeEvent += ConsumerOnConsumeEvent;
-            consumer.NoProductEvent += o =>
-            {
+            consumer.NoProductEvent += o => {
                 Scheduler?.Stop();
                 MessageBox.Show("processing finished");
                 Scheduler = null;
@@ -243,30 +212,25 @@ namespace SpectroscopyVisualizer
             Scheduler?.Start();
         }
 
-        private void About_OnClick(object sender, RoutedEventArgs e)
-        {
+        private void About_OnClick(object sender, RoutedEventArgs e) {
             MessageBox.Show("A 2016 ST Workshop Production. All Rights Reserved.");
         }
 
-        private void StartSample_OnClick(object sender, RoutedEventArgs e)
-        {
+        private void StartSample_OnClick(object sender, RoutedEventArgs e) {
             var total = int.Parse(TbTotalData.Text);
             var producer = new FixedSampleProducer(ParallelInjector.NewSampler(), total);
             Adapter = ParallelInjector.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
             Writer = ParallelInjector.NewSpectrumWriter(IsChecked(CbCaptureSpec));
             var threadNum = GeneralConfigurations.Get().ThreadNum;
             var workers = new List<SpecialSampleWriter>(threadNum);
-            for (int i = 0; i < threadNum; i++)
-            {
-                workers.Add(new SpecialSampleWriter(GeneralConfigurations.Get().Directory,"[Binary]"));
+            for (var i = 0; i < threadNum; i++) {
+                workers.Add(new SpecialSampleWriter(GeneralConfigurations.Get().Directory, "[Binary]"));
             }
-            var consumer = new DataSerializer(producer.BlockingQueue,workers);
+            var consumer = new DataSerializer(producer.BlockingQueue, workers);
             consumer.FailEvent += ConsumerOnFailEvent;
             consumer.ConsumeEvent += ConsumerOnConsumeEvent;
-            consumer.ConsumeEvent += o =>
-            {
-                if (consumer.ConsumedCnt >= total)
-                {
+            consumer.ConsumeEvent += o => {
+                if (consumer.ConsumedCnt >= total) {
                     Scheduler?.Stop();
                 }
             };

@@ -3,21 +3,18 @@ using System.Linq;
 using JetBrains.Annotations;
 using PhaseSonar.Correctors;
 
-namespace PhaseSonar.Analyzers
-{
+namespace PhaseSonar.Analyzers {
     /// <summary>
     ///     A serial strategy that process pulses one by one.
     /// </summary>
-    public class SerialStrategy : IAnalyzerStrategy
-    {
+    public class SerialStrategy : IAnalyzerStrategy {
         private readonly ICorrector _corrector;
 
         /// <summary>
         ///     Create a serial strategy.
         /// </summary>
         /// <param name="corrector"></param>
-        public SerialStrategy(ICorrector corrector)
-        {
+        public SerialStrategy(ICorrector corrector) {
             _corrector = corrector;
         }
 
@@ -35,8 +32,7 @@ namespace PhaseSonar.Analyzers
         /// <returns>The processed result of the pulse sequence, or null if failed</returns>
         [NotNull]
         public List<ISpectrum> Process(double[] pulseSequence, IList<IList<int>> startIndicesList, int pulseLength,
-            int crestIndex)
-        {
+            int crestIndex) {
             _corrector.ClearBuffer(); //todo 1st time 
             return
                 startIndicesList.Select(
@@ -45,10 +41,8 @@ namespace PhaseSonar.Analyzers
 
         [NotNull]
         private ISpectrum CorrectSequentially(double[] pulseSequence, IList<int> startIndices, int pulseLength,
-            int crestIndex)
-        {
-            foreach (var startIndex in startIndices)
-            {
+            int crestIndex) {
+            foreach (var startIndex in startIndices) {
                 // todo: exception
                 _corrector.Correct(pulseSequence, startIndex, pulseLength, crestIndex);
             }

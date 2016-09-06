@@ -12,19 +12,13 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Security;
 using NationalInstruments.ModularInstruments.NIScope;
 
-namespace NationalInstruments.Examples.StreamToDiskConsole
-{
-    class Program
-    {
-        static NIScope _scopeSession;
+namespace NationalInstruments.Examples.StreamToDiskConsole {
+    internal class Program {
+        private static NIScope _scopeSession;
 
-        static void Main()
-        {
+        private static void Main() {
             var input = new ConsoleInput();
             input.AskUser();
 
@@ -32,7 +26,7 @@ namespace NationalInstruments.Examples.StreamToDiskConsole
             var analogWaveformCollection = sampler.Sample();
             sampler.Release();
             var ouputStream = DiskWriter.GetOuputStream();
-            DiskWriter.SaveBinaryWaveform(ouputStream,analogWaveformCollection);
+            DiskWriter.SaveBinaryWaveform(ouputStream, analogWaveformCollection);
             Console.ReadKey();
 /*
 
@@ -98,18 +92,17 @@ namespace NationalInstruments.Examples.StreamToDiskConsole
             }*/
         }
 
-        static void InitializeSession(string deviceName)
-        {
+        private static void InitializeSession(string deviceName) {
             _scopeSession = new NIScope(deviceName, false, false);
-            _scopeSession.DriverOperation.Warning += new EventHandler<ScopeWarningEventArgs>(DriverOperation_Warning);
+            _scopeSession.DriverOperation.Warning += DriverOperation_Warning;
         }
-        static void DriverOperation_Warning(object sender, ScopeWarningEventArgs e)
-        {
+
+        private static void DriverOperation_Warning(object sender, ScopeWarningEventArgs e) {
             Console.WriteLine(e.Text);
         }
 
-        static void GetInputParameters(out string deviceName, out string channelList, out double range, out double SampleRateMin, out long recordLengthMin, out FileStream outputFileStream)
-        {
+        private static void GetInputParameters(out string deviceName, out string channelList, out double range,
+            out double SampleRateMin, out long recordLengthMin, out FileStream outputFileStream) {
             outputFileStream = null;
 
             Console.WriteLine("Provide input parameter values for the acquisition:");
@@ -119,42 +112,33 @@ namespace NationalInstruments.Examples.StreamToDiskConsole
             deviceName = GetInputString("Device Name", "Dev1");
             channelList = GetInputString("Channel List", "0");
 
-            while (!double.TryParse(GetInputString("Range", "10"), out range))
-            {
+            while (!double.TryParse(GetInputString("Range", "10"), out range)) {
                 Console.WriteLine("The entered value is not in the correct format. Please try again:");
             }
-            while (!double.TryParse(GetInputString("Minimum Sample Rate", "1e6"), out SampleRateMin))
-            {
+            while (!double.TryParse(GetInputString("Minimum Sample Rate", "1e6"), out SampleRateMin)) {
                 Console.WriteLine("The entered value is not in the correct format. Please try again:");
             }
-            while (!long.TryParse(GetInputString("Minimum Record Length", "1000"), out recordLengthMin))
-            {
+            while (!long.TryParse(GetInputString("Minimum Record Length", "1000"), out recordLengthMin)) {
                 Console.WriteLine("The entered value is not in the correct format. Please try again:");
             }
-            while (outputFileStream == null)
-            {
-                try
-                {
+            while (outputFileStream == null) {
+                try {
                     // Folder location.
-                    string directoryPath = @"C:\waveform";
-                    if (!Directory.Exists(directoryPath))
-                    {
+                    var directoryPath = @"C:\waveform";
+                    if (!Directory.Exists(directoryPath)) {
                         Directory.CreateDirectory(directoryPath);
                     }
 
-                    FileInfo fileName = new FileInfo(Path.Combine(directoryPath, @"waveform1.txt"));
-                    if (!fileName.Exists)
-                    {
+                    var fileName = new FileInfo(Path.Combine(directoryPath, @"waveform1.txt"));
+                    if (!fileName.Exists) {
                         fileName.Create().Close();
                     }
-                    else
-                    {
-                        File.WriteAllText(fileName.ToString(), String.Empty);
+                    else {
+                        File.WriteAllText(fileName.ToString(), string.Empty);
                     }
                     outputFileStream = new FileStream(fileName.ToString(), FileMode.Create, FileAccess.ReadWrite);
                 }
-                catch (Exception e)
-                {
+                catch (Exception e) {
                     Console.WriteLine("Unable to create a file stream with the given path:");
                     Console.WriteLine(e.Message);
                 }
@@ -163,15 +147,13 @@ namespace NationalInstruments.Examples.StreamToDiskConsole
             Console.WriteLine();
         }
 
-        static string GetInputString(string prompt, string defaultValue)
-        {
+        private static string GetInputString(string prompt, string defaultValue) {
             Console.Write(prompt + " [" + defaultValue + "]:");
-            string inputString = Console.ReadLine();
+            var inputString = Console.ReadLine();
 
             if (string.IsNullOrEmpty(inputString))
                 return defaultValue;
-            else
-                return inputString;
+            return inputString;
         }
     }
 }

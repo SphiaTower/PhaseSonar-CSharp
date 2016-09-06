@@ -1,13 +1,11 @@
 ﻿using System.Collections.Concurrent;
 
-namespace SpectroscopyVisualizer.Producers
-{
+namespace SpectroscopyVisualizer.Producers {
     /// <summary>
     ///     An interface for producers.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IProducer<T>
-    {
+    public interface IProducer<T> {
         /// <summary>
         ///     The queue containing all products.
         /// </summary>
@@ -18,6 +16,8 @@ namespace SpectroscopyVisualizer.Producers
         /// </summary>
         int ProductCnt { get; }
 
+        int BoundedCapacity { get; set; }
+
         /// <summary>
         ///     Start Producing.
         /// </summary>
@@ -27,6 +27,5 @@ namespace SpectroscopyVisualizer.Producers
         ///     Stop Producing.
         /// </summary>
         void Stop();
-        int BoundedCapacity { get; set; }
     }
 }

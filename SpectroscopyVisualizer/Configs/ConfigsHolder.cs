@@ -1,14 +1,12 @@
 ﻿using System;
 
-namespace SpectroscopyVisualizer.Configs
-{
+namespace SpectroscopyVisualizer.Configs {
     /// <summary>
     ///     A configuration holder which holds all configuration singletons.
     ///     This holder is used to serialize and deserialize the configurations.
     /// </summary>
     [Serializable]
-    public class ConfigsHolder
-    {
+    public class ConfigsHolder {
         /// <summary>
         ///     <see cref="GeneralConfigurations" />
         /// </summary>
@@ -32,8 +30,7 @@ namespace SpectroscopyVisualizer.Configs
         /// <summary>
         ///     Register configuration instances as singletons.
         /// </summary>
-        public void Register()
-        {
+        public void Register() {
             GeneralConfigs.Register(GeneralConfigs);
             CorrectorConfigurations.Register(CorrectorConfigs);
             SliceConfigs.Register(SliceConfigs);

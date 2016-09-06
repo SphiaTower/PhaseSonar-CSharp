@@ -1,11 +1,9 @@
-﻿namespace SpectroscopyVisualizer.Writers
-{
+﻿namespace SpectroscopyVisualizer.Writers {
     /// <summary>
     ///     An interface declared for data saving.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IWriter<in T>
-    {
+    public interface IWriter<in T> {
         /// <summary>
         ///     The state of the Writer.
         /// </summary>

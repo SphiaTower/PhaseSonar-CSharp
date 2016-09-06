@@ -12,16 +12,13 @@ using SpectroscopyVisualizer.Presenters;
 using SpectroscopyVisualizer.Producers;
 using SpectroscopyVisualizer.Writers;
 
-namespace SpectroscopyVisualizer.Factories
-{
+namespace SpectroscopyVisualizer.Factories {
     /// <summary>
     ///     TODO: apply the abstract factory pattern
     /// </summary>
-    public class ParallelInjector
-    {
+    public class ParallelInjector {
         [NotNull]
-        public static ISlicer NewSlicer()
-        {
+        public static ISlicer NewSlicer() {
             var config = SliceConfigurations.Get();
             var crestFinder = NewCrestFinder();
             return config.CentreSlice
@@ -30,8 +27,7 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        public static ICrestFinder NewCrestFinder()
-        {
+        public static ICrestFinder NewCrestFinder() {
             var config = GeneralConfigurations.Get();
             return new AbsoluteCrestFinder( // todo change back
                 config.RepetitionRate,
@@ -42,8 +38,7 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        public static SerialAccumulator NewAccumulator()
-        {
+        public static SerialAccumulator NewAccumulator() {
             return new SerialAccumulator(
                 NewSlicer(),
                 NewCorrector());
@@ -51,15 +46,13 @@ namespace SpectroscopyVisualizer.Factories
 
         [NotNull]
         public static DisplayAdapter NewAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,
-            VerticalAxisView verticalAxisView)
-        {
+            VerticalAxisView verticalAxisView) {
             return new DisplayAdapter(view, horizontalAxisView, verticalAxisView, GeneralConfigurations.Get().DispPoints,
                 SamplingConfigurations.Get().SamplingRate);
         }
 
         [NotNull]
-        public static Sampler NewSampler()
-        {
+        public static Sampler NewSampler() {
             var configs = SamplingConfigurations.Get();
             return new Sampler(
                 configs.DeviceName,
@@ -71,13 +64,11 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        public static ICorrector NewCorrector()
-        {
+        public static ICorrector NewCorrector() {
             var configs = GeneralConfigurations.Get();
             var fuzzyPeriodLength = (int) (SamplingConfigurations.Get().SamplingRate/configs.RepetitionRate);
 
-            switch (CorrectorConfigurations.Get().CorrectorType)
-            {
+            switch (CorrectorConfigurations.Get().CorrectorType) {
                 case CorrectorType.LinearMertz:
                     throw new NotImplementedException();
                 case CorrectorType.Mertz:
@@ -94,10 +85,8 @@ namespace SpectroscopyVisualizer.Factories
             }
         }
 
-        private static IApodizer NewApodizer()
-        {
-            switch (CorrectorConfigurations.Get().ApodizerType)
-            {
+        private static IApodizer NewApodizer() {
+            switch (CorrectorConfigurations.Get().ApodizerType) {
                 case ApodizerType.Fake:
                     return new FakeApodizer();
                 case ApodizerType.Triangular:
@@ -108,38 +97,32 @@ namespace SpectroscopyVisualizer.Factories
         }
 
         [NotNull]
-        public static SampleProducer NewProducer(bool cameraOn)
-        {
+        public static SampleProducer NewProducer(bool cameraOn) {
             return new SampleProducer(NewSampler(), NewSampleWriter(cameraOn));
         }
 
         [NotNull]
-        public static DiskProducer NewProducer(IEnumerable<string> paths)
-        {
+        public static DiskProducer NewProducer(IEnumerable<string> paths) {
             return new DiskProducer(paths);
         }
 
 
         [NotNull]
-        public static SpectrumWriter NewSpectrumWriter(bool on)
-        {
+        public static SpectrumWriter NewSpectrumWriter(bool on) {
             return new SpectrumWriter(GeneralConfigurations.Get().Directory, "[Average][Spectrum]", on);
         }
 
         [NotNull]
-        public static SampleWriter NewSampleWriter(bool on)
-        {
+        public static SampleWriter NewSampleWriter(bool on) {
             return new SampleWriter(GeneralConfigurations.Get().Directory, "[Binary]", on);
         }
 
         [NotNull]
         public static AbstractConsumer<SampleRecord> NewConsumer(IProducer<SampleRecord> producer,
-            DisplayAdapter adapter, SpectrumWriter writer)
-        {
+            DisplayAdapter adapter, SpectrumWriter writer) {
             var threadNum = GeneralConfigurations.Get().ThreadNum;
             var accumulators = new List<SerialAccumulator>(threadNum);
-            for (var i = 0; i < threadNum; i++)
-            {
+            for (var i = 0; i < threadNum; i++) {
                 accumulators.Add(NewAccumulator());
             }
             return new ParallelSpectroscopyVisualizer(producer.BlockingQueue, accumulators,

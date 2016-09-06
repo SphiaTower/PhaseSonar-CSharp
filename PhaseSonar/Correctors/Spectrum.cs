@@ -2,13 +2,11 @@ using System;
 using JetBrains.Annotations;
 using PhaseSonar.Maths;
 
-namespace PhaseSonar.Correctors
-{
+namespace PhaseSonar.Correctors {
     /// <summary>
     ///     The data container for spectra, which contains not only the spectrum data, also the count of accumulation.
     /// </summary>
-    public interface ISpectrum
-    {
+    public interface ISpectrum {
         /// <summary>
         ///     The number of pulses that are accumulated in this container.
         /// </summary>
@@ -76,15 +74,13 @@ namespace PhaseSonar.Correctors
     ///     A generic factory which creates spectrum containers of the specified type.
     /// </summary>
     /// <typeparam name="T">The type of the spectrum</typeparam>
-    public class SpectrumFactory<T> where T : ISpectrum
-    {
+    public class SpectrumFactory<T> where T : ISpectrum {
         /// <summary>
         ///     Create empty spectrum containers of the specified type.
         /// </summary>
         /// <param name="size">The size of the container</param>
         /// <returns>An empty ISpectrum instance</returns>
-        public static T CreateEmptySpectrum(int size)
-        {
+        public static T CreateEmptySpectrum(int size) {
             return (T) Activator.CreateInstance(typeof(T), size);
         }
     }
@@ -92,15 +88,13 @@ namespace PhaseSonar.Correctors
     /// <summary>
     ///     A spectrum that contains only real numbers
     /// </summary>
-    public class RealSpectrum : ISpectrum
-    {
+    public class RealSpectrum : ISpectrum {
         /// <summary>
         ///     Create a real spectrum instance
         /// </summary>
         /// <param name="spectrum">The data of the spectrum</param>
         /// <param name="pulseCount">The number of pulses accumulated</param>
-        public RealSpectrum(double[] spectrum, int pulseCount)
-        {
+        public RealSpectrum(double[] spectrum, int pulseCount) {
             AmplitudeArray = spectrum;
             PulseCount = pulseCount;
         }
@@ -109,8 +103,7 @@ namespace PhaseSonar.Correctors
         ///     Create an empty container
         /// </summary>
         /// <param name="size">The size of the container</param>
-        public RealSpectrum(int size)
-        {
+        public RealSpectrum(int size) {
             AmplitudeArray = new double[size];
             PulseCount = 0;
         }
@@ -133,8 +126,7 @@ namespace PhaseSonar.Correctors
         /// <summary>
         ///     Clear the container.
         /// </summary>
-        public void Clear()
-        {
+        public void Clear() {
             Functions.Clear(AmplitudeArray);
             PulseCount = 0;
         }
@@ -143,8 +135,7 @@ namespace PhaseSonar.Correctors
         ///     Copy the data inside into a new one.
         /// </summary>
         /// <returns></returns>
-        public ISpectrum Clone()
-        {
+        public ISpectrum Clone() {
             return new RealSpectrum(Functions.Clone(AmplitudeArray), PulseCount);
         }
 
@@ -152,14 +143,11 @@ namespace PhaseSonar.Correctors
         ///     Try to add up another spectrum. The added spectrum must be of the same type.
         /// </summary>
         /// <param name="another"></param>
-        public bool TryAbsorb(ISpectrum another)
-        {
-            if (another.HasImag())
-            {
+        public bool TryAbsorb(ISpectrum another) {
+            if (another.HasImag()) {
                 return false;
             }
-            for (var i = 0; i < AmplitudeArray.Length; i++)
-            {
+            for (var i = 0; i < AmplitudeArray.Length; i++) {
                 AmplitudeArray[i] += another.Real(i);
             }
             PulseCount += another.PulseCount;
@@ -171,8 +159,7 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        public double Intensity(int index)
-        {
+        public double Intensity(int index) {
             return AmplitudeArray[index]*AmplitudeArray[index];
         }
 
@@ -181,8 +168,7 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        public double Real(int index)
-        {
+        public double Real(int index) {
             return AmplitudeArray[index];
         }
 
@@ -191,8 +177,7 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        public double Imag(int index)
-        {
+        public double Imag(int index) {
             return 0;
         }
 
@@ -200,8 +185,7 @@ namespace PhaseSonar.Correctors
         ///     Check whether the spectrum has the imag part or not.
         /// </summary>
         /// <returns></returns>
-        public bool HasImag()
-        {
+        public bool HasImag() {
             return false;
         }
 
@@ -210,8 +194,7 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        public double AverageIntensity(int index)
-        {
+        public double AverageIntensity(int index) {
             return Intensity(index)/(PulseCount*PulseCount);
         }
 
@@ -219,8 +202,7 @@ namespace PhaseSonar.Correctors
         ///     Get the size of the data container
         /// </summary>
         /// <returns>The size of the data container</returns>
-        public int Length()
-        {
+        public int Length() {
             return AmplitudeArray.Length;
         }
 
@@ -229,8 +211,7 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public string ToString(int index)
-        {
+        public string ToString(int index) {
             return AmplitudeArray[index].
                 ToString();
         }
@@ -239,11 +220,9 @@ namespace PhaseSonar.Correctors
         ///     Get the string representation of the whole data array.
         /// </summary>
         /// <returns></returns>
-        public string[] ToStringArray()
-        {
+        public string[] ToStringArray() {
             var array = new string[Length()];
-            for (var i = 0; i < array.Length; i++)
-            {
+            for (var i = 0; i < array.Length; i++) {
                 array[i] = ToString(i);
             }
             return array;
@@ -253,16 +232,14 @@ namespace PhaseSonar.Correctors
     /// <summary>
     ///     A spectrum that contains only complex numbers
     /// </summary>
-    public class ComplexSpectrum : ISpectrum
-    {
+    public class ComplexSpectrum : ISpectrum {
         /// <summary>
         ///     Create a complex spectrum instance
         /// </summary>
         /// <param name="real">The real part of the spectrum</param>
         /// <param name="imag">The imag part of the spectrum</param>
         /// <param name="pulseCount">The number of pulses accumulated</param>
-        public ComplexSpectrum(double[] real, double[] imag, int pulseCount)
-        {
+        public ComplexSpectrum(double[] real, double[] imag, int pulseCount) {
             RealArray = real;
             ImagArray = imag;
             PulseCount = pulseCount;
@@ -272,8 +249,7 @@ namespace PhaseSonar.Correctors
         ///     Create an empty container
         /// </summary>
         /// <param name="size">The size of the container</param>
-        public ComplexSpectrum(int size)
-        {
+        public ComplexSpectrum(int size) {
             RealArray = new double[size];
             ImagArray = new double[size];
             PulseCount = 0;
@@ -302,8 +278,7 @@ namespace PhaseSonar.Correctors
         /// <summary>
         ///     Clear the container.
         /// </summary>
-        public void Clear()
-        {
+        public void Clear() {
             Functions.Clear(RealArray);
             Functions.Clear(ImagArray);
             PulseCount = 0;
@@ -314,8 +289,7 @@ namespace PhaseSonar.Correctors
         ///     Copy the data inside into a new one.
         /// </summary>
         /// <returns></returns>
-        public ISpectrum Clone()
-        {
+        public ISpectrum Clone() {
             return new ComplexSpectrum(Functions.Clone(RealArray), Functions.Clone(ImagArray), PulseCount);
         }
 
@@ -323,18 +297,14 @@ namespace PhaseSonar.Correctors
         ///     Try to add up another spectrum. The added spectrum must be of the same type.
         /// </summary>
         /// <param name="another"></param>
-        public bool TryAbsorb(ISpectrum another)
-        {
-            if (!another.HasImag())
-            {
+        public bool TryAbsorb(ISpectrum another) {
+            if (!another.HasImag()) {
                 return false;
             }
-            for (var i = 0; i < RealArray.Length; i++)
-            {
+            for (var i = 0; i < RealArray.Length; i++) {
                 RealArray[i] += another.Real(i);
             }
-            for (var i = 0; i < RealArray.Length; i++)
-            {
+            for (var i = 0; i < RealArray.Length; i++) {
                 ImagArray[i] += another.Imag(i);
             }
             PulseCount += another.PulseCount;
@@ -346,8 +316,7 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        public double Intensity(int index)
-        {
+        public double Intensity(int index) {
             return RealArray[index]*RealArray[index] + ImagArray[index]*ImagArray[index];
         }
 
@@ -356,8 +325,7 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        public double Real(int index)
-        {
+        public double Real(int index) {
             return RealArray[index];
         }
 
@@ -366,8 +334,7 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        public double Imag(int index)
-        {
+        public double Imag(int index) {
             return ImagArray[index];
         }
 
@@ -375,8 +342,7 @@ namespace PhaseSonar.Correctors
         ///     Check whether the spectrum has the imag part or not.
         /// </summary>
         /// <returns></returns>
-        public bool HasImag()
-        {
+        public bool HasImag() {
             return true;
         }
 
@@ -385,8 +351,7 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        public double AverageIntensity(int index)
-        {
+        public double AverageIntensity(int index) {
             return Intensity(index)/(PulseCount*PulseCount);
         }
 
@@ -395,8 +360,7 @@ namespace PhaseSonar.Correctors
         ///     Get the size of the data container
         /// </summary>
         /// <returns>The size of the data container</returns>
-        public int Length()
-        {
+        public int Length() {
             return RealArray.Length;
         }
 
@@ -406,11 +370,9 @@ namespace PhaseSonar.Correctors
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public string ToString(int index)
-        {
+        public string ToString(int index) {
             var imag = ImagArray[index];
-            if (imag >= 0)
-            {
+            if (imag >= 0) {
                 return RealArray[index] + "+" + imag + "j";
             }
             return RealArray[index] + "" + imag + "j";
@@ -420,11 +382,9 @@ namespace PhaseSonar.Correctors
         ///     Get the string representation of the whole data array.
         /// </summary>
         /// <returns></returns>
-        public string[] ToStringArray()
-        {
+        public string[] ToStringArray() {
             var array = new string[Length()];
-            for (var i = 0; i < array.Length; i++)
-            {
+            for (var i = 0; i < array.Length; i++) {
                 array[i] = ToString(i);
             }
             return array;

@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace PhaseSonar.Slicers
-{
+namespace PhaseSonar.Slicers {
     /// <summary>
     ///     A slicer which slices a pulse sequence and gets the start index of each pulse.
     /// </summary>
-    public interface ISlicer
-    {
+    public interface ISlicer {
         /// <summary>
         ///     The pulse length after sliced.
         /// </summary>

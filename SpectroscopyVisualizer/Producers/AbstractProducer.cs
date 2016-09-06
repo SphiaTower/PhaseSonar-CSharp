@@ -2,18 +2,13 @@
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
-namespace SpectroscopyVisualizer.Producers
-{
+namespace SpectroscopyVisualizer.Producers {
     /// <summary>
     ///     An skeletal implementation of IProducer.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class AbstractProducer<T> : IProducer<T>
-    {
-        public int BoundedCapacity { get; set; }
-
-        protected AbstractProducer(int boundedCapacity)
-        {
+    public abstract class AbstractProducer<T> : IProducer<T> {
+        protected AbstractProducer(int boundedCapacity) {
             BoundedCapacity = boundedCapacity;
             BlockingQueue = new BlockingCollection<T>(BoundedCapacity);
         }
@@ -22,6 +17,8 @@ namespace SpectroscopyVisualizer.Producers
         ///     Whether the producer is on or off.
         /// </summary>
         protected bool IsOn { get; set; } = true;
+
+        public int BoundedCapacity { get; set; }
 
         /// <summary>
         ///     The queue containing all products.
@@ -36,16 +33,14 @@ namespace SpectroscopyVisualizer.Producers
         /// <summary>
         ///     Start Producing.
         /// </summary>
-        public void Start()
-        {
+        public void Start() {
             Task.Run((Action) DoInBackground);
         }
 
         /// <summary>
         ///     Stop Producing.
         /// </summary>
-        public void Stop()
-        {
+        public void Stop() {
             IsOn = false;
         }
 
@@ -64,18 +59,14 @@ namespace SpectroscopyVisualizer.Producers
         /// <summary>
         ///     The main flow of producer, executed in a backgound thread.
         /// </summary>
-        protected virtual void DoInBackground()
-        {
-            while (IsOn)
-            {
+        protected virtual void DoInBackground() {
+            while (IsOn) {
                 OnPreRetrieve();
                 T data;
-                try
-                {
+                try {
                     data = RetrieveData();
                 }
-                catch (Exception ignored)
-                {
+                catch (Exception ignored) {
                     continue;
                 }
                 if (!IsOn) break;
@@ -85,10 +76,7 @@ namespace SpectroscopyVisualizer.Producers
             }
         }
 
-        protected virtual void OnDataEnqueued(T data)
-        {
-            
+        protected virtual void OnDataEnqueued(T data) {
         }
-
     }
 }

@@ -1,18 +1,15 @@
 ﻿using PhaseSonar.Correctors;
 
-namespace SpectroscopyVisualizer.Consumers
-{
+namespace SpectroscopyVisualizer.Consumers {
     /// <summary>
     ///     A decorator class for <see cref="ISpectrum" />. It provides a <see cref="Tag" /> property to mark and trace the
     ///     spectrum.
     /// </summary>
-    public class TracedSpectrum : ISpectrum
-    {
+    public class TracedSpectrum : ISpectrum {
         private readonly ISpectrum _spectrum;
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
-        public TracedSpectrum(ISpectrum spectrum, string tag)
-        {
+        public TracedSpectrum(ISpectrum spectrum, string tag) {
             _spectrum = spectrum;
             Tag = tag;
         }
@@ -25,8 +22,7 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     The number of pulses that are accumulated in this container.
         /// </summary>
-        public int PulseCount
-        {
+        public int PulseCount {
             get { return _spectrum.PulseCount; }
             set { _spectrum.PulseCount = value; }
         }
@@ -34,8 +30,7 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     Clear the container.
         /// </summary>
-        public void Clear()
-        {
+        public void Clear() {
             _spectrum.Clear();
         }
 
@@ -43,8 +38,7 @@ namespace SpectroscopyVisualizer.Consumers
         ///     Copy the data inside into a new one.
         /// </summary>
         /// <returns></returns>
-        public ISpectrum Clone()
-        {
+        public ISpectrum Clone() {
             return _spectrum.Clone();
         }
 
@@ -52,8 +46,7 @@ namespace SpectroscopyVisualizer.Consumers
         ///     Try to add up another spectrum. The added spectrum must be of the same type.
         /// </summary>
         /// <param name="another"></param>
-        public bool TryAbsorb(ISpectrum another)
-        {
+        public bool TryAbsorb(ISpectrum another) {
             return _spectrum.TryAbsorb(another);
         }
 
@@ -62,8 +55,7 @@ namespace SpectroscopyVisualizer.Consumers
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        public double Intensity(int index)
-        {
+        public double Intensity(int index) {
             return _spectrum.Intensity(index);
         }
 
@@ -72,8 +64,7 @@ namespace SpectroscopyVisualizer.Consumers
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        public double Real(int index)
-        {
+        public double Real(int index) {
             return _spectrum.Real(index);
         }
 
@@ -82,8 +73,7 @@ namespace SpectroscopyVisualizer.Consumers
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        public double Imag(int index)
-        {
+        public double Imag(int index) {
             return _spectrum.Imag(index);
         }
 
@@ -91,8 +81,7 @@ namespace SpectroscopyVisualizer.Consumers
         ///     Check whether the spectrum has the imag part or not.
         /// </summary>
         /// <returns></returns>
-        public bool HasImag()
-        {
+        public bool HasImag() {
             return _spectrum.HasImag();
         }
 
@@ -101,8 +90,7 @@ namespace SpectroscopyVisualizer.Consumers
         /// </summary>
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
-        public double AverageIntensity(int index)
-        {
+        public double AverageIntensity(int index) {
             return _spectrum.AverageIntensity(index);
         }
 
@@ -110,8 +98,7 @@ namespace SpectroscopyVisualizer.Consumers
         ///     Get the size of the data container
         /// </summary>
         /// <returns>The size of the data container</returns>
-        public int Length()
-        {
+        public int Length() {
             return _spectrum.Length();
         }
     }

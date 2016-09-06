@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PhaseSonar.Slicers
-{
+namespace PhaseSonar.Slicers {
     /// <summary>
     ///     A concrete implemention of crest finder which finds crests based on the absolute value.
     /// </summary>
-    public class AbsoluteCrestFinder : ICrestFinder
-    {
+    public class AbsoluteCrestFinder : ICrestFinder {
         /// <summary>
         ///     Create an absolute crest finder.
         /// </summary>
@@ -15,8 +13,7 @@ namespace PhaseSonar.Slicers
         /// <param name="sampleRate">The sample rate.</param>
         /// <param name="leftThreshold">The minimum number of points that is before the crest.</param>
         /// <param name="verticalThreshold">The minimum absolute amplitude of a crest</param>
-        public AbsoluteCrestFinder(double repetitionRate, double sampleRate, int leftThreshold, double verticalThreshold)
-        {
+        public AbsoluteCrestFinder(double repetitionRate, double sampleRate, int leftThreshold, double verticalThreshold) {
             RepetitionRate = repetitionRate;
             SampleRate = sampleRate;
             LeftThreshold = leftThreshold;
@@ -48,8 +45,7 @@ namespace PhaseSonar.Slicers
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence containing multiple pulses</param>
         /// <returns>The indices of the crests</returns>
-        public virtual IList<int> Find(double[] pulseSequence)
-        {
+        public virtual IList<int> Find(double[] pulseSequence) {
             var rightThreshold = SampleRate/(RepetitionRate + 300);
 
             var maxValue = .0;
@@ -58,22 +54,17 @@ namespace PhaseSonar.Slicers
 
             var crestIndices = new List<int>();
 
-            foreach (var point in pulseSequence)
-            {
+            foreach (var point in pulseSequence) {
                 var abs = Math.Abs(point);
-                if (abs > maxValue)
-                {
+                if (abs > maxValue) {
                     maxValue = abs;
                     maxIndex = i;
                 }
                 var distanceAwayFromMax = i - maxIndex;
 
-                if (distanceAwayFromMax > rightThreshold)
-                {
-                    if (maxValue > VerticalThreshold)
-                    {
-                        if (maxIndex > LeftThreshold)
-                        {
+                if (distanceAwayFromMax > rightThreshold) {
+                    if (maxValue > VerticalThreshold) {
+                        if (maxIndex > LeftThreshold) {
                             crestIndices.Add(maxIndex);
                         }
                     }

@@ -5,15 +5,12 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace SpectroscopyVisualizer.Presenters
-{
-    public class CanvasView
-    {
+namespace SpectroscopyVisualizer.Presenters {
+    public class CanvasView {
         private readonly List<Polyline> _lines = new List<Polyline>();
         private readonly List<Polyline> _waveforms = new List<Polyline>(2);
 
-        public CanvasView(Canvas canvas)
-        {
+        public CanvasView(Canvas canvas) {
             Canvas = canvas;
         }
 
@@ -22,26 +19,21 @@ namespace SpectroscopyVisualizer.Presenters
         public double ScopeHeight => Canvas.ActualHeight;
         public double ScopeWidth => Canvas.ActualWidth;
 
-        public void Invoke(Action action)
-        {
+        public void Invoke(Action action) {
             Canvas.Dispatcher.Invoke(action);
         }
 
-        public void InvokeAsync(Action action)
-        {
+        public void InvokeAsync(Action action) {
             Canvas.Dispatcher.InvokeAsync(action);
         }
 
-        public void DrawWaveform(PointCollection pointCollection, Color color)
-        {
+        public void DrawWaveform(PointCollection pointCollection, Color color) {
             var line = DrawLineBase(pointCollection, color);
             _waveforms.Add(line);
         }
 
-        private Polyline DrawLineBase(PointCollection pointCollection, Color color)
-        {
-            var line = new Polyline
-            {
+        private Polyline DrawLineBase(PointCollection pointCollection, Color color) {
+            var line = new Polyline {
                 Points = pointCollection,
                 Stroke = new SolidColorBrush(color),
                 StrokeThickness = 1
@@ -50,30 +42,25 @@ namespace SpectroscopyVisualizer.Presenters
             return line;
         }
 
-        public void DrawLine(PointCollection pointCollection, Color color)
-        {
+        public void DrawLine(PointCollection pointCollection, Color color) {
             var line = DrawLineBase(pointCollection, color);
             _lines.Add(line);
         }
 
-        public void DrawWaveform(PointCollection pointCollection)
-        {
+        public void DrawWaveform(PointCollection pointCollection) {
             DrawWaveform(pointCollection, Colors.White);
         }
 
-        public void DrawGrid()
-        {
+        public void DrawGrid() {
             Canvas.Children.Clear();
 
             var width = ScopeWidth;
             var height = ScopeHeight;
             var xInterval = width/10;
 
-            for (var i = 0; i <= 10; i++)
-            {
+            for (var i = 0; i <= 10; i++) {
                 var linePts = new PointCollection(2) {new Point(xInterval*i, 0), new Point(xInterval*i, height)};
-                var line = new Polyline
-                {
+                var line = new Polyline {
                     Points = linePts,
                     Stroke = new SolidColorBrush(Colors.DarkGray),
                     StrokeDashArray = new DoubleCollection {1, 1}
@@ -81,11 +68,9 @@ namespace SpectroscopyVisualizer.Presenters
                 Canvas.Children.Add(line);
             }
             var yInterval = height/10;
-            for (var i = 0; i <= 10; i++)
-            {
+            for (var i = 0; i <= 10; i++) {
                 var linePts = new PointCollection(2) {new Point(0, yInterval*i), new Point(width, yInterval*i)};
-                var line = new Polyline
-                {
+                var line = new Polyline {
                     Points = linePts,
                     Stroke = new SolidColorBrush(Colors.DarkGray),
                     StrokeDashArray = new DoubleCollection {1, 1}
@@ -94,19 +79,15 @@ namespace SpectroscopyVisualizer.Presenters
             }
         }
 
-        public void ClearWaveform()
-        {
-            foreach (var waveform in _waveforms)
-            {
+        public void ClearWaveform() {
+            foreach (var waveform in _waveforms) {
                 Canvas.Children.Remove(waveform);
             }
 //            Canvas.Children.ClearWaveform();
         }
 
-        public void ClearLine()
-        {
-            foreach (var polyline in _lines)
-            {
+        public void ClearLine() {
+            foreach (var polyline in _lines) {
                 Canvas.Children.Remove(polyline);
             }
         }

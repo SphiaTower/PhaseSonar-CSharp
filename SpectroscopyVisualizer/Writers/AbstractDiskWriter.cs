@@ -1,14 +1,11 @@
-using System;
 using System.IO;
 
-namespace SpectroscopyVisualizer.Writers
-{
+namespace SpectroscopyVisualizer.Writers {
     /// <summary>
     ///     A base implementation of <see cref="AbstractWriter{T}" />, used to save data into local disks.
     /// </summary>
     /// <typeparam name="T">The type of data</typeparam>
-    public abstract class AbstractDiskWriter<T> : AbstractWriter<T>
-    {
+    public abstract class AbstractDiskWriter<T> : AbstractWriter<T> {
         /// <summary>
         ///     The suffix of the file for data to save.
         /// </summary>
@@ -21,8 +18,7 @@ namespace SpectroscopyVisualizer.Writers
         /// <param name="directory">The directory.</param>
         /// <param name="prefix">The prefix of the file.</param>
         /// <param name="on">On or off.</param>
-        protected AbstractDiskWriter(string directory, string prefix, bool on) : base(on)
-        {
+        protected AbstractDiskWriter(string directory, string prefix, bool on) : base(on) {
             BasePath = Path.Combine(directory, prefix);
         }
 

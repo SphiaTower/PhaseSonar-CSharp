@@ -2,13 +2,11 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using PhaseSonar.Correctors;
 
-namespace PhaseSonar.Analyzers
-{
+namespace PhaseSonar.Analyzers {
     /// <summary>
     ///     The strategy which a analyer takes. See the strategy pattern.
     /// </summary>
-    public interface IAnalyzerStrategy
-    {
+    public interface IAnalyzerStrategy {
         /// <summary>
         ///     Process the pulse sequence, including slicing, phase correction, and accumulation.
         /// </summary>

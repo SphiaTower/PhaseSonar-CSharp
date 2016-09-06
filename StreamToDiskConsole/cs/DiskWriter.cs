@@ -4,38 +4,29 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security;
 
-namespace NationalInstruments.Examples.StreamToDiskConsole
-{
-    public class DiskWriter
-    {
+namespace NationalInstruments.Examples.StreamToDiskConsole {
+    public class DiskWriter {
         public static FileStream GetOuputStream(string directory = @"C:\waveform",
-            string filename = @"waveform1.txt")
-        {
+            string filename = @"waveform1.txt") {
             FileStream outputFileStream = null;
-            while (outputFileStream == null)
-            {
-                try
-                {
+            while (outputFileStream == null) {
+                try {
                     // Folder location.
                     var directoryPath = directory;
-                    if (!Directory.Exists(directoryPath))
-                    {
+                    if (!Directory.Exists(directoryPath)) {
                         Directory.CreateDirectory(directoryPath);
                     }
 
                     var fileName = new FileInfo(Path.Combine(directoryPath, filename));
-                    if (!fileName.Exists)
-                    {
+                    if (!fileName.Exists) {
                         fileName.Create().Close();
                     }
-                    else
-                    {
+                    else {
                         File.WriteAllText(fileName.ToString(), string.Empty);
                     }
                     outputFileStream = new FileStream(fileName.ToString(), FileMode.Create, FileAccess.ReadWrite);
                 }
-                catch (Exception e)
-                {
+                catch (Exception e) {
                     Console.WriteLine("Unable to create a file stream with the given path:");
                     Console.WriteLine(e.Message);
                 }
@@ -43,23 +34,18 @@ namespace NationalInstruments.Examples.StreamToDiskConsole
             return outputFileStream;
         }
 
-        public static void SaveBinaryWaveform(FileStream outputFileStream, AnalogWaveformCollection<double> waveforms)
-        {
-            try
-            {
+        public static void SaveBinaryWaveform(FileStream outputFileStream, AnalogWaveformCollection<double> waveforms) {
+            try {
                 new BinaryFormatter().Serialize(outputFileStream, waveforms);
                 Console.WriteLine("Successfully saved acquired data to \"" + outputFileStream.Name + "\"");
             }
-            catch (SecurityException ex)
-            {
+            catch (SecurityException ex) {
                 Console.WriteLine("Unable to serialize the data: ");
             }
-            catch (SerializationException ex)
-            {
+            catch (SerializationException ex) {
                 Console.WriteLine("Unable to serialize the data: ");
             }
-            finally
-            {
+            finally {
                 outputFileStream.Close();
             }
         }

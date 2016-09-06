@@ -2,21 +2,18 @@
 using PhaseSonar.Utils;
 using SpectroscopyVisualizer.Producers;
 
-namespace SpectroscopyVisualizer.Writers
-{
+namespace SpectroscopyVisualizer.Writers {
     /// <summary>
     ///     A Writer writing data sampled.
     /// </summary>
-    public class SampleWriter : AbstractDiskWriter<SampleRecord>
-    {
+    public class SampleWriter : AbstractDiskWriter<SampleRecord> {
         /// <summary>
         ///     Create an instance.
         /// </summary>
         /// <param name="directory">The directory.</param>
         /// <param name="prefix">The prefix of the file.</param>
         /// <param name="on">On or off.</param>
-        public SampleWriter(string directory, string prefix, bool on) : base(directory, prefix, on)
-        {
+        public SampleWriter(string directory, string prefix, bool on) : base(directory, prefix, on) {
         }
 
         /// <summary>
@@ -26,18 +23,12 @@ namespace SpectroscopyVisualizer.Writers
         /// <returns>True if consumed successfully.</returns>
         protected override void ConsumeElement(SampleRecord dequeue) // todo
         {
-            try
-            {
+            try {
                 Toolbox.SerializeData(BasePath + dequeue.Id.Enclose("No") + Suffix, dequeue.PulseSequence);
             }
-            catch (Exception)
-            {
+            catch (Exception) {
                 // todo
             }
         }
-
-       
-
     }
-
 }

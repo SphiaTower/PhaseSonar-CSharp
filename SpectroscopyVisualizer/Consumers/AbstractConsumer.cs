@@ -2,14 +2,12 @@
 using JetBrains.Annotations;
 using PhaseSonar.Utils;
 
-namespace SpectroscopyVisualizer.Consumers
-{
+namespace SpectroscopyVisualizer.Consumers {
     /// <summary>
     ///     A base implementation of <see cref="IConsumer" />
     /// </summary>
     /// <typeparam name="T">The type of elements consumed</typeparam>
-    public abstract class AbstractConsumer<T> : IConsumer
-    {
+    public abstract class AbstractConsumer<T> : IConsumer {
         /// <summary>
         ///     The event handler for <see cref="AbstractConsumer{T}.FailEvent" />
         /// </summary>
@@ -28,8 +26,7 @@ namespace SpectroscopyVisualizer.Consumers
         ///     Create a Consumer.
         /// </summary>
         /// <param name="blockingQueue">The queue which containing elements to be consumed</param>
-        protected AbstractConsumer([NotNull] BlockingCollection<T> blockingQueue)
-        {
+        protected AbstractConsumer([NotNull] BlockingCollection<T> blockingQueue) {
             Toolbox.RequireNonNull(blockingQueue, "blockingQueue");
             BlockingQueue = blockingQueue;
         }
@@ -57,8 +54,7 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     Stop consuming.
         /// </summary>
-        public void Stop()
-        {
+        public void Stop() {
             IsOn = false;
             OnStop();
         }
@@ -76,8 +72,7 @@ namespace SpectroscopyVisualizer.Consumers
         /// <summary>
         ///     Called when the consumer is stopped.
         /// </summary>
-        protected virtual void OnStop()
-        {
+        protected virtual void OnStop() {
         }
 
 
@@ -93,24 +88,21 @@ namespace SpectroscopyVisualizer.Consumers
 
         public event NoProductAvailableEventHandler NoProductEvent;
 
-        protected void FireNoProductEvent()
-        {
+        protected void FireNoProductEvent() {
             NoProductEvent?.Invoke(this);
         }
 
         /// <summary>
         ///     Fire an <see cref="FailEvent" />
         /// </summary>
-        protected void FireFailEvent()
-        {
+        protected void FireFailEvent() {
             FailEvent?.Invoke(this);
         }
 
         /// <summary>
         ///     Fire an <see cref="ConsumeEvent" />
         /// </summary>
-        protected void FireConsumeEvent()
-        {
+        protected void FireConsumeEvent() {
             ConsumeEvent?.Invoke(this);
         }
     }

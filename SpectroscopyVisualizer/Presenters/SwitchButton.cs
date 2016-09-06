@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Windows.Controls;
 
-namespace SpectroscopyVisualizer.Presenters
-{
+namespace SpectroscopyVisualizer.Presenters {
     /// <summary>
     ///     An button which encapsulates toggle operations.
     /// </summary>
-    public class SwitchButton
-    {
+    public class SwitchButton {
         private readonly Action _turnOff;
         private readonly Action _turnOn;
         private bool _state;
@@ -21,8 +19,7 @@ namespace SpectroscopyVisualizer.Presenters
         /// <param name="offText"></param>
         /// <param name="turnOn"></param>
         /// <param name="turnOff"></param>
-        public SwitchButton(Button button, bool state, string onText, string offText, Action turnOn, Action turnOff)
-        {
+        public SwitchButton(Button button, bool state, string onText, string offText, Action turnOn, Action turnOff) {
             _state = state;
             _turnOn = turnOn;
             _turnOff = turnOff;
@@ -42,15 +39,12 @@ namespace SpectroscopyVisualizer.Presenters
         /// <summary>
         ///     Toggle the button.
         /// </summary>
-        public void Toggle()
-        {
-            if (_state)
-            {
+        public void Toggle() {
+            if (_state) {
                 Button.Content = OffText;
                 _turnOff.Invoke();
             }
-            else
-            {
+            else {
                 Button.Content = OnText;
                 _turnOn.Invoke();
             }
@@ -61,8 +55,7 @@ namespace SpectroscopyVisualizer.Presenters
         ///     Switch to a specified state.
         /// </summary>
         /// <param name="state"></param>
-        public void Toggle(bool state)
-        {
+        public void Toggle(bool state) {
             _state = !state;
             Toggle();
         }

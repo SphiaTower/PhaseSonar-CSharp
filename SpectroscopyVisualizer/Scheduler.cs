@@ -3,20 +3,17 @@ using PhaseSonar.Utils;
 using SpectroscopyVisualizer.Consumers;
 using SpectroscopyVisualizer.Producers;
 
-namespace SpectroscopyVisualizer
-{
+namespace SpectroscopyVisualizer {
     /// <summary>
     ///     A scheduler scheduling the producer and the consumer.
     /// </summary>
-    public sealed class Scheduler
-    {
+    public sealed class Scheduler {
         /// <summary>
         ///     Create a scheduler.
         /// </summary>
         /// <param name="producer"></param>
         /// <param name="consumer"></param>
-        public Scheduler(IProducer<SampleRecord> producer, AbstractConsumer<SampleRecord> consumer)
-        {
+        public Scheduler(IProducer<SampleRecord> producer, AbstractConsumer<SampleRecord> consumer) {
             Producer = producer;
             Consumer = consumer;
         }
@@ -36,13 +33,12 @@ namespace SpectroscopyVisualizer
         ///     The consumer
         /// </summary>
         [NotNull]
-        public AbstractConsumer<SampleRecord> Consumer { get;  }
+        public AbstractConsumer<SampleRecord> Consumer { get; }
 
         /// <summary>
         ///     Start the system.
         /// </summary>
-        public void Start()
-        {
+        public void Start() {
             Watch.Reset();
             Producer.Start();
             Consumer.Start();
@@ -52,12 +48,10 @@ namespace SpectroscopyVisualizer
         /// <summary>
         ///     Stop the system.
         /// </summary>
-        public void Stop()
-        {
+        public void Stop() {
             Producer.Stop();
 
             Consumer.Stop();
-
         }
     }
 }

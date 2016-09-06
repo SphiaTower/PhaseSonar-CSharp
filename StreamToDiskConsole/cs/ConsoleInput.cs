@@ -1,13 +1,15 @@
 ﻿using System;
 
-namespace NationalInstruments.Examples.StreamToDiskConsole
-{
-    public class ConsoleInput : Sampler.IParamBinder
-    {
-      
+namespace NationalInstruments.Examples.StreamToDiskConsole {
+    public class ConsoleInput : Sampler.IParamBinder {
+        public string DeviceName { get; set; }
+        public string ChanelList { get; set; }
+        public double Range { get; set; }
+        public double SampleRate { get; set; }
+        public long RecordLength { get; set; }
 
-        public void AskUser()
-        {
+
+        public void AskUser() {
             Console.WriteLine("Provide input parameter values for the acquisition:");
             Console.WriteLine("Press Enter to accept the default values for the parameters.");
             Console.WriteLine();
@@ -16,20 +18,17 @@ namespace NationalInstruments.Examples.StreamToDiskConsole
             ChanelList = GetInputString("Channel List", "0");
 
             double range;
-            while (!double.TryParse(GetInputString("Range", "10"), out range))
-            {
+            while (!double.TryParse(GetInputString("Range", "10"), out range)) {
                 Console.WriteLine("The entered value is not in the correct format. Please try again:");
             }
             Range = range;
             double sampleRate;
-            while (!double.TryParse(GetInputString("Minimum Sample Rate", "1e6"), out sampleRate))
-            {
+            while (!double.TryParse(GetInputString("Minimum Sample Rate", "1e6"), out sampleRate)) {
                 Console.WriteLine("The entered value is not in the correct format. Please try again:");
             }
             SampleRate = sampleRate;
             long recordLength;
-            while (!long.TryParse(GetInputString("Minimum Record Length", "1000"), out recordLength))
-            {
+            while (!long.TryParse(GetInputString("Minimum Record Length", "1000"), out recordLength)) {
                 Console.WriteLine("The entered value is not in the correct format. Please try again:");
             }
             RecordLength = recordLength;
@@ -38,8 +37,7 @@ namespace NationalInstruments.Examples.StreamToDiskConsole
             Console.WriteLine();
         }
 
-        public void SetDefault()
-        {
+        public void SetDefault() {
             DeviceName = "Dev2";
             ChanelList = "0";
             Range = 10;
@@ -47,8 +45,7 @@ namespace NationalInstruments.Examples.StreamToDiskConsole
             RecordLength = (long) 1e6;
         }
 
-        private static string GetInputString(string prompt, string defaultValue)
-        {
+        private static string GetInputString(string prompt, string defaultValue) {
             Console.Write(prompt + " [" + defaultValue + "]:");
             var inputString = Console.ReadLine();
 
@@ -56,11 +53,5 @@ namespace NationalInstruments.Examples.StreamToDiskConsole
                 return defaultValue;
             return inputString;
         }
-
-        public string DeviceName { get; set; }
-        public string ChanelList { get; set; }
-        public double Range { get; set; }
-        public double SampleRate { get; set; }
-        public long RecordLength { get; set; }
     }
 }

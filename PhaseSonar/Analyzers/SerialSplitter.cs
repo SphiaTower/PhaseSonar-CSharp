@@ -1,14 +1,12 @@
 ﻿using PhaseSonar.Correctors;
 using PhaseSonar.Slicers;
 
-namespace PhaseSonar.Analyzers
-{
+namespace PhaseSonar.Analyzers {
     /// <summary>
     ///     A SerialSplitter which splits gas and reference and accumulates results in a pulse sequence respectively.
     ///     TODO: This class may have bugs.
     /// </summary>
-    public sealed class SerialSplitter : SingleDataRecordProcessor
-    {
+    public sealed class SerialSplitter : SingleDataRecordProcessor {
         /// <summary>
         ///     Create a splitter.
         /// </summary>
@@ -18,8 +16,7 @@ namespace PhaseSonar.Analyzers
         /// <param name="corrector">
         ///     <see cref="ICorrector" />
         /// </param>
-        public SerialSplitter(ISlicer slicer, ICorrector corrector) : base(slicer)
-        {
+        public SerialSplitter(ISlicer slicer, ICorrector corrector) : base(slicer) {
 //todo
             Strategy = new SerialStrategy(corrector);
         }

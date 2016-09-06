@@ -1,13 +1,10 @@
-﻿using System;
-using PhaseSonar.Maths;
+﻿using PhaseSonar.Maths;
 
-namespace PhaseSonar.Correctors
-{
+namespace PhaseSonar.Correctors {
     /// <summary>
     ///     A fake corrector which just balances and symmetrizes the data and does no phase correction
     /// </summary>
-    public class FakeCorrector : BaseCorrector<ComplexSpectrum>
-    {
+    public class FakeCorrector : BaseCorrector<ComplexSpectrum> {
         /// <summary>
         ///     Create a fake corrector.
         /// </summary>
@@ -21,8 +18,7 @@ namespace PhaseSonar.Correctors
         ///     <see cref="BaseCorrector{T}" />
         /// </param>
         public FakeCorrector(IApodizer apodizer, int fuzzyPulseLength, int zeroFillFactor)
-            : base(apodizer, fuzzyPulseLength, zeroFillFactor)
-        {
+            : base(apodizer, fuzzyPulseLength, zeroFillFactor) {
         }
 
 
@@ -33,11 +29,10 @@ namespace PhaseSonar.Correctors
         /// <param name="startIndex">The start index of the pulse in the pulse sequence</param>
         /// <param name="pulseLength">The length of the pulse</param>
         /// <param name="crestIndex">The number of points before the crest</param>
-        public override void Correct(double[] pulseSequence, int startIndex, int pulseLength, int crestIndex)
-        {
+        public override void Correct(double[] pulseSequence, int startIndex, int pulseLength, int crestIndex) {
             Retrieve(pulseSequence, startIndex, pulseLength);
-                if(!Rotator.TrySymmetrize(ZeroFilledArray, crestIndex)) return;
-            
+            if (!Rotator.TrySymmetrize(ZeroFilledArray, crestIndex)) return;
+
             // Side effect: _zeroFilledArray -> apodized by a cached ramp
             Apodizer.Apodize(ZeroFilledArray);
             // Side effect: _zeroFilledArray -> centreburst rotated to the head and tail

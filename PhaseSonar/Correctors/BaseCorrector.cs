@@ -4,14 +4,12 @@ using MathNet.Numerics.Transformations;
 using PhaseSonar.Maths;
 using PhaseSonar.Utils;
 
-namespace PhaseSonar.Correctors
-{
+namespace PhaseSonar.Correctors {
     /// <summary>
     ///     The base structure of a corrector
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class BaseCorrector<T> : ICorrector where T : ISpectrum
-    {
+    public abstract class BaseCorrector<T> : ICorrector where T : ISpectrum {
         /// <summary>
         ///     Create an prototype. <see cref="ICorrector" />
         /// </summary>
@@ -19,15 +17,12 @@ namespace PhaseSonar.Correctors
         /// <param name="fuzzyPulseLength"></param>
         /// <param name="zeroFillFactor"></param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        protected BaseCorrector(IApodizer apodizer, int fuzzyPulseLength, int zeroFillFactor)
-        {
+        protected BaseCorrector(IApodizer apodizer, int fuzzyPulseLength, int zeroFillFactor) {
             Toolbox.RequireNonNull(apodizer);
-            if (fuzzyPulseLength <= 0)
-            {
+            if (fuzzyPulseLength <= 0) {
                 throw new ArgumentOutOfRangeException("fuzzyPulseLength must be positive");
             }
-            if (zeroFillFactor <= 0)
-            {
+            if (zeroFillFactor <= 0) {
                 throw new ArgumentOutOfRangeException("zero fill factor must >=1");
             }
             Apodizer = apodizer;
@@ -77,8 +72,7 @@ namespace PhaseSonar.Correctors
         ///     Get the buffer which stores the latest output
         /// </summary>
         /// <returns>The buffer which stores the latest output</returns>
-        public ISpectrum OutputSpetrumBuffer()
-        {
+        public ISpectrum OutputSpetrumBuffer() {
             return SpectrumBuffer;
         }
 
@@ -100,8 +94,7 @@ namespace PhaseSonar.Correctors
         /// <summary>
         ///     Reset the status of the corrector
         /// </summary>
-        public void ClearBuffer()
-        {
+        public void ClearBuffer() {
             SpectrumBuffer.Clear();
         }
 
@@ -112,8 +105,7 @@ namespace PhaseSonar.Correctors
         /// <param name="dataLength">The length of data</param>
         /// <param name="zeroFillFactor">The zero fill factor</param>
         /// <returns></returns>
-        public static int CalZeroFilledLength(int dataLength, int zeroFillFactor)
-        {
+        public static int CalZeroFilledLength(int dataLength, int zeroFillFactor) {
             return (int) Math.Pow(2, (int) Math.Log(dataLength, 2) + zeroFillFactor);
         }
 
@@ -121,20 +113,17 @@ namespace PhaseSonar.Correctors
         ///     Remove the base line of the array
         /// </summary>
         /// <param name="array"></param>
-        public static void Balance(double[] array)
-        {
+        public static void Balance(double[] array) {
             Balance(array, 0, array.Length);
         }
 
         /// <summary>
         ///     Remove the base line of the array
         /// </summary>
-        public static void Balance(double[] array, int offset, int length)
-        {
+        public static void Balance(double[] array, int offset, int length) {
             var sum = RangeSum(array, offset, length);
             var mean = sum/length;
-            for (var i = offset; i < offset + length; i++)
-            {
+            for (var i = offset; i < offset + length; i++) {
                 array[i] = array[i] - mean;
             }
         }
@@ -146,11 +135,9 @@ namespace PhaseSonar.Correctors
         /// <param name="startIndex">The start index.</param>
         /// <param name="length">The length of the range.</param>
         /// <returns></returns>
-        protected static double RangeSum(IReadOnlyList<double> array, int startIndex, int length)
-        {
+        protected static double RangeSum(IReadOnlyList<double> array, int startIndex, int length) {
             var sum = .0;
-            for (var i = startIndex; i < startIndex + length; i++)
-            {
+            for (var i = startIndex; i < startIndex + length; i++) {
                 sum += array[i];
             }
             return sum;
@@ -162,21 +149,17 @@ namespace PhaseSonar.Correctors
         /// <param name="pulseSequence">The pulse sequence that contains the pulse to be processed</param>
         /// <param name="startIndex">The start index of the pulse to be processed</param>
         /// <param name="pulseLength">The length of the pulse</param>
-        protected virtual void Retrieve(IReadOnlyList<double> pulseSequence, int startIndex, int pulseLength)
-        {
-            if (pulseLength > ZeroFilledLength)
-            {
+        protected virtual void Retrieve(IReadOnlyList<double> pulseSequence, int startIndex, int pulseLength) {
+            if (pulseLength > ZeroFilledLength) {
                 pulseLength = ZeroFilledLength;
                 //todo warning: buffer size too small
             }
             var sum = RangeSum(pulseSequence, startIndex, pulseLength);
             var mean = sum/pulseLength;
-            for (var i = 0; i < pulseLength; i++,startIndex++)
-            {
+            for (var i = 0; i < pulseLength; i++,startIndex++) {
                 ZeroFilledArray[i] = pulseSequence[startIndex] - mean;
             }
-            for (var i = pulseLength; i < ZeroFilledLength; i++)
-            {
+            for (var i = pulseLength; i < ZeroFilledLength; i++) {
                 ZeroFilledArray[i] = 0;
             }
         }

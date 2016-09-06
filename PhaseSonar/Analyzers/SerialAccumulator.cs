@@ -1,13 +1,11 @@
 ﻿using PhaseSonar.Correctors;
 using PhaseSonar.Slicers;
 
-namespace PhaseSonar.Analyzers
-{
+namespace PhaseSonar.Analyzers {
     /// <summary>
     ///     A serial accumulator that process pulses one by one.
     /// </summary>
-    public sealed class SerialAccumulator : Accumulator
-    {
+    public sealed class SerialAccumulator : Accumulator {
         /// <summary>
         ///     Create a serial accumulator.
         /// </summary>
@@ -17,8 +15,7 @@ namespace PhaseSonar.Analyzers
         /// <param name="corrector">
         ///     <see cref="ICorrector" />
         /// </param>
-        public SerialAccumulator(ISlicer slicer, ICorrector corrector) : base(slicer)
-        {
+        public SerialAccumulator(ISlicer slicer, ICorrector corrector) : base(slicer) {
             Strategy = new SerialStrategy(corrector);
         }
 

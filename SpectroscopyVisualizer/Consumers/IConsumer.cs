@@ -1,10 +1,8 @@
-﻿namespace SpectroscopyVisualizer.Consumers
-{
+﻿namespace SpectroscopyVisualizer.Consumers {
     /// <summary>
     ///     An interface for all consumers.
     /// </summary>
-    public interface IConsumer
-    {
+    public interface IConsumer {
         /// <summary>
         ///     The number of elements have been consumed.
         /// </summary>
@@ -19,6 +17,5 @@
         ///     Start consuming.
         /// </summary>
         void Start();
-
     }
 }

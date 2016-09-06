@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace PhaseSonar.Slicers
-{
+namespace PhaseSonar.Slicers {
     /// <summary>
     ///     An improved finder which adjusts the vertical threshold automatically if the number of crests found is not enough.
     /// </summary>
-    public class IntelligentAbsoluteCrestFinder : AbsoluteCrestFinder
-    {
+    public class IntelligentAbsoluteCrestFinder : AbsoluteCrestFinder {
         /// <summary>
         ///     Create an instance. <see cref="AbsoluteCrestFinder" />
         /// </summary>
@@ -16,8 +14,7 @@ namespace PhaseSonar.Slicers
         /// <param name="leftThreshold"></param>
         /// <param name="verticalThreshold"></param>
         public IntelligentAbsoluteCrestFinder(double repetitionRate, double sampleRate, int leftThreshold,
-            double verticalThreshold) : base(repetitionRate, sampleRate, leftThreshold, verticalThreshold)
-        {
+            double verticalThreshold) : base(repetitionRate, sampleRate, leftThreshold, verticalThreshold) {
         }
 
         /// <summary>
@@ -25,8 +22,7 @@ namespace PhaseSonar.Slicers
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence containing multiple pulses</param>
         /// <returns>Whether crests are found successfully</returns>
-        public override IList<int> Find(double[] pulseSequence)
-        {
+        public override IList<int> Find(double[] pulseSequence) {
             while (VerticalThreshold > 0.055) // todo move, now recorded
             {
                 var crestIndices = base.Find(pulseSequence);
@@ -44,8 +40,7 @@ namespace PhaseSonar.Slicers
         /// <param name="dataLength"></param>
         /// <param name="crests"></param>
         /// <returns></returns>
-        protected virtual int CompareRepFreq(int dataLength, [NotNull] IList<int> crests)
-        {
+        protected virtual int CompareRepFreq(int dataLength, [NotNull] IList<int> crests) {
             var temporalLength = dataLength/SampleRate;
             var crestRepFreq = crests.Count/temporalLength;
             // todo comparison threshold

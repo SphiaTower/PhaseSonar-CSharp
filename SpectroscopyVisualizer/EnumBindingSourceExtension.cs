@@ -3,30 +3,22 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Markup;
 
-namespace SpectroscopyVisualizer
-{
-    public class EnumBindingSourceExtension : MarkupExtension
-    {
+namespace SpectroscopyVisualizer {
+    public class EnumBindingSourceExtension : MarkupExtension {
         private Type _enumType;
 
-        public EnumBindingSourceExtension()
-        {
+        public EnumBindingSourceExtension() {
         }
 
-        public EnumBindingSourceExtension(Type enumType)
-        {
+        public EnumBindingSourceExtension(Type enumType) {
             EnumType = enumType;
         }
 
-        public Type EnumType
-        {
+        public Type EnumType {
             get { return _enumType; }
-            set
-            {
-                if (value != _enumType)
-                {
-                    if (null != value)
-                    {
+            set {
+                if (value != _enumType) {
+                    if (null != value) {
                         var enumType = Nullable.GetUnderlyingType(value) ?? value;
 
                         if (!enumType.IsEnum)
@@ -38,8 +30,7 @@ namespace SpectroscopyVisualizer
             }
         }
 
-        public override object ProvideValue(IServiceProvider serviceProvider)
-        {
+        public override object ProvideValue(IServiceProvider serviceProvider) {
             if (null == _enumType)
                 throw new InvalidOperationException("The EnumType must be specified.");
 
@@ -55,23 +46,17 @@ namespace SpectroscopyVisualizer
         }
     }
 
-    public class EnumDescriptionTypeConverter : EnumConverter
-    {
+    public class EnumDescriptionTypeConverter : EnumConverter {
         public EnumDescriptionTypeConverter(Type type)
-            : base(type)
-        {
+            : base(type) {
         }
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
-            Type destinationType)
-        {
-            if (destinationType == typeof(string))
-            {
-                if (value != null)
-                {
+            Type destinationType) {
+            if (destinationType == typeof(string)) {
+                if (value != null) {
                     var fi = value.GetType().GetField(value.ToString());
-                    if (fi != null)
-                    {
+                    if (fi != null) {
                         var attributes =
                             (DescriptionAttribute[]) fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
                         return (attributes.Length > 0) && !string.IsNullOrEmpty(attributes[0].Description)

@@ -1,14 +1,11 @@
 ﻿using PhaseSonar.Correctors;
 
-namespace PhaseSonar.Analyzers
-{
+namespace PhaseSonar.Analyzers {
     /// <summary>
     ///     A container for gas and reference spectra
     /// </summary>
-    public class SplitResult
-    {
-        private SplitResult(ISpectrum gas, ISpectrum reference)
-        {
+    public class SplitResult {
+        private SplitResult(ISpectrum gas, ISpectrum reference) {
             Gas = gas;
             Reference = reference;
         }
@@ -29,8 +26,7 @@ namespace PhaseSonar.Analyzers
         /// <param name="source">The source spectrum</param>
         /// <param name="reference">The reference spectrum</param>
         /// <returns></returns>
-        public static SplitResult SourceAndRef(ISpectrum source, ISpectrum reference)
-        {
+        public static SplitResult SourceAndRef(ISpectrum source, ISpectrum reference) {
             return new SplitResult(source, reference);
         }
 
@@ -40,11 +36,9 @@ namespace PhaseSonar.Analyzers
         /// <param name="either">A spectrum</param>
         /// <param name="other">Another spectrum</param>
         /// <returns></returns>
-        public static SplitResult EitherAndOther(ISpectrum either, ISpectrum other)
-        {
-            double eitherSum=0, otherSum=0;
-            for (int i = 0; i < either.Length(); i++)
-            {
+        public static SplitResult EitherAndOther(ISpectrum either, ISpectrum other) {
+            double eitherSum = 0, otherSum = 0;
+            for (var i = 0; i < either.Length(); i++) {
                 eitherSum += either.Intensity(i);
                 otherSum += other.Intensity(i);
             }

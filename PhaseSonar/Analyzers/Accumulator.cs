@@ -2,20 +2,17 @@
 using PhaseSonar.Slicers;
 using PhaseSonar.Utils;
 
-namespace PhaseSonar.Analyzers
-{
+namespace PhaseSonar.Analyzers {
     /// <summary>
     ///     An analyzer which adds up all results in a pulse sequence.
     ///     This class is targeted for the data with 1 component only.
     /// </summary>
-    public abstract class Accumulator : SingleDataRecordProcessor
-    {
+    public abstract class Accumulator : SingleDataRecordProcessor {
         /// <summary>
         ///     Create an accumulator
         /// </summary>
         /// <param name="slicer">A slicer</param>
-        protected Accumulator(ISlicer slicer) : base(slicer)
-        {
+        protected Accumulator(ISlicer slicer) : base(slicer) {
         }
 
         /// <summary>
@@ -28,8 +25,7 @@ namespace PhaseSonar.Analyzers
         /// </summary>
         /// <param name="pulseSequence">The pulse sequence, often a sampled data record</param>
         /// <returns>The accumulated spectrum</returns>
-        public Maybe<ISpectrum> Accumulate(double[] pulseSequence)
-        {
+        public Maybe<ISpectrum> Accumulate(double[] pulseSequence) {
             var startIndicesList = Slicer.Slice(pulseSequence);
             return startIndicesList.NotEmpty()
                 ? Maybe<ISpectrum>.Of(

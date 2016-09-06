@@ -1,12 +1,10 @@
 ﻿using JetBrains.Annotations;
 
-namespace PhaseSonar.Correctors
-{
+namespace PhaseSonar.Correctors {
     /// <summary>
     ///     A corrector that corrects the phase of the temporal data of one pulse.
     /// </summary>
-    public interface ICorrector
-    {
+    public interface ICorrector {
         /// <summary>
         ///     The length of the output
         /// </summary>

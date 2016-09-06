@@ -1,10 +1,8 @@
-﻿namespace PhaseSonar.Maths
-{
+﻿namespace PhaseSonar.Maths {
     /// <summary>
     ///     An apodizer which applies temporal windows on the signal.
     /// </summary>
-    public interface IApodizer
-    {
+    public interface IApodizer {
         /// <summary>
         ///     Apodize the pulse
         /// </summary>
@@ -15,28 +13,24 @@
     /// <summary>
     ///     An fake apodizer which does nothing in fact.
     /// </summary>
-    public class FakeApodizer : IApodizer
-    {
+    public class FakeApodizer : IApodizer {
         /// <summary>
         ///     Apodize the pulse
         /// </summary>
         /// <param name="symmetryPulse">The input pulse which has been symmetrized</param>
-        public void Apodize(double[] symmetryPulse)
-        {
+        public void Apodize(double[] symmetryPulse) {
         }
     }
 
     /// <summary>
     ///     An apodizer which applies a triangluar window.
     /// </summary>
-    public class TriangulerApodizer : IApodizer
-    {
+    public class TriangulerApodizer : IApodizer {
         /// <summary>
         ///     Apodize the pulse
         /// </summary>
         /// <param name="symmetryPulse">The input pulse which has been symmetrized</param>
-        public void Apodize(double[] symmetryPulse)
-        {
+        public void Apodize(double[] symmetryPulse) {
             var centerBurst = symmetryPulse.Length/2;
             var rampArray = RampGenerator.Ramp(symmetryPulse.Length, centerBurst);
             Functions.MultiplyInPlace(symmetryPulse, rampArray);

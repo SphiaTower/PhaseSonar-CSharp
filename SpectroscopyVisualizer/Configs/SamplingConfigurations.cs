@@ -2,16 +2,13 @@
 using System.Windows.Controls;
 using PhaseSonar.Utils;
 
-namespace SpectroscopyVisualizer.Configs
-{
+namespace SpectroscopyVisualizer.Configs {
     [Serializable]
-    public class SamplingConfigurations
-    {
+    public class SamplingConfigurations {
         private static SamplingConfigurations _singleton;
 
         private SamplingConfigurations(string deviceName, int channel, double samplingRateInMHz, long recordLengthInM,
-            double range)
-        {
+            double range) {
             Toolbox.RequireNonNull(deviceName, "device name is null");
             Toolbox.RequireRange(channel, chan => chan >= 0 && chan <= 2);
             Toolbox.RequireRange(samplingRateInMHz, rate => rate > 0);
@@ -33,14 +30,12 @@ namespace SpectroscopyVisualizer.Configs
         public long RecordLength => (long) (RecordLengthInM*1e6);
         public double Range { get; set; }
 
-        internal void Register(SamplingConfigurations samplingConfigurations)
-        {
+        internal void Register(SamplingConfigurations samplingConfigurations) {
             _singleton = samplingConfigurations;
         }
 
         public void Bind(Control deviceName, Control channel, Control samplingRateInMHz, Control recordLengthInM,
-            Control range)
-        {
+            Control range) {
             deviceName.DataContext = this;
             channel.DataContext = this;
             samplingRateInMHz.DataContext = this;
@@ -49,17 +44,14 @@ namespace SpectroscopyVisualizer.Configs
         }
 
         public static void Initialize(string deviceName, int channel, double samplingRateInMHz, long recordLengthInM,
-            double range)
-        {
-            if (_singleton != null)
-            {
+            double range) {
+            if (_singleton != null) {
                 throw new Exception("SamplingConfigs already init ");
             }
             _singleton = new SamplingConfigurations(deviceName, channel, samplingRateInMHz, recordLengthInM, range);
         }
 
-        public static SamplingConfigurations Get()
-        {
+        public static SamplingConfigurations Get() {
             return _singleton;
         }
     }

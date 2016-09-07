@@ -18,8 +18,7 @@ namespace NationalInstruments.Examples.StreamToDiskConsole {
                 Range = range;
                 SampleRateMin = sampleRateMin;
                 RecordLengthMin = recordLengthMin;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 Console.WriteLine("Error occured in NI-Scope: " + e.Message);
             }
         }

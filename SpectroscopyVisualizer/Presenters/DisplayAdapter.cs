@@ -68,8 +68,7 @@ namespace SpectroscopyVisualizer.Presenters {
                     _cmdStack.Push(zoomCommand);
                     zoomCommand.Invoke();
                     ResetYScale();
-                }
-                else {
+                } else {
                     WavefromView.ClearLine();
                 }
 
@@ -79,8 +78,7 @@ namespace SpectroscopyVisualizer.Presenters {
                 if (_cmdStack.IsEmpty()) {
                     StartFreqInMHz = 0;
                     EndFreqInMHz = 50; // todo hard coded
-                }
-                else {
+                } else {
                     var zoomCommand = _cmdStack.Pop();
                     zoomCommand.Undo();
                 }
@@ -174,13 +172,11 @@ namespace SpectroscopyVisualizer.Presenters {
             if (length%2 == 1) {
                 max = min = nums[0];
                 i = 1;
-            }
-            else {
+            } else {
                 if (nums[0] > nums[1]) {
                     max = nums[0];
                     min = nums[1];
-                }
-                else {
+                } else {
                     max = nums[1];
                     min = nums[0];
                 }
@@ -192,8 +188,7 @@ namespace SpectroscopyVisualizer.Presenters {
                 if (num1 > num2) {
                     max = Math.Max(max, num1);
                     min = Math.Min(min, num2);
-                }
-                else {
+                } else {
                     max = Math.Max(max, num2);
                     min = Math.Min(min, num1);
                 }

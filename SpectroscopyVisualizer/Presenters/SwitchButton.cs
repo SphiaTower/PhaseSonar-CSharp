@@ -43,8 +43,7 @@ namespace SpectroscopyVisualizer.Presenters {
             if (_state) {
                 Button.Content = OffText;
                 _turnOff.Invoke();
-            }
-            else {
+            } else {
                 Button.Content = OnText;
                 _turnOn.Invoke();
             }

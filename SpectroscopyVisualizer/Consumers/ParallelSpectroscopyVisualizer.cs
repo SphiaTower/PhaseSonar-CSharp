@@ -84,8 +84,7 @@ namespace SpectroscopyVisualizer.Consumers {
                 lock (Lock) {
                     if (SumSpectrum == null) {
                         SumSpectrum = spectrum.Clone();
-                    }
-                    else {
+                    } else {
                         SumSpectrum.TryAbsorb(spectrum);
                     }
                 }

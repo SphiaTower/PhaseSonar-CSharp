@@ -33,8 +33,7 @@ namespace PhaseSonar.Maths {
             var key = new Tuple<int, int>(length, crestIndex);
             try {
                 return RampCache[key];
-            }
-            catch (KeyNotFoundException) {
+            } catch (KeyNotFoundException) {
                 var rampArray = new double[length];
                 var firstHalfInterval = 1.0/crestIndex;
                 var lastHalfInterval = 1.0/(length - crestIndex - 1);

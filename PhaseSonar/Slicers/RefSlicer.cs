@@ -46,8 +46,7 @@ namespace PhaseSonar.Slicers {
                 var threshold = periodLength/1.7;
                 if (Near(crest, firstIndex, periodLength)) {
                     CheckAdd(group1, crest, threshold);
-                }
-                else if (Near(crest, secondIndex, periodLength)) {
+                } else if (Near(crest, secondIndex, periodLength)) {
                     CheckAdd(group2, crest, threshold);
                 }
             }
@@ -59,8 +58,7 @@ namespace PhaseSonar.Slicers {
                 if (crest - grp.Last() > threshold) {
                     grp.Add(crest);
                 }
-            }
-            else {
+            } else {
                 grp.Add(crest);
             }
         }

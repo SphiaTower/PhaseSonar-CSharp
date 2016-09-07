@@ -32,8 +32,7 @@ namespace SpectroscopyVisualizer.Consumers {
                         ContinuousFailCnt = 0;
                         ConsumedCnt++;
                         FireConsumeEvent();
-                    }
-                    else {
+                    } else {
                         ContinuousFailCnt++;
                         if (ContinuousFailCnt >= 10) {
                             FireFailEvent();

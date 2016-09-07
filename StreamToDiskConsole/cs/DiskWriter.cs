@@ -20,13 +20,11 @@ namespace NationalInstruments.Examples.StreamToDiskConsole {
                     var fileName = new FileInfo(Path.Combine(directoryPath, filename));
                     if (!fileName.Exists) {
                         fileName.Create().Close();
-                    }
-                    else {
+                    } else {
                         File.WriteAllText(fileName.ToString(), string.Empty);
                     }
                     outputFileStream = new FileStream(fileName.ToString(), FileMode.Create, FileAccess.ReadWrite);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     Console.WriteLine("Unable to create a file stream with the given path:");
                     Console.WriteLine(e.Message);
                 }
@@ -38,14 +36,11 @@ namespace NationalInstruments.Examples.StreamToDiskConsole {
             try {
                 new BinaryFormatter().Serialize(outputFileStream, waveforms);
                 Console.WriteLine("Successfully saved acquired data to \"" + outputFileStream.Name + "\"");
-            }
-            catch (SecurityException ex) {
+            } catch (SecurityException ex) {
                 Console.WriteLine("Unable to serialize the data: ");
-            }
-            catch (SerializationException ex) {
+            } catch (SerializationException ex) {
                 Console.WriteLine("Unable to serialize the data: ");
-            }
-            finally {
+            } finally {
                 outputFileStream.Close();
             }
         }

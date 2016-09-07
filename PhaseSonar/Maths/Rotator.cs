@@ -39,8 +39,7 @@ namespace PhaseSonar.Maths {
             var length = array.Length;
             var centerIndex = length/2;
             if (crestIndex == centerIndex) {
-            }
-            else if (crestIndex < centerIndex) {
+            } else if (crestIndex < centerIndex) {
                 var auxLength = centerIndex - crestIndex;
                 Functions.CopyInto(array, centerIndex + crestIndex, auxLength, Allocate(auxLength));
                 for (var r = length - 1; r > auxLength; r--) {
@@ -49,8 +48,7 @@ namespace PhaseSonar.Maths {
                 for (var i = 0; i < auxLength; i++) {
                     array[i] = _aux[i];
                 }
-            }
-            else {
+            } else {
                 return false;
             }
             return true;

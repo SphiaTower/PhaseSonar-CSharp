@@ -65,8 +65,7 @@ namespace SpectroscopyVisualizer.Producers {
                 T data;
                 try {
                     data = RetrieveData();
-                }
-                catch (Exception ignored) {
+                } catch (Exception ignored) {
                     continue;
                 }
                 if (!IsOn) break;

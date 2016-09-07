@@ -93,8 +93,7 @@ namespace SpectroscopyVisualizer {
             IProducer<SampleRecord> producer;
             if (DeveloperMode()) {
                 producer = new DummyProducer();
-            }
-            else {
+            } else {
                 producer = ParallelInjector.NewProducer(IsChecked(CbCaptureSample));
             }
             Adapter = ParallelInjector.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
@@ -103,14 +102,11 @@ namespace SpectroscopyVisualizer {
             try {
                 Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
                 Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
-            }
-            catch (Exception) {
+            } catch (Exception) {
             }
             Scheduler = new Scheduler(producer, consumer);
             consumer.FailEvent += ConsumerOnFailEvent;
-
             consumer.ConsumeEvent += ConsumerOnConsumeEvent;
-
 
             TbStartFreq.DataContext = Adapter;
             TbEndFreq.DataContext = Adapter;

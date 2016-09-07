@@ -132,13 +132,11 @@ namespace NationalInstruments.Examples.StreamToDiskConsole {
                     var fileName = new FileInfo(Path.Combine(directoryPath, @"waveform1.txt"));
                     if (!fileName.Exists) {
                         fileName.Create().Close();
-                    }
-                    else {
+                    } else {
                         File.WriteAllText(fileName.ToString(), string.Empty);
                     }
                     outputFileStream = new FileStream(fileName.ToString(), FileMode.Create, FileAccess.ReadWrite);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     Console.WriteLine("Unable to create a file stream with the given path:");
                     Console.WriteLine(e.Message);
                 }

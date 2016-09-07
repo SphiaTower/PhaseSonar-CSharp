@@ -41,8 +41,7 @@ namespace PhaseSonar.Correctors {
                 for (var i = 0; i < OutputLength; i++) {
                     SpectrumBuffer.AmplitudeArray[i] += _aux[i];
                 }
-            }
-            else {
+            } else {
                 for (var i = 0; i < OutputLength; i++) {
                     SpectrumBuffer.AmplitudeArray[i] += -_aux[i];
                 }

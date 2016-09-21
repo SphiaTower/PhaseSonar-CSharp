@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace SpectroscopyVisualizer.Presenters {
     public class AxisBuilder {
@@ -11,7 +12,8 @@ namespace SpectroscopyVisualizer.Presenters {
 
         public double ScreenWidth => View.ScopeWidth;
 
-        private static double[] DummyAxis(double[] dummySource, double scale) {
+        [NotNull]
+        private static double[] DummyAxis([NotNull] double[] dummySource, double scale) {
             var axis = new double[dummySource.Length];
             for (var i = 0; i < dummySource.Length; i++) {
                 axis[i] = i*scale;
@@ -19,10 +21,12 @@ namespace SpectroscopyVisualizer.Presenters {
             return axis;
         }
 
-        public double[] DummyAxis(double[] dummySource) {
+        [NotNull]
+        public double[] DummyAxis([NotNull] double[] dummySource) {
             return DummyAxis(dummySource, ScreenWidth/dummySource.Length);
         }
 
+        [NotNull]
         public double[] ScaleAxis(IEnumerable<int> axis, int maxRange) {
             var scaled = new double[axis.Count()];
             var scale = ScreenWidth/maxRange;

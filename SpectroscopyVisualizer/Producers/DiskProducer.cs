@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using PhaseSonar.Utils;
 
 namespace SpectroscopyVisualizer.Producers {
@@ -8,16 +10,23 @@ namespace SpectroscopyVisualizer.Producers {
     /// </summary>
     public class DiskProducer : AbstractProducer<SampleRecord> {
         private readonly IEnumerator<string> _enumerator;
-        private readonly Regex _regex = new Regex("\\[No-(.+)\\]");
 
+        [NotNull] private readonly Func<string, double[]> _funcRead;
+
+        private readonly Regex _regex = new Regex("\\[No-(.+)\\]");
 
         /// <summary>
         ///     Create an instance.
         /// </summary>
         /// <param name="paths">The paths of files to be processed.</param>
-        public DiskProducer(IEnumerable<string> paths) : base(48) // todo
+        public DiskProducer(IEnumerable<string> paths, bool compressed) : base(48) // todo
         {
             _enumerator = paths.GetEnumerator();
+            if (compressed) {
+                _funcRead = Toolbox.DeserializeData<double[]>;
+            } else {
+                _funcRead = Toolbox.Read;
+            }
         }
 
         /// <summary>
@@ -30,6 +39,7 @@ namespace SpectroscopyVisualizer.Producers {
         ///     Retrieve data into the blocking queue.
         /// </summary>
         /// <returns></returns>
+        [CanBeNull]
         protected override SampleRecord RetrieveData() {
             if (_enumerator.MoveNext()) {
                 var path = _enumerator.Current;
@@ -38,10 +48,16 @@ namespace SpectroscopyVisualizer.Producers {
                 if (!int.TryParse(match.Value, out num)) {
                     num = ProductCnt;
                 }
-                return new SampleRecord(Toolbox.DeserializeData<double[]>(path), num);
+                return CreateRecord(path, num);
             }
             IsOn = false;
             return null;
+        }
+
+        [NotNull]
+        protected virtual SampleRecord CreateRecord(string path, int num) {
+            return new SampleRecord(_funcRead(path),num);
+            
         }
     }
 }

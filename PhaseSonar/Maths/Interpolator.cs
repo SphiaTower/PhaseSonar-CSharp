@@ -1,5 +1,3 @@
-using MathNet.Numerics.Interpolation;
-
 namespace PhaseSonar.Maths {
     /// <summary>
     ///     An interpolator which interpolates data
@@ -28,7 +26,7 @@ namespace PhaseSonar.Maths {
         /// <param name="original">The data to be interpolated</param>
         /// <param name="interpolated">The output interpolated data</param>
         public void Interpolate(double[] original, double[] interpolated) {
-            var interpolate = Interpolation.CreateLinearSpline(_oldAxis, original);
+            var interpolate = MathNet.Numerics.Interpolate.Linear(_oldAxis, original);
             for (var i = 0; i < _nexAxis.Length; i++) {
                 interpolated[i] = interpolate.Interpolate(_nexAxis[i]);
             }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using PhaseSonar.CrestFinders;
 using PhaseSonar.Utils;
 
 namespace PhaseSonar.Slicers {
@@ -8,81 +9,40 @@ namespace PhaseSonar.Slicers {
     ///     A basic slicer implementation which groups all slices into one list.
     /// </summary>
     public class SimpleSlicer : ISlicer {
+        private readonly int _minPtsCntBeforeCrest;
+
         /// <summary>
         ///     Create a slicer.
         /// </summary>
         /// <param name="finder">
         ///     <see cref="ICrestFinder" />
         /// </param>
-        public SimpleSlicer(ICrestFinder finder) {
-            Finder = finder;
-
-            // datalength/sampleRate*repetitionRate=pn
+        public SimpleSlicer(int minPtsCntBeforeCrest, IRuler ruler, IAligner aligner) {
+            _minPtsCntBeforeCrest = minPtsCntBeforeCrest;
+            Ruler = ruler;
+            Aligner = aligner;
         }
 
-        /// <summary>
-        ///     <see cref="ICrestFinder" />
-        /// </summary>
-        protected ICrestFinder Finder { get; }
+        [NotNull]
+        protected IRuler Ruler { get; }
+
+        public IAligner Aligner { get; set; }
 
         /// <summary>
-        ///     The index of the crest in the slice.
-        /// </summary>
-        public virtual int CrestIndex => Finder.LeftThreshold;
-
-        /// <summary>
-        ///     Slice the pulse sequence, without considering multiple components.
+        ///     Slice the pulse sequence.
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence, usually a sampled record</param>
-        /// <returns>Whether slicing succeeded</returns>
-        public virtual IList<IList<int>> Slice(double[] pulseSequence) {
-            var startIndicesList = new List<IList<int>>(1);
-            var crestIndices = Finder.Find(pulseSequence);
-            if (crestIndices.IsEmpty()) return startIndicesList;
-            SlicedPeriodLength = MinPeriodLength(crestIndices);
+        /// <returns>Start indices of pulses of different components, for example, gas and reference</returns>
+        [NotNull]
+        public List<SliceInfo> Slice(double[] pulseSequence, IList<int> crestIndices) {
+            if (crestIndices.IsEmpty()) return new List<SliceInfo>(0);
+            var sliceLength = Ruler.MeasureSliceLength(crestIndices);
+            var crestOffset = Aligner.CrestIndex(_minPtsCntBeforeCrest, sliceLength);
+
             IList<int> startIndices;
-            if (FindStartIndices(pulseSequence, crestIndices, SlicedPeriodLength, out startIndices)) {
-                startIndicesList.Add(startIndices);
-            }
-            return startIndicesList;
-        }
-
-
-        /// <summary>
-        ///     The pulse length after sliced.
-        /// </summary>
-        public int SlicedPeriodLength { get; set; }
-
-
-        /// <summary>
-        ///     Get a common length for all the pulses.
-        /// </summary>
-        /// <param name="crestIndices">The indices of crests.</param>
-        /// <returns>The minimum of all the intervals.</returns>
-        protected static int MinPeriodLength([NotNull] IList<int> crestIndices) {
-            var min = int.MaxValue;
-            for (var i = 1; i < crestIndices.Count; i++) {
-                var diff = crestIndices[i] - crestIndices[i - 1];
-                if (diff < min) {
-                    min = diff;
-                }
-            }
-            return min;
-        }
-
-
-        /// <summary>
-        ///     Get a common length for all the pulses.
-        /// </summary>
-        /// <param name="crestIndices">The indices of crests.</param>
-        /// <returns>The average of all the intervals.</returns>
-        protected static int AveragePeriodLength([NotNull] IList<int> crestIndices) {
-            var average = 0;
-            for (var i = 1; i < crestIndices.Count; i++) {
-                var diff = crestIndices[i] - crestIndices[i - 1];
-                average += diff;
-            }
-            return average/(crestIndices.Count - 1);
+            return FindStartIndices(pulseSequence, crestIndices, sliceLength, crestOffset, out startIndices)
+                ? startIndices.Select(index => new SliceInfo(index, sliceLength, crestOffset)).ToList()
+                : new List<SliceInfo>(0);
         }
 
         /// <summary>
@@ -93,11 +53,11 @@ namespace PhaseSonar.Slicers {
         /// <param name="periodLength">The common pulse length.</param>
         /// <returns>The start indices for all the slices.</returns>
         protected virtual bool FindStartIndices([NotNull] double[] pulseSequence, [NotNull] IList<int> crestIndices,
-            int periodLength, out IList<int> startIndices) {
+            int periodLength, int crestOffset, [NotNull] out IList<int> startIndices) {
             var length = pulseSequence.Length;
             startIndices = crestIndices; // todo deep clone
             for (var i = 0; i < crestIndices.Count; i++) {
-                crestIndices[i] -= CrestIndex;
+                crestIndices[i] -= crestOffset;
             }
             // todo SliceFailedException
             if (crestIndices[0] < 0) {

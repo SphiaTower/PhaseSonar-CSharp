@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using JetBrains.Annotations;
 using Microsoft.Win32;
@@ -15,6 +16,8 @@ using SpectroscopyVisualizer.Factories;
 using SpectroscopyVisualizer.Presenters;
 using SpectroscopyVisualizer.Producers;
 using SpectroscopyVisualizer.Writers;
+using SpectroscopyVisualizer.Factories;
+using SpectroscopyVisualizer.Utilities;
 
 namespace SpectroscopyVisualizer {
     /// <summary>
@@ -38,22 +41,65 @@ namespace SpectroscopyVisualizer {
             SliceConfigurations.Initialize(
                 crestAmplitudeThreshold: 0.1,
                 pointsBeforeCrest: 1000,
-                centreSlice: true
+                crestAtCenter: true,
+                rulerType: RulerType.MinLength
                 );
-            CorrectorConfigurations.Initialize(1, 512, CorrectorType.Mertz, ApodizerType.Fake);
+            CorrectorConfigurations.Initialize(1, 512, CorrectorType.Mertz, ApodizerType.Fake,PhaseType.FullRange,1300,11000);
 //            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\configuration.bin"));
             SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
             GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath);
-            SliceConfigurations.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp);
-            CorrectorConfigurations.Get().Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType);
+            SliceConfigurations.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength);
+            CorrectorConfigurations.Get().Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType,CbPhaseType,TbRangeStart,TbRangeEnd);
             CanvasView = new CanvasView(ScopeCanvas);
             HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
             VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
+
+            CbPhaseType.SelectionChanged += (sender, args) => {
+                var selected = (PhaseType)args.AddedItems[0];
+                HideAllPhaseOptions();
+                switch (selected) {
+                    case PhaseType.FullRange:
+                        break;
+                    case PhaseType.CenterInterpolation:
+                    case PhaseType.OldCenterInterpolation:
+                        Show(TbCenterSpanLength);
+                        Show(LbCentralSpan);
+                        break;
+                    case PhaseType.SpecifiedRange:
+                        Show(LbRangeStart);
+                        Show(LbRangeEnd);
+                        Show(TbRangeStart);
+                        Show(TbRangeEnd);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            };
 
             SwitchButton = new SwitchButton(ToggleButton, false, "STOP", "START", TurnOn, TurnOff);
 
 //            Toolbox.SerializeData(@"D:\\configuration.bin",CorrectorConfigs.Get());
             SizeChanged += (sender, args) => { Adapter?.OnWindowZoomed(); };
+
+            ConsoleManager.Show();
+//            Logger.WriteLine("testing","testtest");
+        }
+
+        private void HideAllPhaseOptions() {
+            Hide(TbCenterSpanLength);
+            Hide(LbCentralSpan);
+            Hide(TbRangeStart);
+            Hide(LbRangeStart);
+            Hide(TbRangeEnd);
+            Hide(LbRangeEnd);
+        }
+
+        private static void Hide(Control control) {
+            control.Visibility = Visibility.Hidden;
+        }
+
+        private static void Show(Control control) {
+            control.Visibility = Visibility.Visible;
         }
 
         private SwitchButton SwitchButton { get; }
@@ -91,14 +137,15 @@ namespace SpectroscopyVisualizer {
         private void TurnOn() {
             GC.Collect();
             IProducer<SampleRecord> producer;
+            var factory = FactoryHolder.Get();
             if (DeveloperMode()) {
                 producer = new DummyProducer();
             } else {
-                producer = ParallelInjector.NewProducer(IsChecked(CbCaptureSample));
+                producer = factory.NewProducer(IsChecked(CbCaptureSample));
             }
-            Adapter = ParallelInjector.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
-            Writer = ParallelInjector.NewSpectrumWriter(IsChecked(CbCaptureSpec));
-            var consumer = ParallelInjector.NewConsumer(producer, Adapter, Writer);
+            Adapter = factory.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
+            Writer = factory.NewSpectrumWriter(IsChecked(CbCaptureSpec));
+            var consumer = factory.NewConsumer(producer, Adapter, Writer);
             try {
                 Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
                 Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
@@ -171,9 +218,7 @@ namespace SpectroscopyVisualizer {
         private static string[] SelectFiles() {
             // Create OpenFileDialog 
             var dlg = new OpenFileDialog {
-                DefaultExt = ".txt",
-                Filter = "Text documents (.txt)|*.txt",
-                Multiselect = true
+                DefaultExt = ".txt", Filter = "Text documents (.txt)|*.txt", Multiselect = true
             };
 
             // Set filter for file extension and default file extension 
@@ -187,21 +232,33 @@ namespace SpectroscopyVisualizer {
             return new string[0];
         }
 
-        private void LoadFiles_OnClick(object sender, RoutedEventArgs e) {
+        private void LoadCompressedFiles_OnClick(object sender, RoutedEventArgs e) {
+            LoadFiles(true);
+        }
+
+        private void LoadFiles(bool compressed) {
             var fileNames = SelectFiles();
             if (fileNames.IsEmpty()) return;
             GeneralConfigurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
             TbSavePath.Text = GeneralConfigurations.Get().Directory;
-            var producer = ParallelInjector.NewProducer(fileNames);
-            Adapter = ParallelInjector.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
-            Writer = ParallelInjector.NewSpectrumWriter(IsChecked(CbCaptureSpec));
-            var consumer = ParallelInjector.NewConsumer(producer, Adapter, Writer);
+            var factory = FactoryHolder.Get();
+            var producer = factory.NewProducer(fileNames, compressed);
+            Adapter = factory.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
+            Writer = factory.NewSpectrumWriter(IsChecked(CbCaptureSpec));
+            var consumer = factory.NewConsumer(producer, Adapter, Writer);
             consumer.FailEvent += ConsumerOnFailEvent;
             consumer.ConsumeEvent += ConsumerOnConsumeEvent;
             consumer.NoProductEvent += o => {
                 Scheduler?.Stop();
                 MessageBox.Show("processing finished");
                 Scheduler = null;
+//                Dispatcher.InvokeAsync(() => {
+//                    ConsoleManager.Show();
+//                    Console.WriteLine(Logger.Queue.Count);
+//                    Logger.Queue.ForEach(str => {
+//                        Console.WriteLine(str);
+//                    });
+//                });
             };
             CbCaptureSpec.IsChecked = true;
             Scheduler = new Scheduler(producer, consumer);
@@ -214,9 +271,10 @@ namespace SpectroscopyVisualizer {
 
         private void StartSample_OnClick(object sender, RoutedEventArgs e) {
             var total = int.Parse(TbTotalData.Text);
-            var producer = new FixedSampleProducer(ParallelInjector.NewSampler(), total);
-            Adapter = ParallelInjector.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
-            Writer = ParallelInjector.NewSpectrumWriter(IsChecked(CbCaptureSpec));
+            var factory = FactoryHolder.Get();
+            var producer = new FixedSampleProducer(factory.NewSampler(), total);
+            Adapter = factory.NewAdapter(CanvasView, HorizontalAxisView, VerticalAxisView);
+            Writer = factory.NewSpectrumWriter(IsChecked(CbCaptureSpec));
             var threadNum = GeneralConfigurations.Get().ThreadNum;
             var workers = new List<SpecialSampleWriter>(threadNum);
             for (var i = 0; i < threadNum; i++) {
@@ -237,6 +295,10 @@ namespace SpectroscopyVisualizer {
             };
             Scheduler = new Scheduler(producer, consumer);
             Scheduler?.Start();
+        }
+
+        private void LoadDataFiles_OnClick(object sender, RoutedEventArgs e) {
+            LoadFiles(false);
         }
     }
 }

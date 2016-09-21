@@ -19,7 +19,6 @@ namespace PhaseSonar.Utils {
             for (var i = 0; i < data.Length; i++) {
                 data[i] = double.Parse(lines[i]);
             }
-            lines = null;
             return data;
         }
 

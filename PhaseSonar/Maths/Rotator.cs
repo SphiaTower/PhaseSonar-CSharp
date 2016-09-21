@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace PhaseSonar.Maths {
     /// <summary>
     ///     A Rotator takes an array as input and do fftshift on it or symmetrize it.
@@ -16,7 +18,7 @@ namespace PhaseSonar.Maths {
         ///     Swap the two halves of the array, like a fftshift operation
         /// </summary>
         /// <param name="array">The array to be rotated</param>
-        public void Rotate(double[] array) {
+        public void Rotate([NotNull] double[] array) {
             var length = array.Length;
             var half = length/2;
 
@@ -35,10 +37,11 @@ namespace PhaseSonar.Maths {
         /// </summary>
         /// <param name="array">The array to be symmetrized</param>
         /// <param name="crestIndex">The index to be rotated to the center of the array</param>
-        public bool TrySymmetrize(double[] array, int crestIndex) {
+        public bool TrySymmetrize([NotNull] double[] array, int crestIndex) {
             var length = array.Length;
             var centerIndex = length/2;
             if (crestIndex == centerIndex) {
+                return true;
             } else if (crestIndex < centerIndex) {
                 var auxLength = centerIndex - crestIndex;
                 Functions.CopyInto(array, centerIndex + crestIndex, auxLength, Allocate(auxLength));
@@ -48,10 +51,10 @@ namespace PhaseSonar.Maths {
                 for (var i = 0; i < auxLength; i++) {
                     array[i] = _aux[i];
                 }
+                return true;
             } else {
                 return false;
             }
-            return true;
         }
     }
 }

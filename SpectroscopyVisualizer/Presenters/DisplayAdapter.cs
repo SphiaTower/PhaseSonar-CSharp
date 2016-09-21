@@ -26,7 +26,7 @@ namespace SpectroscopyVisualizer.Presenters {
         private double _startFreqInMHz;
         private double _zoomStart;
 
-        public DisplayAdapter(CanvasView wavefromView, HorizontalAxisView horizontalAxisView,
+        public DisplayAdapter([NotNull] CanvasView wavefromView, HorizontalAxisView horizontalAxisView,
             VerticalAxisView verticalAxisView, int dispPointNum, double samplingRate, int startFreqInMHz = 0,
             int endFreqInMHz = 50) // todo hard coded 0 and 50
         {

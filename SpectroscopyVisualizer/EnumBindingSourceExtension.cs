@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Markup;
+using JetBrains.Annotations;
 
 namespace SpectroscopyVisualizer {
     public class EnumBindingSourceExtension : MarkupExtension {
@@ -30,6 +31,7 @@ namespace SpectroscopyVisualizer {
             }
         }
 
+        [NotNull]
         public override object ProvideValue(IServiceProvider serviceProvider) {
             if (null == _enumType)
                 throw new InvalidOperationException("The EnumType must be specified.");

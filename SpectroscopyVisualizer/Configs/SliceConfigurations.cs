@@ -6,18 +6,22 @@ namespace SpectroscopyVisualizer.Configs {
     public class SliceConfigurations {
         private static SliceConfigurations _singleton;
 
-        private SliceConfigurations(int pointsBeforeCrest, bool centreSlice, double crestAmplitudeThreshold) {
+        private SliceConfigurations(int pointsBeforeCrest, bool crestAtCenter, double crestAmplitudeThreshold,
+            RulerType rulerType) {
             PointsBeforeCrest = pointsBeforeCrest;
-            CentreSlice = centreSlice;
+            CrestAtCenter = crestAtCenter;
             CrestAmplitudeThreshold = crestAmplitudeThreshold;
+            RulerType = rulerType;
         }
 
         public int PointsBeforeCrest { get; set; }
-        public bool CentreSlice { get; set; }
+        public bool CrestAtCenter { get; set; }
         public double CrestAmplitudeThreshold { get; set; }
+        public RulerType RulerType { get; set; }
 
-        public static void Initialize(int pointsBeforeCrest, bool centreSlice, double crestAmplitudeThreshold) {
-            _singleton = new SliceConfigurations(pointsBeforeCrest, centreSlice, crestAmplitudeThreshold);
+        public static void Initialize(int pointsBeforeCrest, bool crestAtCenter, double crestAmplitudeThreshold,
+            RulerType rulerType) {
+            _singleton = new SliceConfigurations(pointsBeforeCrest, crestAtCenter, crestAmplitudeThreshold, rulerType);
         }
 
         internal void Register(SliceConfigurations sliceConfigurations) {
@@ -28,9 +32,10 @@ namespace SpectroscopyVisualizer.Configs {
             return _singleton;
         }
 
-        public void Bind(Control pointsBeforeCrest, Control crestAmpThreshold) {
+        public void Bind(Control pointsBeforeCrest, Control crestAmpThreshold, Control rulerType) {
             pointsBeforeCrest.DataContext = this;
             crestAmpThreshold.DataContext = this;
+            rulerType.DataContext = this;
         }
     }
 }

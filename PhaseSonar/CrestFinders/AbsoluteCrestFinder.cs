@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PhaseSonar.Slicers {
+namespace PhaseSonar.CrestFinders {
     /// <summary>
     ///     A concrete implemention of crest finder which finds crests based on the absolute value.
     /// </summary>
@@ -11,34 +11,35 @@ namespace PhaseSonar.Slicers {
         /// </summary>
         /// <param name="repetitionRate">The difference of repetition rate</param>
         /// <param name="sampleRate">The sample rate.</param>
-        /// <param name="leftThreshold">The minimum number of points that is before the crest.</param>
+        /// <param name="minPtsCntBeforeCrest">The minimum number of points that is before the crest.</param>
         /// <param name="verticalThreshold">The minimum absolute amplitude of a crest</param>
-        public AbsoluteCrestFinder(double repetitionRate, double sampleRate, int leftThreshold, double verticalThreshold) {
+        public AbsoluteCrestFinder(double repetitionRate, double sampleRate, int minPtsCntBeforeCrest,
+            double verticalThreshold) {
             RepetitionRate = repetitionRate;
             SampleRate = sampleRate;
-            LeftThreshold = leftThreshold;
+            MinPtsCntBeforeCrest = minPtsCntBeforeCrest;
             VerticalThreshold = verticalThreshold;
         }
 
         /// <summary>
         ///     The repetition rate difference.
         /// </summary>
-        protected double RepetitionRate { get; }
+        public double RepetitionRate { get; }
 
         /// <summary>
         ///     The sample rate.
         /// </summary>
-        protected double SampleRate { get; }
+        public double SampleRate { get; }
 
         /// <summary>
         ///     The minimum amplitude of a crest
         /// </summary>
-        protected double VerticalThreshold { get; set; }
+        public double VerticalThreshold { get; set; }
 
         /// <summary>
         ///     The minimum number of points that is before the crest.
         /// </summary>
-        public int LeftThreshold { get; }
+        public int MinPtsCntBeforeCrest { get; }
 
         /// <summary>
         ///     Find the crests in a pulse sequence.
@@ -64,7 +65,7 @@ namespace PhaseSonar.Slicers {
 
                 if (distanceAwayFromMax > rightThreshold) {
                     if (maxValue > VerticalThreshold) {
-                        if (maxIndex > LeftThreshold) {
+                        if (maxIndex > MinPtsCntBeforeCrest) {
                             crestIndices.Add(maxIndex);
                         }
                     }

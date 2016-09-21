@@ -13,7 +13,7 @@ namespace SpectroscopyVisualizer.Consumers {
     ///     A parallel SpectroscopyVisualizer which dequeues elements parallelly, processes them and sends result to display
     ///     layer.
     /// </summary>
-    public class ParallelSpectroscopyVisualizer : ParallelConsumer<SampleRecord, Accumulator> {
+    public class ParallelSpectroscopyVisualizer : ParallelConsumer<SampleRecord, IPulseSequenceProcessor> {
         private const string Lock = "lock";
         private double[] _dummyAxis;
 
@@ -25,9 +25,9 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <param name="adapter">An adapter for display.</param>
         /// <param name="writer">A Writer for data storage.</param>
         public ParallelSpectroscopyVisualizer(
-            BlockingCollection<SampleRecord> blockingQueue,
-            List<SerialAccumulator> accumulators,
-            DisplayAdapter adapter,
+            [NotNull] BlockingCollection<SampleRecord> blockingQueue,
+            [NotNull] List<IPulseSequenceProcessor> accumulators,
+            [NotNull] DisplayAdapter adapter,
             SpectrumWriter writer)
             : base(blockingQueue, accumulators) {
             Accumulators = accumulators;
@@ -40,7 +40,7 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <summary>
         ///     A list of accumulators processing the data sampled parallelly.
         /// </summary>
-        public List<SerialAccumulator> Accumulators { get; }
+        public List<IPulseSequenceProcessor> Accumulators { get; }
 
         /// <summary>
         ///     The accumulation of spectra.
@@ -78,7 +78,7 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <param name="element">The product</param>
         /// <param name="worker">The worker in this branch.</param>
         /// <returns>Whether consuming succeeds.</returns>
-        protected override bool ConsumeElement([NotNull] SampleRecord element, Accumulator worker) {
+        protected override bool ConsumeElement([NotNull] SampleRecord element, [NotNull] IPulseSequenceProcessor worker) {
             var elementSpectrum = worker.Accumulate(element.PulseSequence);
             elementSpectrum.IfPresent(spectrum => {
                 lock (Lock) {

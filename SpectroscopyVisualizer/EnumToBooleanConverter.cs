@@ -1,14 +1,16 @@
 using System;
 using System.Globalization;
 using System.Windows.Data;
+using JetBrains.Annotations;
 
 namespace SpectroscopyVisualizer {
     public class EnumToBooleanConverter : IValueConverter {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+        [NotNull]
+        public object Convert([NotNull] object value, Type targetType, object parameter, CultureInfo culture) {
             return value.Equals(parameter);
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+        public object ConvertBack([NotNull] object value, Type targetType, object parameter, CultureInfo culture) {
             return value.Equals(true) ? parameter : Binding.DoNothing;
         }
     }

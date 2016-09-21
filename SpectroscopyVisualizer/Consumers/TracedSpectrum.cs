@@ -1,4 +1,5 @@
-﻿using PhaseSonar.Correctors;
+﻿using System.Numerics;
+using PhaseSonar.Correctors;
 
 namespace SpectroscopyVisualizer.Consumers {
     /// <summary>
@@ -48,6 +49,10 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <param name="another"></param>
         public bool TryAbsorb(ISpectrum another) {
             return _spectrum.TryAbsorb(another);
+        }
+
+        public void Absorb(Complex[] spectrum) {
+            _spectrum.Absorb(spectrum);
         }
 
         /// <summary>

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using NationalInstruments.Examples.StreamToDiskConsole;
 using PhaseSonar.Analyzers;
-using PhaseSonar.Correctors;
+using PhaseSonar.CorrectorV2s;
+using PhaseSonar.CrestFinders;
 using PhaseSonar.Maths;
 using PhaseSonar.Slicers;
 using SpectroscopyVisualizer.Configs;
@@ -16,76 +17,145 @@ namespace SpectroscopyVisualizer.Factories {
     /// <summary>
     ///     TODO: apply the abstract factory pattern
     /// </summary>
-    public class ParallelInjector {
+    public class ParallelInjector : IFactory {
         [NotNull]
-        public static ISlicer NewSlicer() {
-            var config = SliceConfigurations.Get();
-            var crestFinder = NewCrestFinder();
-            return config.CentreSlice
-                ? new SymmetrySlicer(crestFinder)
-                : new SimpleSlicer(crestFinder);
+        public virtual ISlicer NewSlicer() {
+            return new SimpleSlicer(
+                SliceConfigurations.Get().PointsBeforeCrest,
+                NewRuler(),
+                NewAligner());
         }
 
         [NotNull]
-        public static ICrestFinder NewCrestFinder() {
+        public IRuler NewRuler() {
+            switch (SliceConfigurations.Get().RulerType) {
+                case RulerType.MinLength:
+                    return new MinCommonLengthRuler();
+                case RulerType.AverageLength:
+                    return new AverageLengthRuler();
+                case RulerType.FixLength:
+                    return new FixLengtherRuler(100);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        [NotNull]
+        public IAligner NewAligner() {
+            if (SliceConfigurations.Get().CrestAtCenter) {
+                return new CenterAligner();
+            }
+            return new LeftAligner();
+        }
+
+        [NotNull]
+        public virtual ICrestFinder NewCrestFinder() {
             var config = GeneralConfigurations.Get();
             return new AbsoluteCrestFinder( // todo change back
-                config.RepetitionRate,
-                SamplingConfigurations.Get().SamplingRate,
-                SliceConfigurations.Get().PointsBeforeCrest,
-                SliceConfigurations.Get().CrestAmplitudeThreshold
-                );
+                config.RepetitionRate, SamplingConfigurations.Get().SamplingRate,
+                SliceConfigurations.Get().PointsBeforeCrest, SliceConfigurations.Get().CrestAmplitudeThreshold);
         }
 
         [NotNull]
-        public static SerialAccumulator NewAccumulator() {
-            return new SerialAccumulator(
-                NewSlicer(),
-                NewCorrector());
+        public IPulsePreprocessor NewPulsePreprocessor() {
+            return new BalancePulsePreprocessor(CorrectorConfigurations.Get().ZeroFillFactor);
         }
 
         [NotNull]
-        public static DisplayAdapter NewAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,
+        public IPulseSequenceProcessor NewPulseSequenceProcessor() {
+            return new Accumulator(NewCrestFinder(), NewSlicer(), NewPulsePreprocessor(), NewCorrector());
+        }
+
+        [NotNull]
+        public DisplayAdapter NewAdapter([NotNull] CanvasView view, HorizontalAxisView horizontalAxisView,
             VerticalAxisView verticalAxisView) {
             return new DisplayAdapter(view, horizontalAxisView, verticalAxisView, GeneralConfigurations.Get().DispPoints,
                 SamplingConfigurations.Get().SamplingRate);
         }
 
         [NotNull]
-        public static Sampler NewSampler() {
+        public Sampler NewSampler() {
             var configs = SamplingConfigurations.Get();
-            return new Sampler(
-                configs.DeviceName,
-                configs.Channel.ToString(),
-                configs.Range,
-                configs.SamplingRate,
-                configs.RecordLength
-                );
+            return new Sampler(configs.DeviceName, configs.Channel.ToString(), configs.Range, configs.SamplingRate,
+                configs.RecordLength);
         }
 
         [NotNull]
-        public static ICorrector NewCorrector() {
-            var configs = GeneralConfigurations.Get();
-            var fuzzyPeriodLength = (int) (SamplingConfigurations.Get().SamplingRate/configs.RepetitionRate);
-
-            switch (CorrectorConfigurations.Get().CorrectorType) {
-                case CorrectorType.LinearMertz:
-                    throw new NotImplementedException();
-                case CorrectorType.Mertz:
-                    return
-                        new AccFlipMertzCorrector(NewApodizer(), fuzzyPeriodLength,
-                            CorrectorConfigurations.Get().ZeroFillFactor,
-                            CorrectorConfigurations.Get().CenterSpanLength/2);
-
-                case CorrectorType.Fake:
-                    return
-                        new FakeCorrector(NewApodizer(), fuzzyPeriodLength, CorrectorConfigurations.Get().ZeroFillFactor);
+        public IPhaseExtractor NewPhaseExtractor() {
+            var config = CorrectorConfigurations.Get();
+            switch (config.PhaseType) {
+                case PhaseType.FullRange:
+                    return new FourierOnlyPhaseExtractor();
+                case PhaseType.CenterInterpolation:
+                    return new CorrectCenterPhaseExtractor(NewApodizer(),
+                        config.CenterSpanLength/2);
+                case PhaseType.SpecifiedRange:
+                    return new SpecifiedRangePhaseExtractor(config.RangeStart,config.RangeEnd);
+                case PhaseType.OldCenterInterpolation:
+                    return new ClassicWrongPhaseExtractor(NewApodizer(),
+                        config.CenterSpanLength/2);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private static IApodizer NewApodizer() {
+        [NotNull]
+        public ICorrectorV2 NewCorrectorNoFlip() {
+            var configs = GeneralConfigurations.Get();
+//            var fuzzyPeriodLength = (int) (SamplingConfigurations.Get().SamplingRate/configs.RepetitionRate);
+
+            switch (CorrectorConfigurations.Get().CorrectorType) {
+                case CorrectorType.LinearMertz:
+                    throw new NotImplementedException();
+                case CorrectorType.Mertz:
+                    return new MertzCorrectorV2(NewPhaseExtractor(), NewApodizer());
+
+                case CorrectorType.Fake:
+                    return new FakeCorrectorV2(NewApodizer());
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        [NotNull]
+        public virtual ICorrectorV2 NewCorrector() {
+            return new AutoFlipCorrectorV2(NewCorrectorNoFlip());
+        }
+
+        [NotNull]
+        public virtual SampleProducer NewProducer(bool cameraOn) {
+            return new SampleProducer(NewSampler(), NewSampleWriter(cameraOn));
+        }
+
+        [NotNull]
+        public virtual DiskProducer NewProducer(IEnumerable<string> paths, bool compressed) {
+            return new DiskProducer(paths, compressed);
+        }
+
+
+        [NotNull]
+        public SpectrumWriter NewSpectrumWriter(bool on) {
+            return new SpectrumWriter(GeneralConfigurations.Get().Directory, "[Average][Spectrum]", on);
+        }
+
+        [NotNull]
+        public SampleWriter NewSampleWriter(bool on) {
+            return new SampleWriter(GeneralConfigurations.Get().Directory, "[Binary]", on);
+        }
+
+        [NotNull]
+        public AbstractConsumer<SampleRecord> NewConsumer([NotNull] IProducer<SampleRecord> producer,
+            [NotNull] DisplayAdapter adapter, SpectrumWriter writer) {
+            var threadNum = GeneralConfigurations.Get().ThreadNum;
+            var accumulators = new List<IPulseSequenceProcessor>(threadNum);
+            for (var i = 0; i < threadNum; i++) {
+                accumulators.Add(NewPulseSequenceProcessor());
+            }
+            return new ParallelSpectroscopyVisualizer(producer.BlockingQueue, accumulators, adapter, writer);
+        }
+
+        [NotNull]
+        private IApodizer NewApodizer() {
             switch (CorrectorConfigurations.Get().ApodizerType) {
                 case ApodizerType.Fake:
                     return new FakeApodizer();
@@ -94,40 +164,6 @@ namespace SpectroscopyVisualizer.Factories {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-        }
-
-        [NotNull]
-        public static SampleProducer NewProducer(bool cameraOn) {
-            return new SampleProducer(NewSampler(), NewSampleWriter(cameraOn));
-        }
-
-        [NotNull]
-        public static DiskProducer NewProducer(IEnumerable<string> paths) {
-            return new DiskProducer(paths);
-        }
-
-
-        [NotNull]
-        public static SpectrumWriter NewSpectrumWriter(bool on) {
-            return new SpectrumWriter(GeneralConfigurations.Get().Directory, "[Average][Spectrum]", on);
-        }
-
-        [NotNull]
-        public static SampleWriter NewSampleWriter(bool on) {
-            return new SampleWriter(GeneralConfigurations.Get().Directory, "[Binary]", on);
-        }
-
-        [NotNull]
-        public static AbstractConsumer<SampleRecord> NewConsumer(IProducer<SampleRecord> producer,
-            DisplayAdapter adapter, SpectrumWriter writer) {
-            var threadNum = GeneralConfigurations.Get().ThreadNum;
-            var accumulators = new List<SerialAccumulator>(threadNum);
-            for (var i = 0; i < threadNum; i++) {
-                accumulators.Add(NewAccumulator());
-            }
-            return new ParallelSpectroscopyVisualizer(producer.BlockingQueue, accumulators,
-                adapter,
-                writer);
         }
     }
 }

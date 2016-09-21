@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SpectroscopyVisualizer</RootNamespace>
     <AssemblyName>SpectroscopyVisualizer</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -30,6 +30,7 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -50,7 +51,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
-    <DocumentationFile>bin\Release\SpectroscopyVisualizer.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>
@@ -90,6 +92,7 @@
     <Reference Include="NationalInstruments.ModularInstruments.NIScope.Fx45, Version=2.0.45.68, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -135,6 +138,11 @@
     <Compile Include="Configs\ConfigsHolder.cs" />
     <Compile Include="Configs\CorrectorConfigurations.cs" />
     <Compile Include="Configs\SliceConfigurations.cs" />
+    <Compile Include="Factories\FactoryHolder.cs" />
+    <Compile Include="Factories\IAbstractFactory.cs" />
+    <Compile Include="Factories\IFactory.cs" />
+    <Compile Include="Factories\LoggingFactory.cs" />
+    <Compile Include="Utilities\ConsoleManager.cs" />
     <Compile Include="Consumers\DataSerializer.cs" />
     <Compile Include="Consumers\IConsumer.cs" />
     <Compile Include="Consumers\ParallelConsumer.cs" />
@@ -144,6 +152,7 @@
     <Compile Include="Producers\FixedSampleProducer.cs" />
     <Compile Include="Producers\SampleRecord.cs" />
     <Compile Include="Scheduler.cs" />
+    <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Writers\IWriter.cs" />
     <Compile Include="Writers\AbstractWriter.cs" />
     <Compile Include="Writers\AbstractDiskWriter.cs" />

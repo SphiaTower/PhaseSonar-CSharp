@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using JetBrains.Annotations;
 
 namespace PhaseSonar.Maths {
     /// <summary>
     ///     A set of static helper functions.
     /// </summary>
-    public class Functions {
+    public static class Functions {
         /// <summary>
         ///     Copy array.
         /// </summary>
@@ -16,7 +17,7 @@ namespace PhaseSonar.Maths {
         /// <param name="copy"></param>
         /// <typeparam name="T"></typeparam>
         /// <exception cref="ArgumentException"></exception>
-        public static void CopyInto<T>(T[] array, int start, int count, T[] copy) {
+        public static void CopyInto<T>([NotNull] T[] array, int start, int count, [NotNull] T[] copy) {
             if (copy.Length < count) {
                 throw new ArgumentException("array size not enough");
             }
@@ -25,6 +26,73 @@ namespace PhaseSonar.Maths {
 //                copy[i] = array[j];
 //            }
             Array.Copy(array, start, copy, 0, count);
+        }
+
+        public static void ToComplex([NotNull] double[] doubles, Complex[] container) {
+            for (var i = 0; i < doubles.Length; i++) {
+                container[i] = new Complex(doubles[i], 0);
+            }
+        }
+
+        public static void ToComplexRotate([NotNull] double[] symmetryPulse, IList<Complex> array) {
+            var length = symmetryPulse.Length;
+            var j = 0;
+            for (var i = length / 2; i < length; i++, j++) {
+                array[j] = symmetryPulse[i];
+            }
+            for (var i = 0; i < length / 2; i++, j++) {
+                array[j] = symmetryPulse[i];
+            }
+        }
+
+        /// <summary>
+        ///     Calculate the length after zero filling.
+        /// </summary>
+        /// <param name="dataLength">The length of data</param>
+        /// <param name="zeroFillFactor">The zero fill factor</param>
+        /// <returns></returns>
+        public static int CalZeroFilledLength(int dataLength, int zeroFillFactor) {
+            return (int) Math.Pow(2, (int) Math.Log(dataLength, 2) + zeroFillFactor);
+        }
+
+        /// <summary>
+        ///     Calculate the sum of a specified range
+        /// </summary>
+        /// <param name="array">The input array</param>
+        /// <param name="startIndex">The start index.</param>
+        /// <param name="length">The length of the range.</param>
+        /// <returns></returns>
+        public static double RangeSum(IReadOnlyList<double> array, int startIndex, int length) {
+            var sum = .0;
+            for (var i = startIndex; i < startIndex + length; i++) {
+                sum += array[i];
+            }
+            return sum;
+        }
+
+        public static double Average(double[] array, int start, int count) {
+            double sum = 0;
+            for (var i = start; i < start + count; i++) {
+                sum += array[i];
+            }
+            return sum/count;
+        }
+
+        public static double Phase(double real, double imag) {
+            if (Math.Abs(real) > 0.0000001) {
+                return Math.Atan(imag/real);
+            }
+            if (imag > 0) {
+                return Math.PI/2;
+            }
+            if (imag < 0) {
+                return -Math.PI/2;
+            }
+            return 0;
+        }
+
+        public static double Phase(Complex complex) {
+            return Phase(complex.Real, complex.Imaginary);
         }
 
         /// <summary>
@@ -117,7 +185,7 @@ namespace PhaseSonar.Maths {
         }
 
         /// <summary>
-        ///     Allocate linespace in space.
+        ///     Allocate linespace in space. [start, stop]
         /// </summary>
         /// <param name="start"></param>
         /// <param name="stop"></param>

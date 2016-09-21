@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace SpectroscopyVisualizer.Producers {
     /// <summary>
@@ -65,7 +66,7 @@ namespace SpectroscopyVisualizer.Producers {
                 T data;
                 try {
                     data = RetrieveData();
-                } catch (Exception ignored) {
+                } catch (Exception ex) {
                     continue;
                 }
                 if (!IsOn) break;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Controls;
 using JetBrains.Annotations;
 using NationalInstruments.Examples.StreamToDiskConsole;
 using PhaseSonar.Analyzers;
@@ -66,12 +67,12 @@ namespace SpectroscopyVisualizer.Factories {
             return new Accumulator(NewCrestFinder(), NewSlicer(), NewPulsePreprocessor(), NewCorrector());
         }
 
-        [NotNull]
-        public DisplayAdapter NewAdapter([NotNull] CanvasView view, HorizontalAxisView horizontalAxisView,
-            VerticalAxisView verticalAxisView) {
-            return new DisplayAdapter(view, horizontalAxisView, verticalAxisView, GeneralConfigurations.Get().DispPoints,
-                SamplingConfigurations.Get().SamplingRate);
+        public DisplayAdapter NewAdapter(CanvasView view, HorizontalAxisView horizontalAxisView, VerticalAxisView verticalAxisView,
+            TextBox tbX, TextBox tbDelta) {
+            return new DisplayAdapter(view, horizontalAxisView, verticalAxisView, tbX, tbDelta, GeneralConfigurations.Get().DispPoints,
+                            SamplingConfigurations.Get().SamplingRate);
         }
+
 
         [NotNull]
         public Sampler NewSampler() {
@@ -101,8 +102,6 @@ namespace SpectroscopyVisualizer.Factories {
 
         [NotNull]
         public ICorrectorV2 NewCorrectorNoFlip() {
-            var configs = GeneralConfigurations.Get();
-//            var fuzzyPeriodLength = (int) (SamplingConfigurations.Get().SamplingRate/configs.RepetitionRate);
 
             switch (CorrectorConfigurations.Get().CorrectorType) {
                 case CorrectorType.LinearMertz:

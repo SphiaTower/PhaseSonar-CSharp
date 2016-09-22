@@ -142,6 +142,7 @@
     <Compile Include="Factories\IAbstractFactory.cs" />
     <Compile Include="Factories\IFactory.cs" />
     <Compile Include="Factories\LoggingFactory.cs" />
+    <Compile Include="Presenters\EventLayer.cs" />
     <Compile Include="Utilities\ConsoleManager.cs" />
     <Compile Include="Consumers\DataSerializer.cs" />
     <Compile Include="Consumers\IConsumer.cs" />

@@ -61,6 +61,13 @@ namespace PhaseSonar.CorrectorV2s {
         public MertzCorrectorV2(IPhaseExtractor phaseExtractor, IApodizer apodizer) {
             _apodizer = apodizer;
             _phaseExtractor = phaseExtractor;
+//            _phaseExtractor.RawSpectrumReady +=
+//                spectrum => Toolbox.WriteData(@"D:\zbf\temp\p_spectrum.txt", spectrum);
+//            _phaseExtractor.RawPhaseReady += phase => {
+//                Toolbox.WriteData(@"D:\zbf\temp\p_phase.txt", phase);
+//                Functions.Unwrap(phase);
+//                Toolbox.WriteData(@"D:\zbf\temp\p_phase_unwrap.txt", phase);
+//            };
         }
 
         [NotNull]

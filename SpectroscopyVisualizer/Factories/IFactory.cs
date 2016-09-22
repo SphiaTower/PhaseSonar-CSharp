@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Windows.Controls;
 using JetBrains.Annotations;
 using NationalInstruments.Examples.StreamToDiskConsole;
 using PhaseSonar.Analyzers;
@@ -18,9 +19,9 @@ namespace SpectroscopyVisualizer.Factories {
         ICrestFinder NewCrestFinder();
         IPulsePreprocessor NewPulsePreprocessor();
         IPulseSequenceProcessor NewPulseSequenceProcessor();
-
+        [NotNull]
         DisplayAdapter NewAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,
-            VerticalAxisView verticalAxisView);
+            VerticalAxisView verticalAxisView,TextBox tbX, TextBox tbDelta);
 
         Sampler NewSampler();
         IPhaseExtractor NewPhaseExtractor();

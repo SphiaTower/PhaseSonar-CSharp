@@ -15,7 +15,6 @@ namespace SpectroscopyVisualizer.Consumers {
     /// </summary>
     public class ParallelSpectroscopyVisualizer : ParallelConsumer<SampleRecord, IPulseSequenceProcessor> {
         private const string Lock = "lock";
-        private double[] _dummyAxis;
 
         /// <summary>
         ///     Create an instance.
@@ -32,7 +31,6 @@ namespace SpectroscopyVisualizer.Consumers {
             : base(blockingQueue, accumulators) {
             Accumulators = accumulators;
             Adapter = adapter;
-            Axis = new AxisBuilder(adapter.WavefromView);
             Writer = writer;
             NoProductEvent += OnNoProductEvent;
         }
@@ -54,7 +52,6 @@ namespace SpectroscopyVisualizer.Consumers {
         public SpectrumWriter Writer { get; }
 
 
-        private AxisBuilder Axis { get; }
 
         /// <summary>
         ///     <see cref="DisplayAdapter" />
@@ -99,21 +96,7 @@ namespace SpectroscopyVisualizer.Consumers {
         /// </summary>
         /// <param name="singleSpectrum">The processed spetrum of a newly dequeued element.</param>
         protected void OnDataUpdatedInBackground([NotNull] ISpectrum singleSpectrum) {
-            var averAll = Adapter.SampleAverageAndSquare(SumSpectrum);
-            var averSingle = Adapter.SampleAverageAndSquare(singleSpectrum);
-
-            _dummyAxis = _dummyAxis ?? Axis.DummyAxis(averAll);
-            Adapter.WavefromView.InvokeAsync(() => {
-                var averSinglePts = Adapter.CreateGraphPoints(_dummyAxis, averSingle);
-                var averAllPts = Adapter.CreateGraphPoints(_dummyAxis, averAll);
-                // todo: why does lines above must be exec in the UI thread??
-                Adapter.WavefromView.ClearWaveform();
-                //                View.Canvas.Children.RemoveRange(0,2);
-                Adapter.WavefromView.DrawWaveform(averSinglePts, Colors.Red);
-                Adapter.WavefromView.DrawWaveform(averAllPts);
-                // todo: bug: buffer cleared while closure continues
-            }
-                );
+            Adapter.UpdateData(singleSpectrum, SumSpectrum);
         }
 
         /// <summary>

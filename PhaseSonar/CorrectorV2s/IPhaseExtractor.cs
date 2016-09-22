@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Windows.Forms;
 using JetBrains.Annotations;
 using MathNet.Numerics;
 using MathNet.Numerics.IntegralTransforms;
@@ -10,7 +11,14 @@ namespace PhaseSonar.CorrectorV2s {
     public interface IPhaseExtractor {
         [NotNull]
         double[] GetPhase([NotNull] double[] symmetryPulse);
+
+        event SpectrumReadyEventHandler RawSpectrumReady;
+
+        event PhaseReadyEventHandler RawPhaseReady;
     }
+
+    public delegate void SpectrumReadyEventHandler(Complex[] spectrum);
+    public delegate void PhaseReadyEventHandler(double[] phase);
 
     public class FourierOnlyPhaseExtractor : IPhaseExtractor {
         private readonly Rotator _rotator = new Rotator();
@@ -28,11 +36,16 @@ namespace PhaseSonar.CorrectorV2s {
             // rotate & to complex
             Functions.ToComplexRotate(symmetryPulse, _complexContainer);
             Fourier.Forward(_complexContainer, FourierOptions.Matlab);
+            RawSpectrumReady?.Invoke(_complexContainer);
             for (var i = 0; i < _complexContainer.Length; i++) {
                 _phaseArray[i] = _complexContainer[i].Phase;
             }
+            RawPhaseReady?.Invoke(_phaseArray);
             return _phaseArray;
         }
+
+        public event SpectrumReadyEventHandler RawSpectrumReady;
+        public event PhaseReadyEventHandler RawPhaseReady;
     }
 
     public class SpecifiedRangePhaseExtractor : IPhaseExtractor {
@@ -64,16 +77,21 @@ namespace PhaseSonar.CorrectorV2s {
             }
             Functions.ToComplexRotate(symmetryPulse, _fullComplexContainer);
             _fullComplexContainer.FFT();
-
             // todo including problem
             Array.Copy(_fullComplexContainer, _start, _rangeSpecContainer, 0, _rangeLength);
+            RawSpectrumReady?.Invoke(_rangeSpecContainer);
             _rangeSpecContainer.Phase(_rangePhaseContainer);
+            Functions.Unwrap(_rangePhaseContainer);
+            RawPhaseReady?.Invoke(_rangePhaseContainer);
             var fitFunc = Fit.LineFunc(_linespace, _rangePhaseContainer);
             for (var i = 0; i < symmetryPulse.Length; i++) {
                 _fullDoubleContainer[i] = fitFunc(i);
             }
             return _fullDoubleContainer;
         }
+
+        public event SpectrumReadyEventHandler RawSpectrumReady;
+        public event PhaseReadyEventHandler RawPhaseReady;
     }
 
     public class CentralInterpolationPhaseExtractor : IPhaseExtractor {
@@ -84,7 +102,7 @@ namespace PhaseSonar.CorrectorV2s {
         private readonly int _centerHalfWidth;
 
         [NotNull] private readonly double[] _centerRealContainer;
-        private readonly Func<Complex, double> _complexToPhase;
+        private readonly Func<Complex, double> _complexToPhaseFunc;
 
         [NotNull] private readonly Rotator _rotator = new Rotator();
 
@@ -94,10 +112,10 @@ namespace PhaseSonar.CorrectorV2s {
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
         public CentralInterpolationPhaseExtractor(IApodizer apodizer, int centerHalfWidth,
-            Func<Complex, double> complexToPhase) {
+            Func<Complex, double> complexToPhaseFunc) {
             _apodizer = apodizer;
             _centerHalfWidth = centerHalfWidth;
-            _complexToPhase = complexToPhase;
+            _complexToPhaseFunc = complexToPhaseFunc;
             var centerLength = centerHalfWidth*2;
             _centerRealContainer = new double[centerLength];
             _centerComplexContainer = new Complex[centerLength];
@@ -119,15 +137,22 @@ namespace PhaseSonar.CorrectorV2s {
             // fft
             _centerRealContainer.ToComplex(_centerComplexContainer);
             Fourier.Forward(_centerComplexContainer, FourierOptions.Matlab);
+//            Toolbox.WriteData(@"D:\zbf\temp\central_fft.txt", _centerComplexContainer);
+            RawSpectrumReady?.Invoke(_centerComplexContainer);
             // get phase from spectrum
             var complexSpectrum = _centerComplexContainer;
             for (var i = 0; i < _centerRealContainer.Length; i++) {
-                _centerRealContainer[i] = _complexToPhase(complexSpectrum[i]);
+                _centerRealContainer[i] = _complexToPhaseFunc(complexSpectrum[i]);
             }
+            RawPhaseReady?.Invoke(_centerRealContainer);
+//            Toolbox.WriteData(@"D:\zbf\temp\central_phase.txt", _centerRealContainer);
             // interpolate into full length
             _interpolator.Interpolate(_centerRealContainer, _phaseArray);
             return _phaseArray;
         }
+
+        public event SpectrumReadyEventHandler RawSpectrumReady;
+        public event PhaseReadyEventHandler RawPhaseReady;
     }
 
     public class ClassicWrongPhaseExtractor : IPhaseExtractor {
@@ -139,6 +164,16 @@ namespace PhaseSonar.CorrectorV2s {
 
         public double[] GetPhase(double[] symmetryPulse) {
             return _phaseExtractor.GetPhase(symmetryPulse);
+        }
+
+        public event SpectrumReadyEventHandler RawSpectrumReady {
+            add { _phaseExtractor.RawSpectrumReady += value; }
+            remove { _phaseExtractor.RawSpectrumReady -= value; }
+        }
+
+        public event PhaseReadyEventHandler RawPhaseReady {
+            add { _phaseExtractor.RawPhaseReady += value; }
+            remove { _phaseExtractor.RawPhaseReady -= value; }
         }
     }
 
@@ -152,5 +187,16 @@ namespace PhaseSonar.CorrectorV2s {
         public double[] GetPhase(double[] symmetryPulse) {
             return _phaseExtractor.GetPhase(symmetryPulse);
         }
+
+        public event SpectrumReadyEventHandler RawSpectrumReady {
+            add { _phaseExtractor.RawSpectrumReady += value; }
+            remove { _phaseExtractor.RawSpectrumReady -= value; }
+        }
+
+        public event PhaseReadyEventHandler RawPhaseReady {
+            add { _phaseExtractor.RawPhaseReady += value; }
+            remove { _phaseExtractor.RawPhaseReady -= value; }
+        }
+
     }
 }

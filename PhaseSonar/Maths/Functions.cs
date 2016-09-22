@@ -54,6 +54,21 @@ namespace PhaseSonar.Maths {
         public static int CalZeroFilledLength(int dataLength, int zeroFillFactor) {
             return (int) Math.Pow(2, (int) Math.Log(dataLength, 2) + zeroFillFactor);
         }
+        public static readonly double CIRCLE = Math.PI * 2;
+
+        public static void Unwrap([NotNull] double[] phase) {
+            var length = phase.Length;
+            var prev = phase[0];
+            for (int i = 1; i < length; i++) {
+                while (prev - phase[i] >= Math.PI) {
+                    phase[i] += CIRCLE;
+                }
+                while (phase[i]-prev>=CIRCLE) {
+                    phase[i] -= CIRCLE;
+                }
+                prev = phase[i];
+            }
+        }
 
         /// <summary>
         ///     Calculate the sum of a specified range
@@ -93,6 +108,7 @@ namespace PhaseSonar.Maths {
 
         public static double Phase(Complex complex) {
             return Phase(complex.Real, complex.Imaginary);
+//            return Math.Atan2(complex.Imaginary,complex.Real);
         }
 
         /// <summary>
@@ -101,7 +117,8 @@ namespace PhaseSonar.Maths {
         /// <param name="array"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T[] Clone<T>(T[] array) {
+        [NotNull]
+        public static T[] Clone<T>([NotNull] T[] array) {
             var copy = new T[array.Length];
             Array.Copy(array, copy, array.Length);
             return copy;
@@ -113,7 +130,7 @@ namespace PhaseSonar.Maths {
         /// <param name="array"></param>
         /// <param name="weight"></param>
         /// <exception cref="ArithmeticException"></exception>
-        public static void MultiplyInPlace(double[] array, double[] weight) {
+        public static void MultiplyInPlace([NotNull] double[] array, [NotNull] double[] weight) {
             var length = array.Length;
             if (weight.Length != length) {
                 throw new ArithmeticException();
@@ -130,7 +147,8 @@ namespace PhaseSonar.Maths {
         /// <param name="array2"></param>
         /// <returns></returns>
         /// <exception cref="ArithmeticException"></exception>
-        public static double[] Add(double[] array1, double[] array2) {
+        [NotNull]
+        public static double[] Add([NotNull] double[] array1, [NotNull] double[] array2) {
             var length = array1.Length;
             if (array2.Length != length) {
                 throw new ArithmeticException("add failed, size doesn't match");
@@ -230,6 +248,47 @@ namespace PhaseSonar.Maths {
         /// <param name="array"></param>
         public static void Clear([NotNull] double[] array) {
             Array.Clear(array, 0, array.Length);
+        }
+
+        public static void FindMinMax([NotNull] double[] nums, out double min, out double max) {
+            /*min = double.MaxValue;
+            max = double.MinValue;
+            foreach (var y in nums) {
+                if (y > max) {
+                    max = y;
+                } else if (y < min) {
+                    min = y;
+                }
+            }*/
+            var length = nums.Length;
+            if (length == 0) {
+                throw new ArgumentOutOfRangeException();
+            }
+            int i;
+            if (length%2 == 1) {
+                max = min = nums[0];
+                i = 1;
+            } else {
+                if (nums[0] > nums[1]) {
+                    max = nums[0];
+                    min = nums[1];
+                } else {
+                    max = nums[1];
+                    min = nums[0];
+                }
+                i = 2;
+            }
+            for (; i < length; i += 2) {
+                var num1 = nums[i];
+                var num2 = nums[i + 1];
+                if (num1 > num2) {
+                    max = Math.Max(max, num1);
+                    min = Math.Min(min, num2);
+                } else {
+                    max = Math.Max(max, num2);
+                    min = Math.Min(min, num1);
+                }
+            }
         }
     }
 }

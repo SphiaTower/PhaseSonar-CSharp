@@ -60,6 +60,7 @@ namespace PhaseSonar.Utils {
         public static void Phase([NotNull] this Complex[] complexs, double[] result) {
             for (var i = 0; i < complexs.Length; i++) {
                 result[i] = complexs[i].Phase;
+                // TODO MAYBE WRONG
             }
         }
     }

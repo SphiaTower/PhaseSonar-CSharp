@@ -73,18 +73,18 @@
                     <Grid Grid.Row="1">
                         <Rectangle Stroke="DarkGray" StrokeThickness="0.5" />
 
-                        <TextBox x:Name="TbStartFreq" Height="20" Margin="0,12,619,0"
+                        <TextBox x:Name="TbStartFreq" Height="20" Margin="0,12,689,0"
                                  TextWrapping="Wrap"
                                  Text="{Binding Path=StartFreqInMHz,Mode=TwoWay,UpdateSourceTrigger=LostFocus}"
                                  VerticalAlignment="Top"
-                                 HorizontalAlignment="Right" Width="34" />
-                        <Label x:Name="label15" Content="To" Margin="0,10,586,0" VerticalAlignment="Top" Height="24"
+                                 HorizontalAlignment="Right" Width="34" RenderTransformOrigin="-1.512,0.608" />
+                        <Label x:Name="label15" Content="To" Margin="0,11,656,0" VerticalAlignment="Top" Height="24"
                                HorizontalAlignment="Right" Width="28" RenderTransformOrigin="0.036,0.478" />
-                        <TextBox x:Name="TbEndFreq" Height="20" Margin="0,12,552,0"
+                        <TextBox x:Name="TbEndFreq" Height="20" Margin="0,12,622,0"
                                  TextWrapping="Wrap"
                                  Text="{Binding Path=EndFreqInMHz,Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                  VerticalAlignment="Top" HorizontalAlignment="Right"
-                                 Width="34" />
+                                 Width="34" RenderTransformOrigin="-1.551,0.15" />
 
                         <Label HorizontalAlignment="Left" Margin="19,10,0,0"
                                Content="Freq Axis/MHz : " VerticalAlignment="Top" Width="95" Height="26"
@@ -92,18 +92,26 @@
                         <Button x:Name="ToggleButton" Content="START" HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom" Width="67" Click="ToggleButton_OnClick" Margin="0,0,10,6"
                                 Height="22" RenderTransformOrigin="-4.984,-2.155" />
-                        <TextBox x:Name="TbConsumerSpeed" HorizontalAlignment="Left" Height="21" Margin="400,13,0,0"
+                        <TextBox x:Name="TbConsumerSpeed" HorizontalAlignment="Left" Height="21" Margin="562,13,0,0"
                                  TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="47" />
-                        <Label x:Name="label" Content="Speed" HorizontalAlignment="Left" Margin="349,10,0,0"
-                               VerticalAlignment="Top" RenderTransformOrigin="7.94,0.435" />
-                        <Label Content="MSample/s" HorizontalAlignment="Left" Margin="447,10,0,0"
+                        <Label Content="MSa./s" HorizontalAlignment="Left" Margin="609,10,0,0"
                                VerticalAlignment="Top" Height="24" RenderTransformOrigin="2.667,0.471" />
-                        <Label x:Name="label_Copy" Content="Data" HorizontalAlignment="Left" Margin="580,10,0,0"
-                               VerticalAlignment="Top" />
-                        <TextBox x:Name="TbTotalData" HorizontalAlignment="Left" Height="20" Margin="622,15,0,0"
+                        <TextBox x:Name="TbTotalData" HorizontalAlignment="Left" Height="20" Margin="679,13,0,0"
                                  TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="38" />
-                        <Label Content="MSample" HorizontalAlignment="Left" Margin="665,10,0,0"
+                        <Label Content="MSa." HorizontalAlignment="Left" Margin="722,8,0,0"
                                VerticalAlignment="Top" Height="24" RenderTransformOrigin="2.667,0.471" />
+                        <TextBox x:Name="TbXCoordinate" HorizontalAlignment="Left" Height="21" Margin="263,13,0,0"
+                                 MaxLines="1"
+                                 TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="90" />
+                        <TextBox x:Name="TbDistance" HorizontalAlignment="Left" Height="21" Margin="402,13,0,0"
+                                 MaxLines="1"
+                                 TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="90" />
+                        <Label HorizontalAlignment="Left" Margin="238,8,0,0"
+                               Content="X" VerticalAlignment="Top" Width="20" Height="26"
+                               RenderTransformOrigin="0.41,-0.225" />
+                        <Label HorizontalAlignment="Left" Margin="350,10,0,0"
+                               Content="Delta" VerticalAlignment="Top" Width="47" Height="26"
+                               RenderTransformOrigin="0.41,-0.225" />
                     </Grid>
                 </Grid>
 
@@ -228,22 +236,22 @@
                         <ComboBox x:Name="CbApodizationType"
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:ApodizerType}}}"
                                   SelectedItem="{Binding Path=ApodizerType}" HorizontalAlignment="Left"
-                                  VerticalAlignment="Top" Width="120" Margin="116,39,0,0"  />
+                                  VerticalAlignment="Top" Width="120" Margin="116,39,0,0" />
                         <Label x:Name="label13_Copy1" Content="Phase" HorizontalAlignment="Left"
-                        	Margin="2,69,0,0"
-                        	VerticalAlignment="Top" />
+                               Margin="2,69,0,0"
+                               VerticalAlignment="Top" />
                         <ComboBox x:Name="CbPhaseType"
-                        	ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:PhaseType}}}"
-                        	SelectedItem="{Binding PhaseType}" HorizontalAlignment="Left"
-                        	VerticalAlignment="Top" Width="120" Margin="51,70,0,0" />
+                                  ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:PhaseType}}}"
+                                  SelectedItem="{Binding PhaseType}" HorizontalAlignment="Left"
+                                  VerticalAlignment="Top" Width="120" Margin="51,70,0,0" />
                         <Label x:Name="LbRangeStart" Content="Start" HorizontalAlignment="Left" Margin="175,67,0,0"
-                        	VerticalAlignment="Top" RenderTransformOrigin="0.582,0.071" />
+                               VerticalAlignment="Top" RenderTransformOrigin="0.582,0.071" />
                         <Label x:Name="LbRangeEnd" Content="End" HorizontalAlignment="Left" Margin="260,66,0,0"
-                        	VerticalAlignment="Top" RenderTransformOrigin="0.624,0.068" />
+                               VerticalAlignment="Top" RenderTransformOrigin="0.624,0.068" />
                         <TextBox x:Name="TbRangeStart" HorizontalAlignment="Left" Height="23" Margin="212,70,0,0"
-                        	TextWrapping="Wrap" Text="{Binding RangeStart}" VerticalAlignment="Top" Width="48" />
+                                 TextWrapping="Wrap" Text="{Binding RangeStart}" VerticalAlignment="Top" Width="48" />
                         <TextBox x:Name="TbRangeEnd" HorizontalAlignment="Left" Height="23" Margin="297,69,0,0"
-                        	TextWrapping="Wrap" Text="{Binding RangeEnd}" VerticalAlignment="Top" Width="49" />
+                                 TextWrapping="Wrap" Text="{Binding RangeEnd}" VerticalAlignment="Top" Width="49" />
                     </Grid>
                     <Grid Grid.Row="3">
                         <Rectangle Stroke="DarkGray" StrokeThickness="0.5" />

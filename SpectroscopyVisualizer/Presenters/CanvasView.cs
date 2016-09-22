@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using JetBrains.Annotations;
 
 namespace SpectroscopyVisualizer.Presenters {
     public class CanvasView {
@@ -90,6 +91,22 @@ namespace SpectroscopyVisualizer.Presenters {
             foreach (var polyline in _lines) {
                 Canvas.Children.Remove(polyline);
             }
+        }
+
+        [NotNull]
+        public TextBlock DrawText(double x, double y, string text) {
+            var textBlock = new TextBlock {
+                Foreground = new SolidColorBrush(Colors.Wheat),
+                Text = text
+            };
+            Canvas.SetTop(textBlock,y-12);
+            Canvas.SetLeft(textBlock,x+4);
+            Canvas.Children.Add(textBlock);
+            return textBlock;
+        }
+
+        public void Remove(UIElement element) {
+            Canvas.Children.Remove(element);
         }
     }
 }

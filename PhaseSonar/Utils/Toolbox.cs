@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
 using System.Runtime.Serialization.Formatters.Binary;
 using JetBrains.Annotations;
 
@@ -13,7 +14,8 @@ namespace PhaseSonar.Utils {
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static double[] Read(string path) {
+        [NotNull]
+        public static double[] Read([NotNull] string path) {
             var lines = File.ReadAllLines(path);
             var data = new double[lines.Length];
             for (var i = 0; i < data.Length; i++) {
@@ -28,7 +30,7 @@ namespace PhaseSonar.Utils {
         /// <param name="path"></param>
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
-        public static void WriteData<T>(string path, [NotNull] T[] data) {
+        public static void WriteData<T>([NotNull] string path, [NotNull] T[] data) {
             var contents = new string[data.Length];
             for (var i = 0; i < data.Length; i++) {
                 contents[i] = data[i].ToString();
@@ -41,7 +43,7 @@ namespace PhaseSonar.Utils {
         /// </summary>
         /// <param name="path"></param>
         /// <param name="data"></param>
-        public static void WriteStringArray(string path, [NotNull] string[] data) {
+        public static void WriteStringArray([NotNull] string path, [NotNull] string[] data) {
             File.WriteAllLines(path, data);
         }
 
@@ -51,7 +53,7 @@ namespace PhaseSonar.Utils {
         /// <param name="path"></param>
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
-        public static void SerializeData<T>(string path, [NotNull] T data) {
+        public static void SerializeData<T>([NotNull] string path, [NotNull] T data) {
             var file = new FileInfo(path);
             var fileStream = file.OpenWrite();
             var binaryFormatter = new BinaryFormatter();
@@ -65,7 +67,7 @@ namespace PhaseSonar.Utils {
         /// <param name="path"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T DeserializeData<T>(string path) {
+        public static T DeserializeData<T>([NotNull] string path) {
             var file = new FileInfo(path);
             var fileStream = file.OpenRead();
             var binaryFormatter = new BinaryFormatter();

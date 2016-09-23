@@ -73,9 +73,13 @@ namespace SpectroscopyVisualizer.Presenters {
             int endFreqInMHz = 50) // todo hard coded 0 and 50
         {
             WavefromView = wavefromView;
+            WavefromView.Reload(); // todo move out, and use a event
             DispPointsCnt = dispPointNum;
             _instantDispValues = new double[DispPointsCnt];
             _accDispValues = new double[DispPointsCnt];
+
+            _instantPts = new PointCollection(DispPointsCnt);
+            _accPts = new PointCollection(DispPointsCnt);
             Axis = new AxisBuilder(WavefromView);
             _dummyAxis = Axis.DummyAxis(_instantDispValues);
 
@@ -97,11 +101,17 @@ namespace SpectroscopyVisualizer.Presenters {
                 }
                 
             };
-//            UIElement delta = null;
+            TextBlock pop = null;
             eventLayer.FollowTraceEvent += (last,curr, mouseDown) => {
                 double xOnAxis = GetXValueByPointPosition(curr.X);
                 tbXCoordinate.Text = xOnAxis.ToString("F8");
-
+                if (pop==null) {
+                    pop = WavefromView.DrawText(curr.X+4, curr.Y-12, xOnAxis.ToString("F3"));
+                } else {
+                    Canvas.SetTop(pop,curr.Y-12);
+                    Canvas.SetLeft(pop,curr.X+4);
+                    pop.Text = xOnAxis.ToString("F3");
+                }
                 if (mouseDown) {
                     var xStart = GetXValueByPointPosition(eventLayer.MouseDownStart);
                     var xDelta = xOnAxis - xStart;
@@ -127,58 +137,7 @@ namespace SpectroscopyVisualizer.Presenters {
                 ResetYScale();
             };
 
-            /*   var canvas = wavefromView.Canvas;
-            canvas.MouseLeftButtonDown += (sender, args) => {
-                if (!_mouseDown) {
-                    _lastPoint = args.GetPosition(canvas);
-                    _zoomStart = _lastPoint.X;
-                    _mouseDown = true;
-                }
-            };
-            canvas.MouseMove += (sender, args) => {
-                if (!_mouseDown) return;
-                var point = args.GetPosition(canvas);
-                wavefromView.InvokeAsync(() => {
-                    var pointCollection = new PointCollection(2) {_lastPoint, point};
-                    wavefromView.DrawLine(pointCollection, Colors.Yellow);
-                    _lastPoint = point;
-                });
-            };
-            canvas.MouseLeftButtonUp += (sender, args) => {
-                if (!_mouseDown) return;
-                var zoomEnd = args.GetPosition(canvas).X;
-                if (zoomEnd < _zoomStart) {
-                    var t = zoomEnd;
-                    zoomEnd = _zoomStart;
-                    _zoomStart = t;
-                }
-
-                if (!(zoomEnd - _zoomStart <= 12)) {
-                    var zoomCommand = new ZoomCommand(_zoomStart, zoomEnd, WavefromView, this);
-                    _cmdStack.Push(zoomCommand);
-                    zoomCommand.Invoke();
-                    ResetYScale();
-                } else {
-                    WavefromView.ClearLine();
-                }
-
-                _mouseDown = false;
-            };
-            canvas.MouseRightButtonDown += (sender, args) => {
-                if (_cmdStack.IsEmpty()) {
-                    StartFreqInMHz = 0;
-                    EndFreqInMHz = 50; // todo hard coded
-                } else {
-                    var zoomCommand = _cmdStack.Pop();
-                    zoomCommand.Undo();
-                }
-                ResetYScale();
-            };
-            canvas.MouseDown += (sender, args) => {
-                if (args.ChangedButton == MouseButton.Middle) {
-                    ResetYScale();
-                }
-            };*/
+           
             WavefromView.DrawGrid();
         }
 
@@ -222,14 +181,20 @@ namespace SpectroscopyVisualizer.Presenters {
         }
 
         [NotNull]
-        public PointCollection CreateGraphPoints(double[] xAxis, [NotNull] double[] yAxis) {
+        public PointCollection CreateGraphPoints(double[] xAxis, [NotNull] double[] yAxis,PointCollection points) {
             if (_scaleX == null) _scaleX = GetXScaler(xAxis);
             if (_scaleY == null) _scaleY = GetYScaler(yAxis);
       
-            var points = new PointCollection(yAxis.Length);
-            for (var i = 0; i < yAxis.Length; i++) {
-                points.Add(CreateGraphPoint(xAxis[i], yAxis[i]));
-            }
+//            var points = new PointCollection(yAxis.Length);
+            if (points.IsEmpty())
+                for (var i = 0; i < yAxis.Length; i++) {
+                    points.Add(CreateGraphPoint(xAxis[i], yAxis[i]));
+                }
+            else
+                for (var i = 0; i < yAxis.Length; i++) {
+                    //                points.Add(CreateGraphPoint(xAxis[i], yAxis[i]));
+                    points[i] = CreateGraphPoint(xAxis[i], yAxis[i]);
+                }
             return points;
         }
 
@@ -237,17 +202,20 @@ namespace SpectroscopyVisualizer.Presenters {
 
         private ISpectrum _accumulatedSpectrumCache;
 
+        private readonly PointCollection _instantPts;
+        private readonly PointCollection _accPts;
+
         public void UpdateData([NotNull] ISpectrum instant, [NotNull] ISpectrum accumulated) {
             // called in background
             SampleAverageAndSquare(instant,_instantDispValues);
             SampleAverageAndSquare(accumulated,_accDispValues);
             WavefromView.Canvas.Dispatcher.InvokeAsync(
                 () => {
-                    var instantPts = CreateGraphPoints(_dummyAxis, _instantDispValues);
-                    var accPts = CreateGraphPoints(_dummyAxis, _accDispValues);
-                    WavefromView.ClearWaveform();
-                    WavefromView.DrawWaveform(instantPts, Colors.Red);
-                    WavefromView.DrawWaveform(accPts, Colors.White);
+                    var instantPts = CreateGraphPoints(_dummyAxis, _instantDispValues,_instantPts);
+                    var accPts = CreateGraphPoints(_dummyAxis, _accDispValues,_accPts);
+//                    WavefromView.ClearWaveform();
+                    WavefromView.DrawWaveform(instantPts, Colors.Red,0);
+                    WavefromView.DrawWaveform(accPts, Colors.White,1);
                 });
             _instantSpectrumCache = instant;
             _accumulatedSpectrumCache = accumulated;
@@ -325,6 +293,7 @@ namespace SpectroscopyVisualizer.Presenters {
             ResetYScale();
             _horizontalAxisView.DrawRuler(StartFreqInMHz, EndFreqInMHz);
             _verticalAxisView.DrawRuler(_min, _max);
+            WavefromView.Reload();
             WavefromView.DrawGrid();
         }
     }

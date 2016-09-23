@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 namespace SpectroscopyVisualizer.Presenters {
     public class CanvasView {
         private readonly List<Polyline> _lines = new List<Polyline>();
-        private readonly List<Polyline> _waveforms = new List<Polyline>(2);
+        private readonly Dictionary<int,Polyline> _waveformMap = new Dictionary<int, Polyline>();
 
         public CanvasView(Canvas canvas) {
             Canvas = canvas;
@@ -28,11 +28,16 @@ namespace SpectroscopyVisualizer.Presenters {
             Canvas.Dispatcher.InvokeAsync(action);
         }
 
-        public void DrawWaveform(PointCollection pointCollection, Color color) {
-            var line = DrawLineBase(pointCollection, color);
-            _waveforms.Add(line);
+        public void DrawWaveform(PointCollection pointCollection, Color color, int key) {
+            if (_waveformMap.ContainsKey(key)) {
+                var polyline = _waveformMap[key];
+                polyline.Points = pointCollection;
+            } else {
+                _waveformMap[key] = DrawLineBase(pointCollection, color);
+            }
         }
 
+        [NotNull]
         private Polyline DrawLineBase(PointCollection pointCollection, Color color) {
             var line = new Polyline {
                 Points = pointCollection,
@@ -48,9 +53,7 @@ namespace SpectroscopyVisualizer.Presenters {
             _lines.Add(line);
         }
 
-        public void DrawWaveform(PointCollection pointCollection) {
-            DrawWaveform(pointCollection, Colors.White);
-        }
+    
 
         public void DrawGrid() {
             Canvas.Children.Clear();
@@ -81,7 +84,7 @@ namespace SpectroscopyVisualizer.Presenters {
         }
 
         public void ClearWaveform() {
-            foreach (var waveform in _waveforms) {
+            foreach (var waveform in _waveformMap.Values) {
                 Canvas.Children.Remove(waveform);
             }
 //            Canvas.Children.ClearWaveform();
@@ -99,14 +102,19 @@ namespace SpectroscopyVisualizer.Presenters {
                 Foreground = new SolidColorBrush(Colors.Wheat),
                 Text = text
             };
-            Canvas.SetTop(textBlock,y-12);
-            Canvas.SetLeft(textBlock,x+4);
+            Canvas.SetTop(textBlock,y);
+            Canvas.SetLeft(textBlock,x);
             Canvas.Children.Add(textBlock);
             return textBlock;
         }
 
         public void Remove(UIElement element) {
             Canvas.Children.Remove(element);
+        }
+
+        public void Reload() {
+            _lines.Clear();
+            _waveformMap.Clear();
         }
     }
 }

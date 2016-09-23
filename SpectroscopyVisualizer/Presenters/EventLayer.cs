@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using JetBrains.Annotations;
@@ -24,6 +25,7 @@ namespace SpectroscopyVisualizer.Presenters {
         public event ZoomEventHandler ZoomEvent;
         public event MouseMoveEventHandler FollowTraceEvent;
 
+        private int _lastTime=0;
         public void Attach([NotNull] Canvas canvas) {
             canvas.MouseLeftButtonDown += (sender, args) => {
                 if (!_leftMouseDown) {
@@ -33,6 +35,10 @@ namespace SpectroscopyVisualizer.Presenters {
                 }
             };
             canvas.MouseMove += (sender, args) => {
+                var now = DateTime.Now.Millisecond;
+                if (now - _lastTime <= 100) {
+                    return;
+                }
                 var point = args.GetPosition(canvas);
                 FollowTraceEvent?.Invoke(_lastPoint, point, _leftMouseDown);
                 _lastPoint = point;

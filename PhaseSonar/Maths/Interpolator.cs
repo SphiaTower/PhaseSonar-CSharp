@@ -1,9 +1,11 @@
+using JetBrains.Annotations;
+
 namespace PhaseSonar.Maths {
     /// <summary>
     ///     An interpolator which interpolates data
     /// </summary>
     public class Interpolator {
-        private readonly double[] _nexAxis;
+        private readonly double[] _newAxis;
         private readonly double[] _oldAxis;
 
         /// <summary>
@@ -16,8 +18,8 @@ namespace PhaseSonar.Maths {
             for (var i = 0; i < oldSize; i++) {
                 _oldAxis[i] = i;
             }
-            _nexAxis = new double[newSize];
-            Functions.LineSpaceInPlace(0, oldSize - 1, newSize, _nexAxis);
+            _newAxis = new double[newSize];
+            Functions.LineSpaceInPlace(0, oldSize - 1, newSize, _newAxis);
         }
 
         /// <summary>
@@ -25,10 +27,10 @@ namespace PhaseSonar.Maths {
         /// </summary>
         /// <param name="original">The data to be interpolated</param>
         /// <param name="interpolated">The output interpolated data</param>
-        public void Interpolate(double[] original, double[] interpolated) {
+        public void Interpolate(double[] original, [NotNull] double[] interpolated) {
             var interpolate = MathNet.Numerics.Interpolate.Linear(_oldAxis, original);
-            for (var i = 0; i < _nexAxis.Length; i++) {
-                interpolated[i] = interpolate.Interpolate(_nexAxis[i]);
+            for (var i = 0; i < interpolated.Length; i++) {
+                interpolated[i] = interpolate.Interpolate(_newAxis[i]);
             }
         }
     }

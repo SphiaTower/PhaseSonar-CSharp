@@ -41,6 +41,7 @@ namespace SpectroscopyVisualizer.Consumers {
                             break;
                         }
                         if (!IsOn) return;
+                        // todo hit target cnt
                         if (ConsumeElement(raw, worker)) {
                             lock (this) {
                                 ContinuousFailCnt = 0;

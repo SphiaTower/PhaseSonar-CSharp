@@ -8,6 +8,7 @@
         /// </summary>
         int ConsumedCnt { get; }
 
+        int TargetCnt { get; }
         /// <summary>
         ///     Stop consuming.
         /// </summary>

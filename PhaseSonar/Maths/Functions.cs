@@ -56,7 +56,7 @@ namespace PhaseSonar.Maths {
         }
         public static readonly double CIRCLE = Math.PI * 2;
 
-        public static void Unwrap([NotNull] double[] phase) {
+        public static void UnwrapInPlace([NotNull] double[] phase) {
             var length = phase.Length;
             var prev = phase[0];
             for (int i = 1; i < length; i++) {
@@ -68,6 +68,12 @@ namespace PhaseSonar.Maths {
                 }
                 prev = phase[i];
             }
+        }
+
+        public static double[] Unwrap([NotNull] double[] phase) {
+            double[] unwrapDoubles = phase.Clone() as double[];
+            UnwrapInPlace(unwrapDoubles);
+            return unwrapDoubles;
         }
 
         /// <summary>

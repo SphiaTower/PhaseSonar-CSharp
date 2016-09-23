@@ -51,6 +51,8 @@ namespace SpectroscopyVisualizer.Consumers {
         /// </summary>
         protected bool IsOn { get; set; }
 
+        public int TargetCnt { get; }
+
         /// <summary>
         ///     Stop consuming.
         /// </summary>

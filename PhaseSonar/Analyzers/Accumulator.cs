@@ -12,7 +12,7 @@ namespace PhaseSonar.Analyzers {
     ///     This class is targeted for the data with 1 component only.
     /// </summary>
     public class Accumulator : IPulseSequenceProcessor {
-        private readonly ICorrectorV2 _corrector;
+        [NotNull] private readonly ICorrectorV2 _corrector;
 
         [NotNull] private readonly ICrestFinder _finder;
 
@@ -23,8 +23,10 @@ namespace PhaseSonar.Analyzers {
         /// <summary>
         ///     Create an accumulator
         /// </summary>
+        /// <param name="finder">A finder</param>
         /// <param name="slicer">A slicer</param>
         /// <param name="preprocessor"></param>
+        /// <param name="corrector">A corrector</param>
         public Accumulator([NotNull] ICrestFinder finder, ISlicer slicer, IPulsePreprocessor preprocessor,
             ICorrectorV2 corrector) {
             _preprocessor = preprocessor;
@@ -39,7 +41,7 @@ namespace PhaseSonar.Analyzers {
         /// </summary>
         /// <param name="pulseSequence">The pulse sequence, often a sampled data record</param>
         /// <returns>The accumulated spectrum</returns>
-        public Maybe<ISpectrum> Accumulate([NotNull] double[] pulseSequence) {
+        public Maybe<ISpectrum> Process([NotNull] double[] pulseSequence) {
             var crestIndices = _finder.Find(pulseSequence);
             if (crestIndices.IsEmpty()) {
                 return Maybe<ISpectrum>.Empty();

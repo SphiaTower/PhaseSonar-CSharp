@@ -51,10 +51,6 @@ namespace SpectroscopyVisualizer.Consumers {
             return _spectrum.TryAbsorb(another);
         }
 
-        public void Absorb(Complex[] spectrum) {
-            _spectrum.Absorb(spectrum);
-        }
-
         /// <summary>
         ///     Get the intensity of the accumulated data at a specified index.
         /// </summary>

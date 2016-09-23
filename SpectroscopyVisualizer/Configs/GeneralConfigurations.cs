@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Controls;
+using JetBrains.Annotations;
 using PhaseSonar.Utils;
 
 namespace SpectroscopyVisualizer.Configs {
@@ -7,11 +8,14 @@ namespace SpectroscopyVisualizer.Configs {
     public class GeneralConfigurations {
         private static GeneralConfigurations _singleton;
 
-        private GeneralConfigurations(double repetitionRate, int threadNum, int dispPoints, string directory) {
+        public bool ViewPhase { get; set; }
+
+        private GeneralConfigurations(double repetitionRate, int threadNum, int dispPoints, string directory,bool viewPhase) {
             RepetitionRate = repetitionRate;
             ThreadNum = threadNum;
             DispPoints = dispPoints;
             Directory = directory;
+            ViewPhase = viewPhase;
         }
 
         public double RepetitionRate { get; set; }
@@ -26,18 +30,20 @@ namespace SpectroscopyVisualizer.Configs {
         }
 
 
-        public void Bind(Control repetitionRate, Control threadNum, Control dispPoints, Control savePath) {
+        public void Bind([NotNull] Control repetitionRate, [NotNull] Control threadNum, [NotNull] Control dispPoints,
+            [NotNull] Control savePath, [NotNull] Control viewPhase) {
             repetitionRate.DataContext = this;
             threadNum.DataContext = this;
             dispPoints.DataContext = this;
             savePath.DataContext = this;
+            viewPhase.DataContext = this;
         }
 
-        public static void Initialize(double repetitionRate, int threadNum, int dispPoints, string directory) {
+        public static void Initialize(double repetitionRate, int threadNum, int dispPoints, string directory,bool viewPhase) {
             if (_singleton != null) {
                 throw new Exception("environment already init");
             }
-            _singleton = new GeneralConfigurations(repetitionRate, threadNum, dispPoints, directory);
+            _singleton = new GeneralConfigurations(repetitionRate, threadNum, dispPoints, directory,viewPhase);
         }
 
         public static GeneralConfigurations Get() {

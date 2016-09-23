@@ -12,6 +12,6 @@ namespace PhaseSonar.Analyzers {
         /// </summary>
         /// <param name="pulseSequence">The pulse sequence, often a sampled data record</param>
         /// <returns>The accumulated spectrum</returns>
-        Maybe<ISpectrum> Accumulate([NotNull] double[] pulseSequence);
+        Maybe<ISpectrum> Process([NotNull] double[] pulseSequence);
     }
 }

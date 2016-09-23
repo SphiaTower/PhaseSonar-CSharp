@@ -101,6 +101,7 @@ namespace PhaseSonar.CorrectorV2s {
                 var real = _spectrumArray[i].Real;
                 var imag = _spectrumArray[i].Imaginary;
                 _outputArray[i] = real*Math.Cos(phase) + imag*Math.Sin(phase);
+//                _outputArray[i] = real*Math.Cos(phase) - imag*Math.Sin(phase);
             }
 //            Toolbox.WriteData(@"D:\zbf\temp\6_output.txt", _outputArray);
 

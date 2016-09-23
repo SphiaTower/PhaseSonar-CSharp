@@ -13,7 +13,10 @@ namespace SpectroscopyVisualizer.Configs {
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
     public enum ApodizerType {
         [Description("None")] Fake,
-        [Description("Triangular")] Triangular
+        [Description("Triangular")] Triangular,
+        [Description("Hann")] Hann,
+        [Description("Hamming")] Hamming,
+        [Description("Cosine")] Cosine
     }
 
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
@@ -28,7 +31,8 @@ namespace SpectroscopyVisualizer.Configs {
         [Description("Full Range")] FullRange,
         [Description("Center Interpolation")] CenterInterpolation,
         [Description("Old Wrong Method")] OldCenterInterpolation,
-        [Description("Specified Range")] SpecifiedRange
+        [Description("Specified Range")] SpecifiedRange,
+        [Description("Specified Freq Range")] SpecifiedFreqRange
     }
 
     [Serializable]
@@ -36,7 +40,7 @@ namespace SpectroscopyVisualizer.Configs {
         private static CorrectorConfigurations _singleton;
 
         private CorrectorConfigurations(int zeroFillFactor, int centerSpanLength, CorrectorType correctorType,
-            ApodizerType apodizerType,PhaseType phaseType,int rangeStart, int rangeEnd) {
+            ApodizerType apodizerType,PhaseType phaseType, double rangeStart, double rangeEnd,bool autoFlip) {
             ZeroFillFactor = zeroFillFactor;
             CenterSpanLength = centerSpanLength;
             CorrectorType = correctorType;
@@ -44,6 +48,7 @@ namespace SpectroscopyVisualizer.Configs {
             PhaseType = phaseType;
             RangeStart = rangeStart;
             RangeEnd = rangeEnd;
+            AutoFlip = autoFlip;
         }
 
 
@@ -52,8 +57,10 @@ namespace SpectroscopyVisualizer.Configs {
         public CorrectorType CorrectorType { get; set; }
         public ApodizerType ApodizerType { get; set; }
         public PhaseType PhaseType { get; set; }
-        public int RangeStart { get; set; }
-        public int RangeEnd { get; set; }
+        public double RangeStart { get; set; }
+        public double RangeEnd { get; set; }
+        public bool AutoFlip { get; set; }
+
         public static CorrectorConfigurations Get() {
             return _singleton;
         }
@@ -62,16 +69,16 @@ namespace SpectroscopyVisualizer.Configs {
             _singleton = configuration;
         }
 
-        public static void Initialize(int zeroFillFactory, int centerSpanLength, CorrectorType correctorType,
-            ApodizerType apodizerType,PhaseType phaseType, int rangeStart, int rangeEnd) {
+        public static void Initialize(int zeroFillFactor, int centerSpanLength, CorrectorType correctorType,
+            ApodizerType apodizerType,PhaseType phaseType, double rangeStart, double rangeEnd,bool autoFlip) {
             if (_singleton != null) {
                 throw new Exception("environment already init");
             }
-            _singleton = new CorrectorConfigurations(zeroFillFactory, centerSpanLength, correctorType, apodizerType, phaseType,rangeStart,rangeEnd);
+            _singleton = new CorrectorConfigurations(zeroFillFactor, centerSpanLength, correctorType, apodizerType, phaseType,rangeStart,rangeEnd,autoFlip);
         }
 
         public void Bind(Control tbZeroFillFactor, Control tbCenterSpanLength, Control cbCorrectorType,
-            Control cbApodizationType,Control cbPhaseType,Control tbRangeStart, Control tbRangeEnd) {
+            Control cbApodizationType,Control cbPhaseType,Control tbRangeStart, Control tbRangeEnd,Control ckAutoFlip) {
             tbZeroFillFactor.DataContext = this;
             tbCenterSpanLength.DataContext = this;
             cbCorrectorType.DataContext = this;
@@ -79,6 +86,7 @@ namespace SpectroscopyVisualizer.Configs {
             cbPhaseType.DataContext = this;
             tbRangeStart.DataContext = this;
             tbRangeEnd.DataContext = this;
+            ckAutoFlip.DataContext = this;
         }
     }
 }

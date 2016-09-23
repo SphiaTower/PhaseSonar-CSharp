@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Windows.Media;
 using JetBrains.Annotations;
 using PhaseSonar.Analyzers;
 using PhaseSonar.Correctors;
@@ -52,7 +51,6 @@ namespace SpectroscopyVisualizer.Consumers {
         public SpectrumWriter Writer { get; }
 
 
-
         /// <summary>
         ///     <see cref="DisplayAdapter" />
         /// </summary>
@@ -76,7 +74,7 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <param name="worker">The worker in this branch.</param>
         /// <returns>Whether consuming succeeds.</returns>
         protected override bool ConsumeElement([NotNull] SampleRecord element, [NotNull] IPulseSequenceProcessor worker) {
-            var elementSpectrum = worker.Accumulate(element.PulseSequence);
+            var elementSpectrum = worker.Process(element.PulseSequence);
             elementSpectrum.IfPresent(spectrum => {
                 lock (Lock) {
                     if (SumSpectrum == null) {

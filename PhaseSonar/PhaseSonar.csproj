@@ -76,6 +76,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analyzers\PhaseReader.cs" />
     <Compile Include="Analyzers\SplitResult.cs" />
     <Compile Include="Correctors\Spectrum.cs" />
     <Compile Include="Analyzers\Accumulator.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="CorrectorV2s\ICorrectorV2.cs" />
     <Compile Include="CorrectorV2s\IPhaseExtractor.cs" />
     <Compile Include="CorrectorV2s\IPulsePreprocessor.cs" />
+    <Compile Include="CrestFinders\SimpleCrestFinder.cs" />
     <Compile Include="Maths\IApodizer.cs" />
     <Compile Include="CrestFinders\AbsoluteCrestFinder.cs" />
     <Compile Include="Maths\Functions.cs" />

@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using PhaseSonar.Correctors;
 using PhaseSonar.CorrectorV2s;
 using PhaseSonar.CrestFinders;
+using PhaseSonar.Maths;
 using PhaseSonar.Slicers;
 using PhaseSonar.Utils;
 
@@ -17,6 +18,7 @@ namespace PhaseSonar.Analyzers {
         [NotNull] private readonly ICrestFinder _finder;
 
         [NotNull] private readonly IPulsePreprocessor _preprocessor;
+        [NotNull] private readonly Rotator _rotator = new Rotator();
 
         [NotNull] private readonly ISlicer _slicer;
 
@@ -57,7 +59,10 @@ namespace PhaseSonar.Analyzers {
                 var pulse = _preprocessor.RetrievePulse(pulseSequence, sliceInfo.StartIndex,
                     sliceInfo.CrestOffset,
                     sliceInfo.Length);
-                var correctedSpectrum = _corrector.Correct(pulse, sliceInfo.CrestOffset);
+//                Toolbox.WriteData(@"D:\zbf\temp\0_zero_filled.txt", pulse);
+                _rotator.TrySymmetrize(pulse, sliceInfo.CrestOffset); // todo do it at preproposs
+                var correctedSpectrum = _corrector.Correct(pulse);
+//                Toolbox.WriteData(@"D:\zbf\temp\sp.txt", correctedSpectrum);
                 if (accumulatedSpectrum == null) {
                     accumulatedSpectrum = correctedSpectrum.Clone() as Complex[];
                 } else {

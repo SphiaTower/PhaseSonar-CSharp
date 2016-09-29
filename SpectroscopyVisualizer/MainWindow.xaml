@@ -26,6 +26,7 @@
                 </MenuItem>
                 <MenuItem Header="_Tools">
                     <MenuItem Header="_Developer Mode" IsCheckable="True" IsChecked="False" />
+                    <MenuItem Header="_Debug Command" Click="DebugCmd_OnClick"/>
                     <Separator />
                     <MenuItem Header="_Start Sample..." Click="StartSample_OnClick" />
                 </MenuItem>
@@ -190,6 +191,9 @@
                                   VerticalAlignment="Top" Width="138" Margin="85,60,0,0" />
                         <CheckBox x:Name="CkAutoAdjust" IsChecked="{Binding Path=AutoAdjust}"  Content="Auto-adjust Min Amp" HorizontalAlignment="Left" Margin="195,14,0,0" VerticalAlignment="Top"/>
                         <CheckBox x:Name="CkFindAbs" IsChecked="{Binding Path=FindAbsoluteValue}"  Content="Find Absolute Value" HorizontalAlignment="Left" Margin="196,37,0,0" VerticalAlignment="Top" Width="145"/>
+                        <TextBox x:Name="TbFixedLength" HorizontalAlignment="Left" Height="21" Margin="228,60,0,0"
+                            TextWrapping="Wrap" Text="{Binding FixedLength}" VerticalAlignment="Top"
+                            Width="59" RenderTransformOrigin="0.59,0.412" />
 
                     </Grid>
                     <Grid Grid.Row="2">
@@ -229,16 +233,16 @@
                         <ComboBox x:Name="CbCorrector"
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:CorrectorType}}}"
                                   SelectedItem="{Binding Path=CorrectorType}" HorizontalAlignment="Left"
-                                  VerticalAlignment="Top" Width="120" Margin="116,5,0,0" />
+                                  VerticalAlignment="Top" Width="93" Margin="102,5,0,0" />
                         <Label x:Name="label6" Content="Correction" HorizontalAlignment="Left" VerticalAlignment="Top"
                                Margin="0,5,0,0" />
-                        <Label x:Name="label13_Copy" Content="Temporal Window" HorizontalAlignment="Left"
+                        <Label x:Name="label13_Copy" Content="Temp. Window" HorizontalAlignment="Left"
                                Margin="0,39,0,0"
                                VerticalAlignment="Top" />
                         <ComboBox x:Name="CbApodizationType"
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:ApodizerType}}}"
                                   SelectedItem="{Binding Path=ApodizerType}" HorizontalAlignment="Left"
-                                  VerticalAlignment="Top" Width="120" Margin="116,39,0,0" />
+                                  VerticalAlignment="Top" Width="93" Margin="102,39,0,0" />
                         <Label x:Name="label13_Copy1" Content="Phase" HorizontalAlignment="Left"
                                Margin="2,69,0,0"
                                VerticalAlignment="Top" />
@@ -251,11 +255,12 @@
                         <Label x:Name="LbRangeEnd" Content="End" HorizontalAlignment="Left" Margin="260,66,0,0"
                                VerticalAlignment="Top" RenderTransformOrigin="0.624,0.068" />
                         <TextBox x:Name="TbRangeStart" HorizontalAlignment="Left" Height="23" Margin="212,70,0,0"
-                                 TextWrapping="Wrap" Text="{Binding RangeStart}" VerticalAlignment="Top" Width="48" />
+                                 TextWrapping="Wrap" Text="{Binding RangeStart,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="48" />
                         <TextBox x:Name="TbRangeEnd" HorizontalAlignment="Left" Height="23" Margin="297,69,0,0"
-                                 TextWrapping="Wrap" Text="{Binding RangeEnd}" VerticalAlignment="Top" Width="49" />
+                                 TextWrapping="Wrap" Text="{Binding RangeEnd,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="49" />
                         <CheckBox x:Name="CkAutoFlip" IsChecked="{Binding Path=AutoFlip}" Content="Auto-flip Minus Spec" HorizontalAlignment="Left" Margin="189,107,0,0" VerticalAlignment="Top" Width="151"/>
-                        <CheckBox x:Name="CkPhase" IsChecked="{Binding Path=ViewPhase}"  Content="View Phase" HorizontalAlignment="Left" Margin="243,11,0,0" VerticalAlignment="Top" Width="97"/>
+                        <CheckBox x:Name="CkPhase" IsChecked="{Binding Path=ViewPhase}"  Content="View Phase" HorizontalAlignment="Left" Margin="212,11,0,0" VerticalAlignment="Top" Width="113"/>
+                        <CheckBox x:Name="CkSpecReal" IsChecked="{Binding RealSpec}"  Content="Discard Imag Spec" HorizontalAlignment="Left" Margin="212,39,0,0" VerticalAlignment="Top" Width="138"/>
                     </Grid>
                     <Grid Grid.Row="3">
                         <Rectangle Stroke="DarkGray" StrokeThickness="0.5" />

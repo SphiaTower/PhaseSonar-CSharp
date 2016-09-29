@@ -48,7 +48,8 @@ namespace SpectroscopyVisualizer {
                 crestAtCenter: true,
                 rulerType: RulerType.MinLength,
                 findAbs: true,
-                autoAdjust: false
+                autoAdjust: false,
+                fixedLength: 232171
                 );
 
             CorrectorConfigurations.Initialize(
@@ -57,17 +58,18 @@ namespace SpectroscopyVisualizer {
                 correctorType: CorrectorType.Mertz,
                 apodizerType: ApodizerType.Hann,
                 phaseType: PhaseType.FullRange,
-                autoFlip: true,
-                rangeStart: 20000,
-                rangeEnd: 24000);
+                autoFlip: false,
+                realPhase: false,
+                rangeStart: 18000,
+                rangeEnd: 20000);
             //            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\configuration.bin"));
             // bind configs to controls
             SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
             GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath,CkPhase);
-            SliceConfigurations.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs);
+            SliceConfigurations.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs,TbFixedLength);
             CorrectorConfigurations.Get()
                 .Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart,
-                    TbRangeEnd,CkAutoFlip);
+                    TbRangeEnd,CkAutoFlip,CkSpecReal);
             // init custom components
             _canvasView = new CanvasView(ScopeCanvas);
             HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
@@ -96,6 +98,10 @@ namespace SpectroscopyVisualizer {
                 }
             };
 
+            CbSliceLength.SelectionChanged += (sender, args) => {
+                var selected = (RulerType) args.AddedItems[0];
+                TbFixedLength.Visibility = selected == RulerType.FixLength ? Visibility.Visible : Visibility.Hidden;
+            };
 
             SwitchButton = new SwitchButton(ToggleButton, false, "STOP", "START", TurnOn, TurnOff);
 
@@ -227,11 +233,14 @@ namespace SpectroscopyVisualizer {
 
         private void DecodeFiles_OnClick(object sender, RoutedEventArgs e) {
             var files = SelectFiles();
+            PbLoading.Maximum = files.Length;
+            PbLoading.Value = 0;
             if (!files.IsEmpty()) {
                 Task.Run(() => {
                     files.ForEach(path => {
                         var deserializeData = Toolbox.DeserializeData<double[]>(path);
                         Toolbox.WriteData(path.Replace("Binary", "Decoded"), deserializeData);
+                        PbLoading.Dispatcher.InvokeAsync(() => { PbLoading.Value += 1; });
                     });
                     MessageBox.Show("decoding finished");
                 });
@@ -241,9 +250,7 @@ namespace SpectroscopyVisualizer {
         private static string[] SelectFiles() {
             // Create OpenFileDialog 
             var dlg = new OpenFileDialog {
-                DefaultExt = ".txt",
-                Filter = "Text documents (.txt)|*.txt",
-                Multiselect = true
+                DefaultExt = ".txt", Filter = "Text documents (.txt)|*.txt", Multiselect = true
             };
 
             // Set filter for file extension and default file extension 
@@ -287,6 +294,7 @@ namespace SpectroscopyVisualizer {
             };
             CbCaptureSpec.IsChecked = !GeneralConfigurations.Get().ViewPhase;
             PbLoading.Maximum = fileNames.Length;
+            PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
             Scheduler?.Start();
         }
@@ -325,6 +333,30 @@ namespace SpectroscopyVisualizer {
 
         private void LoadDataFiles_OnClick(object sender, RoutedEventArgs e) {
             LoadFiles(false);
+        }
+
+        private void DebugCmd_OnClick(object sender, RoutedEventArgs e) {
+            var fileNames = SelectFiles();
+            if (fileNames.IsEmpty()) return;
+            GeneralConfigurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
+            TbSavePath.Text = GeneralConfigurations.Get().Directory;
+            var factory = FactoryHolder.Get();
+            var producer = factory.NewProducer(fileNames, true);
+            Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
+            Writer = factory.NewSpectrumWriter(IsChecked(CbCaptureSpec));
+            var consumer = factory.NewConsumer(producer, Adapter, Writer);
+            consumer.FailEvent += ConsumerOnFailEvent;
+            consumer.ConsumeEvent += ConsumerOnConsumeEvent;
+            consumer.NoProductEvent += o => {
+                Scheduler?.Stop();
+                MessageBox.Show("processing finished");
+                Scheduler = null;
+            };
+            CbCaptureSpec.IsChecked = !GeneralConfigurations.Get().ViewPhase;
+            PbLoading.Maximum = fileNames.Length;
+            PbLoading.Value = 0;
+            Scheduler = new Scheduler(producer, consumer);
+            Scheduler?.Start();
         }
     }
 }

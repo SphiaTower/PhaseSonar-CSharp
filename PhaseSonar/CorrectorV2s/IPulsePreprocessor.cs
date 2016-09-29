@@ -5,7 +5,7 @@ using PhaseSonar.Maths;
 namespace PhaseSonar.CorrectorV2s {
     public interface IPulsePreprocessor {
         [NotNull]
-        double[] RetrievePulse([NotNull] double[] pulseSequence, int startIndex, int crestIndexOffStart, int pulseLength);
+        double[] RetrievePulse([NotNull] double[] pulseSequence, int startIndex, int crestIndexOffStart, int pulseLength); 
     }
 
     public class ZeroFillOnlyPreprocessor : IPulsePreprocessor {

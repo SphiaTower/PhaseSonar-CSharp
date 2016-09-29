@@ -49,7 +49,7 @@ namespace PhaseSonar.Analyzers {
             var example = sliceInfos.First();
             var pulse = _preprocessor.RetrievePulse(pulseSequence, example.StartIndex, example.CrestOffset, example.Length);
             _rotator.TrySymmetrize(pulse, example.CrestOffset);
-            double[] phase = _phaseExtractor.GetPhase(pulse);
+            double[] phase = _phaseExtractor.GetPhase(pulse,null);
             var unwrap = Functions.Unwrap(phase);
             ISpectrum spectrum = new RealSpectrum(unwrap,1);
             return Maybe<ISpectrum>.Of(spectrum);

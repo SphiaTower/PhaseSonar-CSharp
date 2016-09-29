@@ -102,5 +102,9 @@ namespace SpectroscopyVisualizer.Consumers {
         public int Length() {
             return _spectrum.Length();
         }
+
+        public double Magnitude(int index) {
+            return _spectrum.Magnitude(index);
+        }
     }
 }

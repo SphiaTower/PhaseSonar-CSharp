@@ -34,7 +34,7 @@ namespace SpectroscopyVisualizer.Factories {
                 _corrector = corrector;
             }
 
-            public Complex[] Correct(double[] zeroFilledPulse, int crestIndex) {
+            public Complex[] Correct(double[] symmetryPulse) {
                 string name;
                 if (_corrector is MertzCorrectorV2) {
                     name = "使用Mertz法校正";
@@ -44,7 +44,7 @@ namespace SpectroscopyVisualizer.Factories {
                     name = "Unknown";
                 }
                 Logger.WriteLine("校正", name);
-                return _corrector.Correct(zeroFilledPulse, crestIndex);
+                return _corrector.Correct(symmetryPulse);
             }
         }
 

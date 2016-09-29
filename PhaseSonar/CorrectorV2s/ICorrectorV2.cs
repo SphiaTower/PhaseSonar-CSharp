@@ -8,13 +8,9 @@ using PhaseSonar.Utils;
 
 namespace PhaseSonar.CorrectorV2s {
     public interface ICorrectorV2 {
-        Complex[] Correct([NotNull] double[] zeroFilledPulse, int crestIndex);
+        Complex[] Correct([NotNull] double[] symmetryPulse);
     }
 
-
-    public interface IPhaseCorrector {
-        void Correct([NotNull] Complex[] spectrum, double[] phase, double[] result);
-    }
 
     public class AutoFlipCorrectorV2 : ICorrectorV2 {
         private readonly ICorrectorV2 _delegate;
@@ -24,8 +20,8 @@ namespace PhaseSonar.CorrectorV2s {
         }
 
         [NotNull]
-        public Complex[] Correct(double[] zeroFilledPulse, int crestIndex) {
-            var complexSpectrum = _delegate.Correct(zeroFilledPulse,crestIndex);
+        public Complex[] Correct(double[] symmetryPulse) {
+            var complexSpectrum = _delegate.Correct(symmetryPulse);
             int length = complexSpectrum.Length;
             double sum = 0;
             for (int i = length/4; i < length/2; i++) {
@@ -48,6 +44,7 @@ namespace PhaseSonar.CorrectorV2s {
 
     public class MertzCorrectorV2 : ICorrectorV2 {
         [NotNull] private readonly IApodizer _apodizer;
+        private readonly IPhaseSynthesizer _synthesizer;
 
         [NotNull] private readonly IPhaseExtractor _phaseExtractor;
 
@@ -58,8 +55,9 @@ namespace PhaseSonar.CorrectorV2s {
         [CanBeNull] private Complex[] _spectrumArray;
 
         /// <summary>初始化 <see cref="T:System.Object" /> 类的新实例。</summary>
-        public MertzCorrectorV2(IPhaseExtractor phaseExtractor, IApodizer apodizer) {
+        public MertzCorrectorV2(IPhaseExtractor phaseExtractor, IApodizer apodizer,IPhaseSynthesizer synthesizer) {
             _apodizer = apodizer;
+            _synthesizer = synthesizer;
             _phaseExtractor = phaseExtractor;
 //            _phaseExtractor.RawSpectrumReady +=
 //                spectrum => Toolbox.WriteData(@"D:\zbf\temp\p_spectrum.txt", spectrum);
@@ -71,38 +69,36 @@ namespace PhaseSonar.CorrectorV2s {
         }
 
         [NotNull]
-        public Complex[] Correct(double[] zeroFilledPulse, int crestIndex) {
+        public Complex[] Correct(double[] symmetryPulse) {
             if (_spectrumArray == null || _outputArray == null) {
-                _spectrumArray = new Complex[zeroFilledPulse.Length];
-                _outputArray = new Complex[zeroFilledPulse.Length/2];
+                _spectrumArray = new Complex[symmetryPulse.Length];
+                _outputArray = new Complex[symmetryPulse.Length/2];
             }
 //            Toolbox.WriteData(@"D:\zbf\temp\0_zero_filled.txt",zeroFilledPulse);
             // -mean, and zero fill
             // try symmetrize
-            if (!_rotator.TrySymmetrize(zeroFilledPulse, crestIndex)) throw new Exception();
-//            Toolbox.WriteData(@"D:\zbf\temp\1_symmetrized.txt", zeroFilledPulse);
+//            Toolbox.WriteData(@"D:\zbf\temp\1_symmetrized.txt", symmetryPulse);
+
+            _apodizer.Apodize(symmetryPulse);
+//            Toolbox.WriteData(@"D:\zbf\temp\3_apodized.txt", symmetryPulse);
 
             // get phase
-            var phaseArray = _phaseExtractor.GetPhase(zeroFilledPulse);
 //            Toolbox.WriteData(@"D:\zbf\temp\2_phase.txt", phaseArray);
 
-            _apodizer.Apodize(zeroFilledPulse);
-//            Toolbox.WriteData(@"D:\zbf\temp\3_apodized.txt", zeroFilledPulse);
+//            _apodizer.Apodize(symmetryPulse);
+//            Toolbox.WriteData(@"D:\zbf\temp\3_apodized.txt", symmetryPulse);
 
-            _rotator.Rotate(zeroFilledPulse);
-//            Toolbox.WriteData(@"D:\zbf\temp\4_rotated.txt", zeroFilledPulse);
+            _rotator.Rotate(symmetryPulse);
+//            Toolbox.WriteData(@"D:\zbf\temp\4_rotated.txt", symmetryPulse);
 
-            zeroFilledPulse.ToComplex(_spectrumArray);
+            symmetryPulse.ToComplex(_spectrumArray);
             Fourier.Forward(_spectrumArray, FourierOptions.Matlab);
-//            Toolbox.WriteData(@"D:\zbf\temp\5_fft.txt", _spectrumArray);
+            //            Toolbox.WriteData(@"D:\zbf\temp\5_fft.txt", _spectrumArray);
 
-            for (var i = 0; i < _outputArray.Length; i++) {
-                var phase = phaseArray[i];
-                var real = _spectrumArray[i].Real;
-                var imag = _spectrumArray[i].Imaginary;
-                _outputArray[i] = real*Math.Cos(phase) + imag*Math.Sin(phase);
-//                _outputArray[i] = real*Math.Cos(phase) - imag*Math.Sin(phase);
-            }
+            var phaseArray = _phaseExtractor.GetPhase(symmetryPulse, _spectrumArray);
+
+            _synthesizer.Synthesize(_spectrumArray,phaseArray, _outputArray);
+          
 //            Toolbox.WriteData(@"D:\zbf\temp\6_output.txt", _outputArray);
 
             return _outputArray;
@@ -129,19 +125,18 @@ namespace PhaseSonar.CorrectorV2s {
             _apodizer = apodizer;
         }
 
-        public Complex[] Correct(double[] zeroFilledPulse, int crestIndex) {
+        public Complex[] Correct(double[] symmetryPulse) {
             if (_spectrumArray == null || _outputArray == null) {
-                _spectrumArray = new Complex[zeroFilledPulse.Length];
-                _outputArray = new Complex[zeroFilledPulse.Length/2];
+                _spectrumArray = new Complex[symmetryPulse.Length];
+                _outputArray = new Complex[symmetryPulse.Length/2];
             }
             // -mean, and zero fill
             // try symmetrize
-            if (!_rotator.TrySymmetrize(zeroFilledPulse, crestIndex)) throw new Exception();
 
-            _apodizer.Apodize(zeroFilledPulse);
-            _rotator.Rotate(zeroFilledPulse);
+            _apodizer.Apodize(symmetryPulse);
+            _rotator.Rotate(symmetryPulse);
 
-            zeroFilledPulse.ToComplex(_spectrumArray);
+            symmetryPulse.ToComplex(_spectrumArray);
             Fourier.Forward(_spectrumArray);
 
             Array.Copy(_spectrumArray, _outputArray, _outputArray.Length);

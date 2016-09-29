@@ -70,6 +70,8 @@ namespace PhaseSonar.Correctors {
         /// </summary>
         /// <returns>The size of the data container</returns>
         int Length();
+
+        double Magnitude(int index);
     }
 
     public class Spectrum : ISpectrum {
@@ -115,6 +117,9 @@ namespace PhaseSonar.Correctors {
             return true;
         }
 
+        public double Magnitude(int index) {
+            return _data[index].Magnitude;
+        }
     
 
         /// <summary>
@@ -220,6 +225,10 @@ namespace PhaseSonar.Correctors {
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
         public double Intensity(int index) {
+            return _data[index]; // todo
+        }
+
+        public double Magnitude(int index) {
             return _data[index];
         }
 

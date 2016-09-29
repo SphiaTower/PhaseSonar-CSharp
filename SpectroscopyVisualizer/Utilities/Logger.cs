@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace SpectroscopyVisualizer.Utilities {
     public static class Logger {
-        public static ConcurrentQueue<string> Queue { get; } = new ConcurrentQueue<string>();
+        public static ConcurrentQueue<object> Queue { get; } = new ConcurrentQueue<object>();
 
         public static void WriteLine([NotNull] string text) {
             Write(text);

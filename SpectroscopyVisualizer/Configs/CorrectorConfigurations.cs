@@ -40,7 +40,7 @@ namespace SpectroscopyVisualizer.Configs {
         private static CorrectorConfigurations _singleton;
 
         private CorrectorConfigurations(int zeroFillFactor, int centerSpanLength, CorrectorType correctorType,
-            ApodizerType apodizerType,PhaseType phaseType, double rangeStart, double rangeEnd,bool autoFlip) {
+            ApodizerType apodizerType,PhaseType phaseType, double rangeStart, double rangeEnd,bool autoFlip, bool realSpec) {
             ZeroFillFactor = zeroFillFactor;
             CenterSpanLength = centerSpanLength;
             CorrectorType = correctorType;
@@ -49,6 +49,7 @@ namespace SpectroscopyVisualizer.Configs {
             RangeStart = rangeStart;
             RangeEnd = rangeEnd;
             AutoFlip = autoFlip;
+            RealSpec = realSpec;
         }
 
 
@@ -60,6 +61,7 @@ namespace SpectroscopyVisualizer.Configs {
         public double RangeStart { get; set; }
         public double RangeEnd { get; set; }
         public bool AutoFlip { get; set; }
+        public bool RealSpec { get; set; }
 
         public static CorrectorConfigurations Get() {
             return _singleton;
@@ -70,15 +72,15 @@ namespace SpectroscopyVisualizer.Configs {
         }
 
         public static void Initialize(int zeroFillFactor, int centerSpanLength, CorrectorType correctorType,
-            ApodizerType apodizerType,PhaseType phaseType, double rangeStart, double rangeEnd,bool autoFlip) {
+            ApodizerType apodizerType,PhaseType phaseType, double rangeStart, double rangeEnd,bool autoFlip, bool realPhase) {
             if (_singleton != null) {
                 throw new Exception("environment already init");
             }
-            _singleton = new CorrectorConfigurations(zeroFillFactor, centerSpanLength, correctorType, apodizerType, phaseType,rangeStart,rangeEnd,autoFlip);
+            _singleton = new CorrectorConfigurations(zeroFillFactor, centerSpanLength, correctorType, apodizerType, phaseType,rangeStart,rangeEnd,autoFlip,realPhase);
         }
 
         public void Bind(Control tbZeroFillFactor, Control tbCenterSpanLength, Control cbCorrectorType,
-            Control cbApodizationType,Control cbPhaseType,Control tbRangeStart, Control tbRangeEnd,Control ckAutoFlip) {
+            Control cbApodizationType,Control cbPhaseType,Control tbRangeStart, Control tbRangeEnd,Control ckAutoFlip,Control ckRealSpec) {
             tbZeroFillFactor.DataContext = this;
             tbCenterSpanLength.DataContext = this;
             cbCorrectorType.DataContext = this;
@@ -87,6 +89,7 @@ namespace SpectroscopyVisualizer.Configs {
             tbRangeStart.DataContext = this;
             tbRangeEnd.DataContext = this;
             ckAutoFlip.DataContext = this;
+            ckRealSpec.DataContext = this;
         }
     }
 }

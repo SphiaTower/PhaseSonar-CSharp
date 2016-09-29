@@ -83,6 +83,7 @@
     <Compile Include="Analyzers\IPulseSequenceProcessor.cs" />
     <Compile Include="CorrectorV2s\ICorrectorV2.cs" />
     <Compile Include="CorrectorV2s\IPhaseExtractor.cs" />
+    <Compile Include="CorrectorV2s\IPhaseSynthesizer.cs" />
     <Compile Include="CorrectorV2s\IPulsePreprocessor.cs" />
     <Compile Include="CrestFinders\SimpleCrestFinder.cs" />
     <Compile Include="Maths\IApodizer.cs" />

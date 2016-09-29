@@ -35,7 +35,7 @@ namespace SpectroscopyVisualizer.Factories {
                 case RulerType.AverageLength:
                     return new AverageLengthRuler();
                 case RulerType.FixLength:
-                    return new FixLengtherRuler(100);
+                    return new FixLengtherRuler(SliceConfigurations.Get().FixedLength);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -118,12 +118,21 @@ namespace SpectroscopyVisualizer.Factories {
         }
 
         [NotNull]
-        public ICorrectorV2 NewCorrectorNoFlip() {
+        public IPhaseSynthesizer NewPhaseSynthesizer() {
+            if (CorrectorConfigurations.Get().RealSpec) {
+                return new RealPhaseSynthesizer();
+            } else {
+                return new ComplexPhaseSynthesizer();
+            }
+        }
+
+        [NotNull]
+        private ICorrectorV2 NewCorrectorNoFlip() {
             switch (CorrectorConfigurations.Get().CorrectorType) {
                 case CorrectorType.LinearMertz:
                     throw new NotImplementedException();
                 case CorrectorType.Mertz:
-                    return new MertzCorrectorV2(NewPhaseExtractor(), NewApodizer());
+                    return new MertzCorrectorV2(NewPhaseExtractor(), NewApodizer(),NewPhaseSynthesizer());
 
                 case CorrectorType.Fake:
                     return new FakeCorrectorV2(NewApodizer());
@@ -131,10 +140,14 @@ namespace SpectroscopyVisualizer.Factories {
                     throw new ArgumentOutOfRangeException();
             }
         }
-
+        
         [NotNull]
         public virtual ICorrectorV2 NewCorrector() {
-            return new AutoFlipCorrectorV2(NewCorrectorNoFlip());
+            if (CorrectorConfigurations.Get().AutoFlip) {
+                return new AutoFlipCorrectorV2(NewCorrectorNoFlip());
+            } else {
+                return NewCorrectorNoFlip();
+            }
         }
 
         [NotNull]
@@ -150,7 +163,7 @@ namespace SpectroscopyVisualizer.Factories {
 
         [NotNull]
         public SpectrumWriter NewSpectrumWriter(bool on) {
-            return new SpectrumWriter(GeneralConfigurations.Get().Directory, "[Average][Spectrum]", on);
+            return new SpectrumWriter(GeneralConfigurations.Get().Directory, "[Sum][Magnitude]", on);
         }
 
         [NotNull]

@@ -25,7 +25,6 @@ namespace SpectroscopyVisualizer.Factories {
 
         Sampler NewSampler();
         IPhaseExtractor NewPhaseExtractor();
-        ICorrectorV2 NewCorrectorNoFlip();
         ICorrectorV2 NewCorrector();
         SampleProducer NewProducer(bool cameraOn);
         DiskProducer NewProducer(IEnumerable<string> paths, bool compressed);

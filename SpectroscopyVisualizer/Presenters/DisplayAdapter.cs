@@ -214,7 +214,7 @@ namespace SpectroscopyVisualizer.Presenters {
                     var instantPts = CreateGraphPoints(_dummyAxis, _instantDispValues,_instantPts);
                     var accPts = CreateGraphPoints(_dummyAxis, _accDispValues,_accPts);
 //                    WavefromView.ClearWaveform();
-                    WavefromView.DrawWaveform(instantPts, Colors.Red,0);
+                    WavefromView.DrawWaveform(instantPts, Colors.OrangeRed,0);
                     WavefromView.DrawWaveform(accPts, Colors.White,1);
                 });
             _instantSpectrumCache = instant;

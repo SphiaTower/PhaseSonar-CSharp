@@ -10,7 +10,7 @@ using PhaseSonar.Utils;
 namespace PhaseSonar.CorrectorV2s {
     public interface IPhaseExtractor {
         [NotNull]
-        double[] GetPhase([NotNull] double[] symmetryPulse);
+        double[] GetPhase([NotNull] double[] symmetryPulse,[CanBeNull] Complex[] correspondSpectrum);
 
         event SpectrumReadyEventHandler RawSpectrumReady;
 
@@ -25,20 +25,33 @@ namespace PhaseSonar.CorrectorV2s {
         private Complex[] _complexContainer;
         private double[] _phaseArray;
 
-        public double[] GetPhase(double[] symmetryPulse) {
-            if (_phaseArray == null || _complexContainer == null) {
+
+        public double[] GetPhase(double[] symmetryPulse, [CanBeNull] Complex[] correspondSpectrum) {
+            if (_phaseArray == null) {
                 _phaseArray = new double[symmetryPulse.Length/2];
-                _complexContainer = new Complex[symmetryPulse.Length];
             }
-//            symmetryPulse.ToComplex(_complexContainer);
-//            _rotator.Rotate(_complexContainer);
+
+            Complex[] complexSpectrum;
+            if (correspondSpectrum==null) {
+                if (_complexContainer==null) {
+                    _complexContainer= new Complex[symmetryPulse.Length];
+                }
+                Functions.ToComplexRotate(symmetryPulse, _complexContainer);
+                Fourier.Forward(_complexContainer, FourierOptions.Matlab);
+                complexSpectrum = _complexContainer;
+            } else {
+                complexSpectrum = correspondSpectrum;
+            }
+
+            RawSpectrumReady?.Invoke(complexSpectrum);
+
+            //            symmetryPulse.ToComplex(_complexContainer);
+            //            _rotator.Rotate(_complexContainer);
 
             // rotate & to complex
-            Functions.ToComplexRotate(symmetryPulse, _complexContainer);
-            Fourier.Forward(_complexContainer, FourierOptions.Matlab);
-            RawSpectrumReady?.Invoke(_complexContainer);
+
             for (var i = 0; i < _phaseArray.Length; i++) {
-                _phaseArray[i] = _complexContainer[i].Phase;
+                _phaseArray[i] = complexSpectrum[i].Phase;
             }
             RawPhaseReady?.Invoke(_phaseArray);
             return _phaseArray;
@@ -68,11 +81,11 @@ namespace PhaseSonar.CorrectorV2s {
             return new SpecifiedRangePhaseExtractor(startIndex,endIndex);
         }
 
-        public double[] GetPhase(double[] symmetryPulse) {
+        public double[] GetPhase(double[] symmetryPulse, Complex[] correspondSpectrum) {
             if (_extractor==null) {
                 _extractor = Init(symmetryPulse.Length);
             }
-            return _extractor.GetPhase(symmetryPulse);
+            return _extractor.GetPhase(symmetryPulse,correspondSpectrum);
         }
 
         public event SpectrumReadyEventHandler RawSpectrumReady {
@@ -107,19 +120,33 @@ namespace PhaseSonar.CorrectorV2s {
             _rangePhaseContainer = new double[_rangeLength];
         }
 
-        public double[] GetPhase(double[] symmetryPulse) {
+        public double[] GetPhase(double[] symmetryPulse, Complex[] correspondSpectrum) {
             if (_halfDoubleContainer == null || _fullComplexContainer == null) {
                 _halfDoubleContainer = new double[symmetryPulse.Length/2];
                 _fullComplexContainer = new Complex[symmetryPulse.Length];
             }
-            Functions.ToComplexRotate(symmetryPulse, _fullComplexContainer);
-            _fullComplexContainer.FFT();
+
+            Complex[] spectrum;
+            if (correspondSpectrum==null) {
+                if (_fullComplexContainer==null) {
+                    _fullComplexContainer = new Complex[symmetryPulse.Length];
+                }
+                Functions.ToComplexRotate(symmetryPulse, _fullComplexContainer);
+                _fullComplexContainer.FFT();
+                spectrum = _fullComplexContainer;
+            } else {
+                spectrum = correspondSpectrum;
+            }
             // todo including problem
-            Array.Copy(_fullComplexContainer, _start, _rangeSpecContainer, 0, _rangeLength);
+            Array.Copy(spectrum, _start, _rangeSpecContainer, 0, _rangeLength);
+
             RawSpectrumReady?.Invoke(_rangeSpecContainer);
+
             _rangeSpecContainer.Phase(_rangePhaseContainer);
             Functions.UnwrapInPlace(_rangePhaseContainer);
+
             RawPhaseReady?.Invoke(_rangePhaseContainer);
+
             var fitFunc = Fit.LineFunc(_linespace, _rangePhaseContainer);
             for (var i = 0; i < _halfDoubleContainer.Length; i++) {
                 _halfDoubleContainer[i] = fitFunc(i);
@@ -159,7 +186,7 @@ namespace PhaseSonar.CorrectorV2s {
         }
 
         [NotNull]
-        public double[] GetPhase(double[] symmetryPulse) {
+        public double[] GetPhase(double[] symmetryPulse,Complex[] correspondSpectrum) {
             if (_interpolator == null || _phaseArray == null) {
                 _interpolator = new Interpolator(_centerHalfWidth*2, symmetryPulse.Length);
                 _phaseArray = new double[symmetryPulse.Length/2];
@@ -199,8 +226,8 @@ namespace PhaseSonar.CorrectorV2s {
             _phaseExtractor = new CentralInterpolationPhaseExtractor(apodizer, centerHalfWidth, Functions.Phase);
         }
 
-        public double[] GetPhase(double[] symmetryPulse) {
-            return _phaseExtractor.GetPhase(symmetryPulse);
+        public double[] GetPhase(double[] symmetryPulse, Complex[] correspondSpectrum) {
+            return _phaseExtractor.GetPhase(symmetryPulse,correspondSpectrum);
         }
 
         public event SpectrumReadyEventHandler RawSpectrumReady {
@@ -221,8 +248,8 @@ namespace PhaseSonar.CorrectorV2s {
             _phaseExtractor = new CentralInterpolationPhaseExtractor(apodizer, centerHalfWidth, complex => complex.Phase);
         }
 
-        public double[] GetPhase(double[] symmetryPulse) {
-            return _phaseExtractor.GetPhase(symmetryPulse);
+        public double[] GetPhase(double[] symmetryPulse, Complex[] correspondSpectrum) {
+            return _phaseExtractor.GetPhase(symmetryPulse, correspondSpectrum);
         }
 
         public event SpectrumReadyEventHandler RawSpectrumReady {

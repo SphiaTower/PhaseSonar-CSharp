@@ -15,7 +15,8 @@ namespace SpectroscopyVisualizer.Writers {
         [NotNull]
         public static string ToString([NotNull] this ISpectrum spectrum, int index) {
             if (spectrum.HasImag()) {
-                return spectrum.Real(index) + "\t" + spectrum.Imag(index);
+//                return spectrum.Real(index) + "\t" + spectrum.Imag(index);
+                return spectrum.Magnitude(index).ToString();
             }
             return spectrum.Real(index).ToString();
         }

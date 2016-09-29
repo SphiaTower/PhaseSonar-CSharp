@@ -63,7 +63,7 @@ namespace PhaseSonar.Maths {
                 while (prev - phase[i] >= Math.PI) {
                     phase[i] += CIRCLE;
                 }
-                while (phase[i]-prev>=CIRCLE) {
+                while (phase[i]-prev>= Math.PI) {
                     phase[i] -= CIRCLE;
                 }
                 prev = phase[i];

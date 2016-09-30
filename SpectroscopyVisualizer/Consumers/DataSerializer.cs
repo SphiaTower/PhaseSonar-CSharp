@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
@@ -7,14 +8,22 @@ using SpectroscopyVisualizer.Producers;
 using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Consumers {
-    public class DataSerializer : ParallelConsumer<SampleRecord, SpecialSampleWriter> {
+    public class TrueResult : IResult {
+        public bool Success => true;
+    }
+    public class DataSerializer : IConsumerV2 {
+      
+        private readonly ParallelConsumerV2<SampleRecord, SpecialSampleWriter, TrueResult> _consumer;
+
         /// <summary>
         ///     Create a Consumer.
         /// </summary>
         /// <param name="blockingQueue">The queue which containing elements to be consumed</param>
         /// <param name="workers">A collection of workers consuming the products in parallel.</param>
-        public DataSerializer([NotNull] BlockingCollection<SampleRecord> blockingQueue,
-            [NotNull] IEnumerable<SpecialSampleWriter> workers) : base(blockingQueue, workers) {
+        /// <param name="targetCnt"></param>
+        public DataSerializer([NotNull] BlockingCollection<SampleRecord> blockingQueue, [NotNull] IEnumerable<SpecialSampleWriter> workers, int? targetCnt) {
+            _consumer = new ParallelConsumerV2<SampleRecord, SpecialSampleWriter,TrueResult>(blockingQueue,workers,ConsumeElement,
+                result => { },2000,targetCnt);
         }
 
         /// <summary>
@@ -23,9 +32,52 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <param name="element">The product</param>
         /// <param name="worker">The worker in this branch.</param>
         /// <returns>Whether consuming succeeds.</returns>
-        protected override bool ConsumeElement(SampleRecord element, SpecialSampleWriter worker) {
+        private TrueResult ConsumeElement(SampleRecord element, SpecialSampleWriter worker) {
             worker.Write(element);
-            return true;
+            return _result;
+        }
+
+        private readonly TrueResult _result = new TrueResult();
+
+        /// <summary>
+        ///     The number of elements have been consumed.
+        /// </summary>
+        public int ConsumedCnt => _consumer.ConsumedCnt;
+
+        public int? TargetCnt => _consumer.TargetCnt;
+
+        /// <summary>
+        ///     Stop consuming.
+        /// </summary>
+        public void Stop() {
+            _consumer.Stop();
+        }
+
+        /// <summary>
+        ///     Start consuming.
+        /// </summary>
+        public void Start() {
+            _consumer.Start();
+        }
+
+        public event Action SourceInvalid {
+            add { _consumer.SourceInvalid += value; }
+            remove { _consumer.SourceInvalid -= value; }
+        }
+
+        public event Action ElementConsumedSuccessfully {
+            add { _consumer.ElementConsumedSuccessfully += value; }
+            remove { _consumer.ElementConsumedSuccessfully -= value; }
+        }
+
+        public event Action ProducerEmpty {
+            add { _consumer.ProducerEmpty += value; }
+            remove { _consumer.ProducerEmpty -= value; }
+        }
+
+        public event Action TargetAmountReached {
+            add { _consumer.TargetAmountReached += value; }
+            remove { _consumer.TargetAmountReached -= value; }
         }
     }
 

@@ -172,14 +172,13 @@ namespace SpectroscopyVisualizer.Factories {
         }
 
         [NotNull]
-        public AbstractConsumer<SampleRecord> NewConsumer([NotNull] IProducer<SampleRecord> producer,
-            [NotNull] DisplayAdapter adapter, SpectrumWriter writer) {
+        public IConsumerV2 NewConsumer([NotNull] IProducer<SampleRecord> producer, [NotNull] DisplayAdapter adapter, SpectrumWriter writer, int? targetCnt) {
             var threadNum = GeneralConfigurations.Get().ThreadNum;
             var accumulators = new List<IPulseSequenceProcessor>(threadNum);
             for (var i = 0; i < threadNum; i++) {
                 accumulators.Add(NewPulseSequenceProcessor());
             }
-            return new ParallelSpectroscopyVisualizer(producer.BlockingQueue, accumulators, adapter, writer);
+            return new ParralelSpectroscopyVisualizerV2(producer.BlockingQueue, accumulators, adapter, writer,targetCnt);
         }
 
         [NotNull]

@@ -9,16 +9,24 @@ using System.Windows.Documents;
 
 namespace SpectroscopyVisualizer.Consumers {
     public class SerialConsumerV2<TProduct> :IConsumerV2{
-        private BlockingCollection<TProduct> _queue= new BlockingCollection<TProduct>();
+        private readonly BlockingCollection<TProduct> _queue= new BlockingCollection<TProduct>();
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private int _waitProducerTimeoutMs;
+        private readonly int _waitProducerTimeoutMs;
         private int _continuousFailCnt=0;
+        private readonly Func<TProduct, bool> _processFunc;
+
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
+        public SerialConsumerV2(Func<TProduct, bool> processFunc, int? targetCnt, int waitProducerTimeoutMs) {
+            _processFunc = processFunc;
+            _waitProducerTimeoutMs = waitProducerTimeoutMs;
+            TargetCnt = targetCnt;
+        }
 
         /// <summary>
         ///     The number of elements have been consumed.
         /// </summary>
-        public int ConsumedCnt { get; private set; }
-        public int TargetCnt { get; }
+        public int ConsumedCnt { get; private set; } = 0;
+        public int? TargetCnt { get; }
 
         /// <summary>
         ///     Stop consuming.
@@ -60,7 +68,7 @@ namespace SpectroscopyVisualizer.Consumers {
         }
 
         private bool ConsumeElement(TProduct raw) {
-            throw new NotImplementedException();
+            return _processFunc(raw);
         }
 
         public event Action SourceInvalid;

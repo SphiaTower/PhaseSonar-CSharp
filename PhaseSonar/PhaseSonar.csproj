@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analyzers\PhaseReader.cs" />
+    <Compile Include="Analyzers\PulseChecker.cs" />
     <Compile Include="Analyzers\SplitResult.cs" />
     <Compile Include="Correctors\Spectrum.cs" />
     <Compile Include="Analyzers\Accumulator.cs" />

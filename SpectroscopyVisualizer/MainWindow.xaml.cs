@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using NationalInstruments.Restricted;
+using PhaseSonar.Analyzers;
 using PhaseSonar.Utils;
 using SpectroscopyVisualizer.Configs;
 using SpectroscopyVisualizer.Consumers;
@@ -172,22 +173,22 @@ namespace SpectroscopyVisualizer {
             }
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
             Writer = factory.NewSpectrumWriter(IsChecked(CbCaptureSpec));
-            var consumer = factory.NewConsumer(producer, Adapter, Writer);
+            var consumer = factory.NewConsumer(producer, Adapter, Writer, null);
             try {
                 Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
                 Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
             } catch (Exception) {
             }
             Scheduler = new Scheduler(producer, consumer);
-            consumer.FailEvent += ConsumerOnFailEvent;
-            consumer.ConsumeEvent += ConsumerOnConsumeEvent;
+            consumer.SourceInvalid += ConsumerOnFailEvent;
+            consumer.ElementConsumedSuccessfully += ConsumerOnConsumeEvent;
 
             TbStartFreq.DataContext = Adapter;
             TbEndFreq.DataContext = Adapter;
             Scheduler.Start();
         }
 
-        private void ConsumerOnConsumeEvent(object sender) {
+        private void ConsumerOnConsumeEvent() {
             var sizeInM = SamplingConfigurations.Get().RecordLength/1e6;
             Application.Current.Dispatcher.InvokeAsync(() => {
                 var consumedCnt = Scheduler?.Consumer.ConsumedCnt;
@@ -202,7 +203,7 @@ namespace SpectroscopyVisualizer {
         }
 
 
-        private void ConsumerOnFailEvent(object sender) {
+        private void ConsumerOnFailEvent() {
             Scheduler?.Stop();
             MessageBox.Show("It seems that the source is invalid.");
             Application.Current.Dispatcher.InvokeAsync(() => { SwitchButton.Toggle(false); });
@@ -277,10 +278,10 @@ namespace SpectroscopyVisualizer {
             var producer = factory.NewProducer(fileNames, compressed);
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
             Writer = factory.NewSpectrumWriter(IsChecked(CbCaptureSpec));
-            var consumer = factory.NewConsumer(producer, Adapter, Writer);
-            consumer.FailEvent += ConsumerOnFailEvent;
-            consumer.ConsumeEvent += ConsumerOnConsumeEvent;
-            consumer.NoProductEvent += o => {
+            var consumer = factory.NewConsumer(producer, Adapter, Writer, fileNames.Length);
+            consumer.SourceInvalid += ConsumerOnFailEvent;
+            consumer.ElementConsumedSuccessfully += ConsumerOnConsumeEvent;
+            consumer.ProducerEmpty +=() => {
                 Scheduler?.Stop();
                 MessageBox.Show("processing finished");
                 Scheduler = null;
@@ -297,6 +298,7 @@ namespace SpectroscopyVisualizer {
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
             Scheduler?.Start();
+            SwitchButton.Button.IsEnabled = false;
         }
 
         private void About_OnClick(object sender, RoutedEventArgs e) {
@@ -314,15 +316,13 @@ namespace SpectroscopyVisualizer {
             for (var i = 0; i < threadNum; i++) {
                 workers.Add(new SpecialSampleWriter(GeneralConfigurations.Get().Directory, "[Binary]"));
             }
-            var consumer = new DataSerializer(producer.BlockingQueue, workers);
-            consumer.FailEvent += ConsumerOnFailEvent;
-            consumer.ConsumeEvent += ConsumerOnConsumeEvent;
-            consumer.ConsumeEvent += o => {
-                if (consumer.ConsumedCnt >= total) {
+            var consumer = new DataSerializer(producer.BlockingQueue, workers, total);
+            consumer.SourceInvalid += ConsumerOnFailEvent;
+            consumer.ElementConsumedSuccessfully += ConsumerOnConsumeEvent;
+            consumer.TargetAmountReached += () => {
                     Scheduler?.Stop();
-                }
             };
-            consumer.NoProductEvent += o => {
+            consumer.ProducerEmpty += () => {
                 Scheduler?.Stop();
                 MessageBox.Show("processing finished");
                 Scheduler = null;
@@ -338,21 +338,26 @@ namespace SpectroscopyVisualizer {
         private void DebugCmd_OnClick(object sender, RoutedEventArgs e) {
             var fileNames = SelectFiles();
             if (fileNames.IsEmpty()) return;
+
+
+
             GeneralConfigurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
             TbSavePath.Text = GeneralConfigurations.Get().Directory;
             var factory = FactoryHolder.Get();
             var producer = factory.NewProducer(fileNames, true);
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
             Writer = factory.NewSpectrumWriter(IsChecked(CbCaptureSpec));
-            var consumer = factory.NewConsumer(producer, Adapter, Writer);
-            consumer.FailEvent += ConsumerOnFailEvent;
-            consumer.ConsumeEvent += ConsumerOnConsumeEvent;
-            consumer.NoProductEvent += o => {
-                Scheduler?.Stop();
-                MessageBox.Show("processing finished");
-                Scheduler = null;
+
+            List<PulseChecker> checkers = new List<PulseChecker>();
+            for (int i = 0; i < 4; i++) {
+                checkers.Add(new PulseChecker(factory.NewCrestFinder(),factory.NewSlicer(),factory.NewPulsePreprocessor(),factory.NewCorrector()));
+            }
+            var consumer = new PulseByPulseChecker(producer.BlockingQueue, checkers,fileNames.Length);
+            consumer.ElementConsumedSuccessfully += () => {
+                PbLoading.Dispatcher.InvokeAsync(() => {
+                    PbLoading.Value += 1;
+                });
             };
-            CbCaptureSpec.IsChecked = !GeneralConfigurations.Get().ViewPhase;
             PbLoading.Maximum = fileNames.Length;
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);

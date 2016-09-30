@@ -11,7 +11,7 @@ namespace SpectroscopyVisualizer.Consumers {
         /// </summary>
         int ConsumedCnt { get; }
 
-        int TargetCnt { get; }
+        int? TargetCnt { get; }
         /// <summary>
         ///     Stop consuming.
         /// </summary>

@@ -31,7 +31,6 @@ namespace SpectroscopyVisualizer.Factories {
         SpectrumWriter NewSpectrumWriter(bool on);
         SampleWriter NewSampleWriter(bool on);
 
-        AbstractConsumer<SampleRecord> NewConsumer([NotNull] IProducer<SampleRecord> producer,
-            [NotNull] DisplayAdapter adapter, SpectrumWriter writer);
+        IConsumerV2 NewConsumer([NotNull] IProducer<SampleRecord> producer, [NotNull] DisplayAdapter adapter, SpectrumWriter writer, int? targetCnt);
     }
 }

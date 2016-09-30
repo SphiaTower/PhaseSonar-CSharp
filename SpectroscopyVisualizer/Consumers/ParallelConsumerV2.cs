@@ -1,0 +1,102 @@
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace SpectroscopyVisualizer.Consumers {
+    public interface IResult {
+        bool Success { get; }
+    }
+    public class ParallelConsumerV2<TProduct, TWorker, TResult> : IConsumerV2 where TResult:IResult{
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly Func<TProduct, TWorker, TResult> _processFunc;
+        private readonly Action<TResult> _syncResultHandleFunc;	
+
+        private readonly BlockingCollection<TProduct> _queue;
+        private readonly int _waitProducerMsTimeout;
+
+        /// <summary>
+        ///     A collection of workers consuming the products in parallel.
+        /// </summary>
+        private readonly IEnumerable<TWorker> _workers;
+
+        private int _continuousFailCnt;
+
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
+        public ParallelConsumerV2(BlockingCollection<TProduct> queue, IEnumerable<TWorker> workers,
+            Func<TProduct,TWorker, TResult> processFunc, Action<TResult> syncResultHandleFunc, int waitProducerMsTimeout,  int? targetCnt) {
+            _processFunc = processFunc;
+            _queue = queue;
+            _waitProducerMsTimeout = waitProducerMsTimeout;
+            _syncResultHandleFunc = syncResultHandleFunc;
+            _workers = workers;
+            TargetCnt = targetCnt;
+        }
+
+        /// <summary>
+        ///     The number of elements have been consumed.
+        /// </summary>
+        public int ConsumedCnt { get; private set; }
+
+        public int? TargetCnt { get; }
+
+        /// <summary>
+        ///     Stop consuming.
+        /// </summary>
+        public void Stop() {
+            _cts.Cancel();
+        }
+
+        /// <summary>
+        ///     Start consuming.
+        /// </summary>
+        public void Start() {
+            Task.Run(() => {
+                var empty = false;
+                var parallelOptions = new ParallelOptions {CancellationToken = _cts.Token};
+                Parallel.ForEach(_workers, parallelOptions, worker => {
+                    while (!parallelOptions.CancellationToken.IsCancellationRequested) {
+                        TProduct raw;
+                        if (!_queue.TryTake(out raw, _waitProducerMsTimeout)) {
+                            empty = true;
+                            break;
+                        }
+                        if (parallelOptions.CancellationToken.IsCancellationRequested) return;
+                        var result = ConsumeElement(raw,worker);
+                        lock (this) {
+                            _syncResultHandleFunc(result);
+                            ConsumedCnt++;
+                            if (result.Success) {
+                                _continuousFailCnt = 0;
+                                ElementConsumedSuccessfully?.Invoke();
+                            } else {
+                                _continuousFailCnt++;
+                                if (_continuousFailCnt >= 10) {
+                                    SourceInvalid?.Invoke();
+                                    break;
+                                }
+                            }
+                            if (ConsumedCnt == TargetCnt) {
+                                TargetAmountReached?.Invoke();
+                            }
+                        }
+                    }
+                });
+                if (empty) {
+                    ProducerEmpty?.Invoke();
+                }
+            });
+        }
+
+
+        public event Action SourceInvalid;
+        public event Action ElementConsumedSuccessfully;
+        public event Action ProducerEmpty;
+        public event Action TargetAmountReached;
+
+        private TResult ConsumeElement(TProduct raw, TWorker worker) {
+            return _processFunc(raw, worker);
+        }
+    }
+}

@@ -13,7 +13,7 @@ namespace SpectroscopyVisualizer {
         /// </summary>
         /// <param name="producer"></param>
         /// <param name="consumer"></param>
-        public Scheduler(IProducer<SampleRecord> producer, AbstractConsumer<SampleRecord> consumer) {
+        public Scheduler(IProducer<SampleRecord> producer, IConsumerV2 consumer) {
             Producer = producer;
             Consumer = consumer;
         }
@@ -33,7 +33,7 @@ namespace SpectroscopyVisualizer {
         ///     The consumer
         /// </summary>
         [NotNull]
-        public AbstractConsumer<SampleRecord> Consumer { get; }
+        public IConsumerV2 Consumer { get; }
 
         /// <summary>
         ///     Start the system.

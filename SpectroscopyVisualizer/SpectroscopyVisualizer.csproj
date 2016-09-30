@@ -138,6 +138,9 @@
     <Compile Include="Configs\ConfigsHolder.cs" />
     <Compile Include="Configs\CorrectorConfigurations.cs" />
     <Compile Include="Configs\SliceConfigurations.cs" />
+    <Compile Include="Consumers\PulseByPulseChecker.cs" />
+    <Compile Include="Consumers\ParallelConsumerV2.cs" />
+    <Compile Include="Consumers\ParralelSpectroscopyVisualizerV2.cs" />
     <Compile Include="Consumers\SerialConsumerV2.cs" />
     <Compile Include="Consumers\IConsumerV2.cs" />
     <Compile Include="Factories\FactoryHolder.cs" />

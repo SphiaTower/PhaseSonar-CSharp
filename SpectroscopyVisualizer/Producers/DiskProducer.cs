@@ -25,7 +25,7 @@ namespace SpectroscopyVisualizer.Producers {
             if (compressed) {
                 _funcRead = Toolbox.DeserializeData<double[]>;
             } else {
-                _funcRead = Toolbox.Read;
+                _funcRead = Toolbox.ReadMemoryEfficiently;
             }
         }
 

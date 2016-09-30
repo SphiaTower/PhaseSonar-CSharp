@@ -59,7 +59,7 @@ namespace PhaseSonar.Analyzers {
                         sliceInfo.Length);
                     _rotator.TrySymmetrize(pulse, sliceInfo.CrestOffset); // todo do it at preproposs
                     var correctedSpectrum = _corrector.Correct(pulse);
-                    return new SpecInfo(correctedSpectrum.First(), i);
+                    return new SpecInfo(correctedSpectrum.Aggregate((complex, complex1) => complex+complex1)/correctedSpectrum.Length, i);
                 }
                 ).ToList();
         }

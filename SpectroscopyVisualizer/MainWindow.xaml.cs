@@ -44,7 +44,7 @@ namespace SpectroscopyVisualizer {
                 viewPhase:false);
 
             SliceConfigurations.Initialize(
-                crestAmplitudeThreshold: 0.1,
+                crestAmplitudeThreshold: 1,
                 pointsBeforeCrest: 1000,
                 crestAtCenter: true,
                 rulerType: RulerType.MinLength,
@@ -281,26 +281,20 @@ namespace SpectroscopyVisualizer {
             var consumer = factory.NewConsumer(producer, Adapter, Writer, fileNames.Length);
             consumer.SourceInvalid += ConsumerOnFailEvent;
             consumer.ElementConsumedSuccessfully += ConsumerOnConsumeEvent;
-            consumer.ProducerEmpty +=() => {
-                Scheduler?.Stop();
-                MessageBox.Show("processing finished");
-                Scheduler = null;
-//                Dispatcher.InvokeAsync(() => {
-//                    ConsoleManager.Show();
-//                    Console.WriteLine(Logger.Queue.Count);
-//                    Logger.Queue.ForEach(str => {
-//                        Console.WriteLine(str);
-//                    });
-//                });
-            };
+            consumer.ProducerEmpty += OnConsumerStopped;
+            consumer.TargetAmountReached += OnConsumerStopped;
             CbCaptureSpec.IsChecked = !GeneralConfigurations.Get().ViewPhase;
             PbLoading.Maximum = fileNames.Length;
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
             Scheduler?.Start();
-            SwitchButton.Button.IsEnabled = false;
         }
 
+        private void OnConsumerStopped() {
+            Scheduler?.Stop();
+            MessageBox.Show("processing finished");
+            Scheduler = null;
+        }
         private void About_OnClick(object sender, RoutedEventArgs e) {
             MessageBox.Show("A 2016 ST Workshop Production. All Rights Reserved.");
         }
@@ -338,8 +332,6 @@ namespace SpectroscopyVisualizer {
         private void DebugCmd_OnClick(object sender, RoutedEventArgs e) {
             var fileNames = SelectFiles();
             if (fileNames.IsEmpty()) return;
-
-
 
             GeneralConfigurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
             TbSavePath.Text = GeneralConfigurations.Get().Directory;

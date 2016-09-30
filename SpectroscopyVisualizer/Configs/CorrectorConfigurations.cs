@@ -6,7 +6,6 @@ namespace SpectroscopyVisualizer.Configs {
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
     public enum CorrectorType {
         [Description("None")] Fake,
-        [Description("Linear(TODO)")] LinearMertz,
         [Description("Mertz")] Mertz
     }
 

@@ -8,6 +8,8 @@ namespace SpectroscopyVisualizer.Presenters {
     public class EventLayer {
         private readonly Canvas _wavefromView;
         private Point _lastPoint;
+
+        private readonly int _lastTime = 0;
         private bool _leftMouseDown;
 
         private EventLayer(Canvas canvas) {
@@ -25,7 +27,6 @@ namespace SpectroscopyVisualizer.Presenters {
         public event ZoomEventHandler ZoomEvent;
         public event MouseMoveEventHandler FollowTraceEvent;
 
-        private int _lastTime=0;
         public void Attach([NotNull] Canvas canvas) {
             canvas.MouseLeftButtonDown += (sender, args) => {
                 if (!_leftMouseDown) {

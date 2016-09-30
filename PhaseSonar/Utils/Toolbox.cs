@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.Serialization.Formatters.Binary;
 using JetBrains.Annotations;
@@ -22,6 +24,10 @@ namespace PhaseSonar.Utils {
                 data[i] = double.Parse(lines[i]);
             }
             return data;
+        }
+        [NotNull]
+        public static double[] ReadMemoryEfficiently([NotNull] string path) {
+            return File.ReadLines(path).Select(double.Parse).ToArray();
         }
 
         /// <summary>

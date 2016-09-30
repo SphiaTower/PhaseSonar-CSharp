@@ -150,10 +150,6 @@
     <Compile Include="Presenters\EventLayer.cs" />
     <Compile Include="Utilities\ConsoleManager.cs" />
     <Compile Include="Consumers\DataSerializer.cs" />
-    <Compile Include="Consumers\IConsumer.cs" />
-    <Compile Include="Consumers\ParallelConsumer.cs" />
-    <Compile Include="Consumers\ParallelSpectroscopyVisualizer.cs" />
-    <Compile Include="Consumers\SerialConsumer.cs" />
     <Compile Include="Consumers\TracedSpectrum.cs" />
     <Compile Include="Producers\FixedSampleProducer.cs" />
     <Compile Include="Producers\SampleRecord.cs" />
@@ -181,7 +177,6 @@
     <Compile Include="Producers\AbstractProducer.cs" />
     <Compile Include="Producers\SampleProducer.cs" />
     <Compile Include="Presenters\DisplayAdapter.cs" />
-    <Compile Include="Consumers\AbstractConsumer.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

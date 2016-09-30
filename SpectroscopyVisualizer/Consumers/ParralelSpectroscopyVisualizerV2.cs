@@ -21,11 +21,12 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <param name="writer"></param>
         /// <param name="targetCnt"></param>
         public ParralelSpectroscopyVisualizerV2(BlockingCollection<SampleRecord> queue,
-            IEnumerable<IPulseSequenceProcessor> workers, DisplayAdapter adapter, SpectrumWriter writer,int? targetCnt) {
+            IEnumerable<IPulseSequenceProcessor> workers, DisplayAdapter adapter, SpectrumWriter writer, int? targetCnt) {
             _consumer = new ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, ResultImpl>(
-                queue, workers, ProcessElement, HandleResultSync, 2000,targetCnt);
+                queue, workers, ProcessElement, HandleResultSync, 2000, targetCnt);
             Adapter = adapter;
             Writer = writer;
+            TargetAmountReached += OnTargetAmountReached;
         }
 
         /// <summary>
@@ -83,6 +84,12 @@ namespace SpectroscopyVisualizer.Consumers {
         public event Action TargetAmountReached {
             add { _consumer.TargetAmountReached += value; }
             remove { _consumer.TargetAmountReached -= value; }
+        }
+
+        private void OnTargetAmountReached() {
+            if (Writer.IsOn) {
+                Writer.Write(new TracedSpectrum(SumSpectrum, "accumulated"));
+            }
         }
 
         private void HandleResultSync([NotNull] ResultImpl result) {

@@ -19,7 +19,7 @@ namespace NationalInstruments.Examples.StreamToDiskConsole {
         private static NIScope _scopeSession;
 
         private static void Main() {
-            var input = new ConsoleInput();
+           /* var input = new ConsoleInput();
             input.AskUser();
 
             var sampler = Sampler.FromBinder(input);
@@ -27,7 +27,7 @@ namespace NationalInstruments.Examples.StreamToDiskConsole {
             sampler.Release();
             var ouputStream = DiskWriter.GetOuputStream();
             DiskWriter.SaveBinaryWaveform(ouputStream, analogWaveformCollection);
-            Console.ReadKey();
+            Console.ReadKey();*/
 /*
 
             string deviceName, channelList;

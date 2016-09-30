@@ -129,11 +129,8 @@ namespace SpectroscopyVisualizer.Factories {
         [NotNull]
         private ICorrectorV2 NewCorrectorNoFlip() {
             switch (CorrectorConfigurations.Get().CorrectorType) {
-                case CorrectorType.LinearMertz:
-                    throw new NotImplementedException();
                 case CorrectorType.Mertz:
                     return new MertzCorrectorV2(NewPhaseExtractor(), NewApodizer(),NewPhaseSynthesizer());
-
                 case CorrectorType.Fake:
                     return new FakeCorrectorV2(NewApodizer());
                 default:

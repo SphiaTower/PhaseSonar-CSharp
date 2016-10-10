@@ -8,12 +8,13 @@ namespace SpectroscopyVisualizer.Consumers {
     public interface IResult {
         bool Success { get; }
     }
-    public class ParallelConsumerV2<TProduct, TWorker, TResult> : IConsumerV2 where TResult:IResult{
+
+    public class ParallelConsumerV2<TProduct, TWorker, TResult> : IConsumerV2 where TResult : IResult {
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly Func<TProduct, TWorker, TResult> _processFunc;
-        private readonly Action<TResult> _syncResultHandleFunc;	
 
         private readonly BlockingCollection<TProduct> _queue;
+        private readonly Action<TResult> _syncResultHandleFunc;
         private readonly int _waitProducerMsTimeout;
 
         /// <summary>
@@ -25,7 +26,8 @@ namespace SpectroscopyVisualizer.Consumers {
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
         public ParallelConsumerV2(BlockingCollection<TProduct> queue, IEnumerable<TWorker> workers,
-            Func<TProduct,TWorker, TResult> processFunc, Action<TResult> syncResultHandleFunc, int waitProducerMsTimeout,  int? targetCnt) {
+            Func<TProduct, TWorker, TResult> processFunc, Action<TResult> syncResultHandleFunc,
+            int waitProducerMsTimeout, int? targetCnt) {
             _processFunc = processFunc;
             _queue = queue;
             _waitProducerMsTimeout = waitProducerMsTimeout;
@@ -55,36 +57,38 @@ namespace SpectroscopyVisualizer.Consumers {
             Task.Run(() => {
                 var empty = false;
                 var parallelOptions = new ParallelOptions {CancellationToken = _cts.Token};
-                Parallel.ForEach(_workers, parallelOptions, worker => {
-                    while (!parallelOptions.CancellationToken.IsCancellationRequested) {
+                try {
+                    Parallel.ForEach(_workers, parallelOptions, worker => {
                         TProduct raw;
-                        if (!_queue.TryTake(out raw, _waitProducerMsTimeout)) {
-                            empty = true;
-                            break;
-                        }
-                        if (parallelOptions.CancellationToken.IsCancellationRequested) return;
-                        var result = ConsumeElement(raw,worker);
-                        lock (this) {
-                            _syncResultHandleFunc(result);
-                            ConsumedCnt++;
-                            if (result.Success) {
-                                _continuousFailCnt = 0;
-                                ElementConsumedSuccessfully?.Invoke();
-                            } else {
-                                _continuousFailCnt++;
-                                if (_continuousFailCnt >= 10) {
-                                    SourceInvalid?.Invoke();
-                                    break;
+                        while (_queue.TryTake(out raw, _waitProducerMsTimeout)) {
+                            parallelOptions.CancellationToken.ThrowIfCancellationRequested();
+                            var result = ConsumeElement(raw, worker);
+                            lock (this) {
+                                _syncResultHandleFunc(result);
+                                ConsumedCnt++;
+                                if (result.Success) {
+                                    _continuousFailCnt = 0;
+                                    ElementConsumedSuccessfully?.Invoke();
+                                } else {
+                                    _continuousFailCnt++;
+                                    if (_continuousFailCnt >= 10) {
+                                        SourceInvalid?.Invoke();
+                                        return;
+                                    }
+                                }
+                                if (ConsumedCnt == TargetCnt) {
+                                    TargetAmountReached?.Invoke();
+                                    return;
                                 }
                             }
-                            if (ConsumedCnt == TargetCnt) {
-                                TargetAmountReached?.Invoke();
-                            }
                         }
+                        empty = true;
+                    });
+                    if (empty) {
+                        ProducerEmpty?.Invoke();
                     }
-                });
-                if (empty) {
-                    ProducerEmpty?.Invoke();
+                } catch (OperationCanceledException) {
+                    // tasks stopped
                 }
             });
         }

@@ -19,49 +19,6 @@ namespace SpectroscopyVisualizer.Factories {
             return new LoggingCrestFinder(base.NewCrestFinder());
         }
 
-        public override DiskProducer NewProducer(IEnumerable<string> paths, bool compressed) {
-            return new LoggingDiskProducer(paths, compressed);
-        }
-
-        public override ICorrectorV2 NewCorrector() {
-            return new LoggingCorrectorV2(base.NewCorrector());
-        }
-
-        private class LoggingCorrectorV2 : ICorrectorV2 {
-            [NotNull] private readonly ICorrectorV2 _corrector;
-
-            public LoggingCorrectorV2(ICorrectorV2 corrector) {
-                _corrector = corrector;
-            }
-
-            public Complex[] Correct(double[] symmetryPulse) {
-                string name;
-                if (_corrector is MertzCorrectorV2) {
-                    name = "使用Mertz法校正";
-                } else if (_corrector is FakeCorrectorV2) {
-                    name = "不校正";
-                } else {
-                    name = "Unknown";
-                }
-                Logger.WriteLine("校正", name);
-                return _corrector.Correct(symmetryPulse);
-            }
-        }
-
-        private class LoggingDiskProducer : DiskProducer {
-            /// <summary>
-            ///     Create an instance.
-            /// </summary>
-            /// <param name="paths">The paths of files to be processed.</param>
-            public LoggingDiskProducer(IEnumerable<string> paths, bool compressed) : base(paths, compressed) {
-            }
-
-            protected override SampleRecord CreateRecord([NotNull] string path, int num) {
-                Logger.WriteLine("读取文件", path);
-                return base.CreateRecord(path, num);
-            }
-        }
-
         private class LoggingSlicer : ISlicer {
             private readonly ISlicer _delegate;
 

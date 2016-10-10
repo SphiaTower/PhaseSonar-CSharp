@@ -26,11 +26,11 @@ namespace SpectroscopyVisualizer.Factories {
         Sampler NewSampler();
         IPhaseExtractor NewPhaseExtractor();
         ICorrectorV2 NewCorrector();
-        SampleProducer NewProducer(bool cameraOn);
-        DiskProducer NewProducer(IEnumerable<string> paths, bool compressed);
-        SpectrumWriter NewSpectrumWriter(bool on);
-        SampleWriter NewSampleWriter(bool on);
+        IProducerV2<SampleRecord> NewProducer(int? targetCnt=null);
+        IProducerV2<SampleRecord> NewProducer(IReadOnlyCollection<string> paths, bool compressed);
+        IWriterV2<TracedSpectrum> NewSpectrumWriter();
+        IWriterV2<SampleRecord> NewSampleWriter();
 
-        IConsumerV2 NewConsumer([NotNull] IProducer<SampleRecord> producer, [NotNull] DisplayAdapter adapter, SpectrumWriter writer, int? targetCnt);
+        IConsumerV2 NewConsumer([NotNull] IProducerV2<SampleRecord> producer, [NotNull] DisplayAdapter adapter, IWriterV2<TracedSpectrum> writer, int? targetCnt);
     }
 }

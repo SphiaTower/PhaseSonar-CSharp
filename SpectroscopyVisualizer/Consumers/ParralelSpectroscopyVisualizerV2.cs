@@ -21,7 +21,8 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <param name="writer"></param>
         /// <param name="targetCnt"></param>
         public ParralelSpectroscopyVisualizerV2(BlockingCollection<SampleRecord> queue,
-            IEnumerable<IPulseSequenceProcessor> workers, DisplayAdapter adapter, SpectrumWriter writer, int? targetCnt) {
+            IEnumerable<IPulseSequenceProcessor> workers, DisplayAdapter adapter, [CanBeNull] IWriterV2<TracedSpectrum> writer,
+            int? targetCnt) {
             _consumer = new ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, ResultImpl>(
                 queue, workers, ProcessElement, HandleResultSync, 2000, targetCnt);
             Adapter = adapter;
@@ -38,7 +39,8 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <summary>
         ///     A Writer for data storage.
         /// </summary>
-        public SpectrumWriter Writer { get; }
+        [CanBeNull]
+        public IWriterV2<TracedSpectrum> Writer { get; }
 
         /// <summary>
         ///     <see cref="DisplayAdapter" />
@@ -87,9 +89,7 @@ namespace SpectroscopyVisualizer.Consumers {
         }
 
         private void OnTargetAmountReached() {
-            if (Writer.IsOn) {
-                Writer.Write(new TracedSpectrum(SumSpectrum, "accumulated"));
-            }
+            Writer?.Write(new TracedSpectrum(SumSpectrum, "accumulated"));
         }
 
         private void HandleResultSync([NotNull] ResultImpl result) {
@@ -99,7 +99,7 @@ namespace SpectroscopyVisualizer.Consumers {
                 } else {
                     SumSpectrum.TryAbsorb(spectrum);
                 }
-                if (Writer.IsOn) Writer.Write(new TracedSpectrum(spectrum, result.TAG));
+                Writer?.Write(new TracedSpectrum(spectrum, result.TAG));
                 Adapter.UpdateData(spectrum, SumSpectrum);
             });
         }

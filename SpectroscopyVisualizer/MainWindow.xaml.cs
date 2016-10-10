@@ -125,8 +125,6 @@ namespace SpectroscopyVisualizer {
         [CanBeNull]
         public Scheduler Scheduler { get; private set; }
 
-        [CanBeNull]
-        public SpectrumWriter Writer { get; set; }
 
         private void HideAllPhaseOptions() {
             Hide(TbCenterSpanLength);
@@ -162,18 +160,28 @@ namespace SpectroscopyVisualizer {
             Scheduler?.Stop();
         }
 
+        private void AttachWriter(IProducerV2<SampleRecord> producer) {
+            if (IsChecked(CbCaptureSample)) {
+                var newSampleWriter = FactoryHolder.Get().NewSampleWriter();
+                producer.NewProduct += record => {
+                    newSampleWriter.Write(record);
+                };
+            }
+        }
+
         private void TurnOn() {
             GC.Collect();
-            IProducer<SampleRecord> producer;
+            IProducerV2<SampleRecord> producer;
             var factory = FactoryHolder.Get();
-            if (DeveloperMode()) {
-                producer = new DummyProducer();
-            } else {
-                producer = factory.NewProducer(IsChecked(CbCaptureSample));
-            }
+//            if (DeveloperMode()) {
+//                producer = new DummyProducer();
+//            } else {
+                producer = factory.NewProducer();
+//            }
+            AttachWriter(producer);
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
-            Writer = factory.NewSpectrumWriter(IsChecked(CbCaptureSpec));
-            var consumer = factory.NewConsumer(producer, Adapter, Writer, null);
+            var newSpectrumWriter = IsChecked(CbCaptureSpec)?factory.NewSpectrumWriter():null;
+            var consumer = factory.NewConsumer(producer, Adapter, newSpectrumWriter, null);
             try {
                 Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
                 Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
@@ -222,16 +230,6 @@ namespace SpectroscopyVisualizer {
         }
 
 
-        private void OnCaptureSampleChecked(object sender, RoutedEventArgs e) {
-            var producer = Scheduler?.Producer as SampleProducer;
-            if (producer == null) return;
-            if (CbCaptureSample.IsChecked != null) producer.Writer.IsOn = CbCaptureSample.IsChecked.Value;
-        }
-
-        private void CbCaptureSpec_OnChecked(object sender, RoutedEventArgs e) {
-            if (Writer != null) Writer.IsOn = IsChecked(CbCaptureSpec);
-        }
-
         private void DecodeFiles_OnClick(object sender, RoutedEventArgs e) {
             var files = SelectFiles();
             PbLoading.Maximum = files.Length;
@@ -277,8 +275,8 @@ namespace SpectroscopyVisualizer {
             var factory = FactoryHolder.Get();
             var producer = factory.NewProducer(fileNames, compressed);
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
-            Writer = factory.NewSpectrumWriter(IsChecked(CbCaptureSpec));
-            var consumer = factory.NewConsumer(producer, Adapter, Writer, fileNames.Length);
+            var newSpectrumWriter = IsChecked(CbCaptureSpec)?factory.NewSpectrumWriter():null;
+            var consumer = factory.NewConsumer(producer, Adapter, newSpectrumWriter, fileNames.Length);
             consumer.SourceInvalid += ConsumerOnFailEvent;
             consumer.ElementConsumedSuccessfully += ConsumerOnConsumeEvent;
             consumer.ProducerEmpty += OnConsumerStopped;
@@ -302,9 +300,9 @@ namespace SpectroscopyVisualizer {
         private void StartSample_OnClick(object sender, RoutedEventArgs e) {
             var total = int.Parse(TbTotalData.Text);
             var factory = FactoryHolder.Get();
-            var producer = new FixedSampleProducer(factory.NewSampler(), total);
+
+            var producer = factory.NewProducer(total);
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
-            Writer = factory.NewSpectrumWriter(IsChecked(CbCaptureSpec));
             var threadNum = GeneralConfigurations.Get().ThreadNum;
             var workers = new List<SpecialSampleWriter>(threadNum);
             for (var i = 0; i < threadNum; i++) {
@@ -338,7 +336,6 @@ namespace SpectroscopyVisualizer {
             var factory = FactoryHolder.Get();
             var producer = factory.NewProducer(fileNames, true);
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
-            Writer = factory.NewSpectrumWriter(IsChecked(CbCaptureSpec));
 
             List<PulseChecker> checkers = new List<PulseChecker>();
             for (int i = 0; i < 4; i++) {

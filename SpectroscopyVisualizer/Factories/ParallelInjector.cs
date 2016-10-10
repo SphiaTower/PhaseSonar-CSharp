@@ -148,28 +148,29 @@ namespace SpectroscopyVisualizer.Factories {
         }
 
         [NotNull]
-        public virtual SampleProducer NewProducer(bool cameraOn) {
-            return new SampleProducer(NewSampler(), NewSampleWriter(cameraOn));
+        public IProducerV2<SampleRecord> NewProducer(int? targetCnt) {
+            return new SampleProducerV2(NewSampler(),48, targetCnt);
         }
 
         [NotNull]
-        public virtual DiskProducer NewProducer(IEnumerable<string> paths, bool compressed) {
-            return new DiskProducer(paths, compressed);
-        }
-
-
-        [NotNull]
-        public SpectrumWriter NewSpectrumWriter(bool on) {
-            return new SpectrumWriter(GeneralConfigurations.Get().Directory, "[Sum][Magnitude]", on);
+        public IProducerV2<SampleRecord> NewProducer([NotNull] IReadOnlyCollection<string> paths, bool compressed) {
+            return new DiskProducerV2(paths,compressed);
         }
 
         [NotNull]
-        public SampleWriter NewSampleWriter(bool on) {
-            return new SampleWriter(GeneralConfigurations.Get().Directory, "[Binary]", on);
+        public IWriterV2<TracedSpectrum> NewSpectrumWriter() {
+            return new SpectrumWriterV2(GeneralConfigurations.Get().Directory, "[Sum][Magnitude]");
         }
 
         [NotNull]
-        public IConsumerV2 NewConsumer([NotNull] IProducer<SampleRecord> producer, [NotNull] DisplayAdapter adapter, SpectrumWriter writer, int? targetCnt) {
+        public IWriterV2<SampleRecord> NewSampleWriter() {
+            return new SampleWriterV2(GeneralConfigurations.Get().Directory, "[Binary]");
+        }
+
+      
+
+        [NotNull]
+        public IConsumerV2 NewConsumer([NotNull] IProducerV2<SampleRecord> producer, [NotNull] DisplayAdapter adapter, IWriterV2<TracedSpectrum> writer, int? targetCnt) {
             var threadNum = GeneralConfigurations.Get().ThreadNum;
             var accumulators = new List<IPulseSequenceProcessor>(threadNum);
             for (var i = 0; i < threadNum; i++) {

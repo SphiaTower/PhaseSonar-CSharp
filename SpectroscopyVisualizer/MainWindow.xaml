@@ -283,10 +283,10 @@
                         <TextBox x:Name="TbSavePath" HorizontalAlignment="Left" Height="43" Margin="88,10,0,0"
                                  TextWrapping="Wrap" Text="{Binding Directory}" VerticalAlignment="Top" Width="187" />
                         <CheckBox x:Name="CbCaptureSample" Content="Data Sampled" HorizontalAlignment="Left"
-                                  Margin="52,74,0,0" VerticalAlignment="Top" Checked="OnCaptureSampleChecked" />
+                                  Margin="52,74,0,0" VerticalAlignment="Top"  />
                         <CheckBox x:Name="CbCaptureSpec" Content="Spectrum" HorizontalAlignment="Left"
                                   Margin="170,74,0,0"
-                                  VerticalAlignment="Top" Checked="CbCaptureSpec_OnChecked" />
+                                  VerticalAlignment="Top"  />
                         <Label x:Name="textBlock234" HorizontalAlignment="Left" Margin="5,69,0,0" Content="Save:"
                                VerticalAlignment="Top" Width="47" Height="26" RenderTransformOrigin="0.41,-0.225" />
                         <ProgressBar x:Name="PbLoading" HorizontalAlignment="Left" Height="28" Margin="10,100,0,0" VerticalAlignment="Top" Width="316"/>

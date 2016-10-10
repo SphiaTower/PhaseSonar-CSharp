@@ -13,7 +13,7 @@ namespace SpectroscopyVisualizer {
         /// </summary>
         /// <param name="producer"></param>
         /// <param name="consumer"></param>
-        public Scheduler(IProducer<SampleRecord> producer, IConsumerV2 consumer) {
+        public Scheduler(IProducerV2<SampleRecord> producer, IConsumerV2 consumer) {
             Producer = producer;
             Consumer = consumer;
         }
@@ -24,10 +24,10 @@ namespace SpectroscopyVisualizer {
         public StopWatch Watch { get; } = new StopWatch();
 
         /// <summary>
-        ///     The producer
+        ///     The producerss
         /// </summary>
         [NotNull]
-        public IProducer<SampleRecord> Producer { get; }
+        public IProducerV2<SampleRecord> Producer { get; }
 
         /// <summary>
         ///     The consumer

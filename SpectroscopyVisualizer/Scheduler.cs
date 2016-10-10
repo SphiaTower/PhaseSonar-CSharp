@@ -4,10 +4,43 @@ using SpectroscopyVisualizer.Consumers;
 using SpectroscopyVisualizer.Producers;
 
 namespace SpectroscopyVisualizer {
+    public interface IScheduler {
+        StopWatch Watch { get; }
+        /// <summary>
+        ///     Start the system.
+        /// </summary>
+        void Start();
+
+        /// <summary>
+        ///     Stop the system.
+        /// </summary>
+        void Stop();
+    }
+
+    public sealed class EmptyScheduler : IScheduler {
+        /// <summary>
+        ///     A stopwatch.
+        /// </summary>
+        public StopWatch Watch { get; } = new StopWatch();
+
+        /// <summary>
+        ///     Start the system.
+        /// </summary>
+        public void Start() {
+            Watch.Reset();
+        }
+
+        /// <summary>
+        ///     Stop the system.
+        /// </summary>
+        public void Stop() {
+        }
+    }
+
     /// <summary>
     ///     A scheduler scheduling the producer and the consumer.
     /// </summary>
-    public sealed class Scheduler {
+    public sealed class Scheduler : IScheduler {
         /// <summary>
         ///     Create a scheduler.
         /// </summary>

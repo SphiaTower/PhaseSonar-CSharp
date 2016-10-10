@@ -30,8 +30,12 @@ namespace SpectroscopyVisualizer.Configs {
             _singleton = new SliceConfigurations(pointsBeforeCrest, crestAtCenter, crestAmplitudeThreshold, rulerType,  autoAdjust,  findAbs,fixedLength);
         }
 
-        internal void Register(SliceConfigurations sliceConfigurations) {
-            _singleton = sliceConfigurations;
+        public static void Register(SliceConfigurations sliceConfigurations) {
+            if (_singleton == null) {
+                _singleton = sliceConfigurations;
+            } else {
+                ConfigsHolder.CopyTo(sliceConfigurations, _singleton);
+            }
         }
 
         public static SliceConfigurations Get() {

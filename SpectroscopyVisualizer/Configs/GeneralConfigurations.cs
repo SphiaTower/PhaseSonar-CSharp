@@ -25,8 +25,12 @@ namespace SpectroscopyVisualizer.Configs {
 
         public string Directory { get; set; }
 
-        internal void Register(GeneralConfigurations generalConfigurations) {
-            _singleton = generalConfigurations;
+        public static void Register(GeneralConfigurations generalConfigurations) {
+            if (_singleton == null) {
+                _singleton = generalConfigurations;
+            } else {
+                ConfigsHolder.CopyTo(generalConfigurations, _singleton);
+            }
         }
 
 

@@ -30,8 +30,12 @@ namespace SpectroscopyVisualizer.Configs {
         public long RecordLength => (long) (RecordLengthInM*1e6);
         public double Range { get; set; }
 
-        internal void Register(SamplingConfigurations samplingConfigurations) {
-            _singleton = samplingConfigurations;
+        public static void Register(SamplingConfigurations samplingConfigurations) {
+            if (_singleton == null) {
+                _singleton = samplingConfigurations;
+            } else {
+                ConfigsHolder.CopyTo(samplingConfigurations, _singleton);
+            }
         }
 
         public void Bind(Control deviceName, Control channel, Control samplingRateInMHz, Control recordLengthInM,

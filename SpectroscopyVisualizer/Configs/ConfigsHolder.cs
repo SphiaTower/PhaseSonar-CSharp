@@ -1,40 +1,59 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows.Forms;
+using JetBrains.Annotations;
+using PhaseSonar.Utils;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 
 namespace SpectroscopyVisualizer.Configs {
-    /// <summary>
-    ///     A configuration holder which holds all configuration singletons.
-    ///     This holder is used to serialize and deserialize the configurations.
-    /// </summary>
     [Serializable]
     public class ConfigsHolder {
-        /// <summary>
-        ///     <see cref="GeneralConfigurations" />
-        /// </summary>
-        public GeneralConfigurations GeneralConfigs { get; set; } = GeneralConfigurations.Get();
+        private readonly CorrectorConfigurations _corrector = CorrectorConfigurations.Get();
+        private readonly GeneralConfigurations _general = GeneralConfigurations.Get();
+        private readonly SamplingConfigurations _sampling = SamplingConfigurations.Get();
+        private readonly SliceConfigurations _slice = SliceConfigurations.Get();
+        public static void CopyTo<T>(T source,T destiny) {
+            var properties = TypeDescriptor.GetProperties(typeof(T)).Cast<PropertyDescriptor>();
 
-        /// <summary>
-        ///     <see cref="CorrectorConfigs" />
-        /// </summary>
-        public CorrectorConfigurations CorrectorConfigs { get; set; } = CorrectorConfigurations.Get();
+            foreach (var property in properties) {
+                property.SetValue(destiny, property.GetValue(source));
+            }
+        }
+        public static void Load() {
+            var dialog = new OpenFileDialog {
+                Filter = "SpectroscopyVisualizer Config Files (*.svcfg)|*.svcfg|Show All Files (*.*)|*.*",
+                Title = "Load Configs"
+            };
+            if (dialog.ShowDialog() == DialogResult.OK) {
+                var configsHolder = Toolbox.DeserializeData<ConfigsHolder>(dialog.FileName);
+                configsHolder.Register();
+            }
+        }
+        public static void Load(string path) {
+                var configsHolder = Toolbox.DeserializeData<ConfigsHolder>(path);
+                configsHolder.Register();
+        }
 
-        /// <summary>
-        ///     <see cref="SliceConfigurations" />
-        /// </summary>
-        public SliceConfigurations SliceConfigs { get; set; } = SliceConfigurations.Get();
-
-        /// <summary>
-        ///     <see cref="SamplingConfigs" />
-        /// </summary>
-        public SamplingConfigurations SamplingConfigs { get; set; } = SamplingConfigurations.Get();
-
-        /// <summary>
-        ///     Register configuration instances as singletons.
-        /// </summary>
         public void Register() {
-            GeneralConfigs.Register(GeneralConfigs);
-            CorrectorConfigurations.Register(CorrectorConfigs);
-            SliceConfigs.Register(SliceConfigs);
-            SamplingConfigs.Register(SamplingConfigs);
+            CorrectorConfigurations.Register(_corrector);
+            GeneralConfigurations.Register(_general);
+            SamplingConfigurations.Register(_sampling);
+            SliceConfigurations.Register(_slice);
+        }
+
+        public void Dump() {
+            var dialog = new SaveFileDialog {
+                Filter = "SpectroscopyVisualizer Config Files (*.svcfg)|*.svcfg|Show All Files (*.*)|*.*",
+                FileName = "Configs"
+            };
+            if (dialog.ShowDialog() == true) {
+                Toolbox.SerializeData(dialog.FileName, this);
+            }
+        }
+
+        public void Dump([NotNull] string path) {
+           Toolbox.SerializeData(path, this);
         }
     }
 }

@@ -67,7 +67,11 @@ namespace SpectroscopyVisualizer.Configs {
         }
 
         public static void Register(CorrectorConfigurations configuration) {
-            _singleton = configuration;
+            if (_singleton==null) {
+                _singleton = configuration;
+            } else {
+                ConfigsHolder.CopyTo(configuration,_singleton);
+            }
         }
 
         public static void Initialize(int zeroFillFactor, int centerSpanLength, CorrectorType correctorType,

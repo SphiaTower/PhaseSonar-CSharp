@@ -16,7 +16,6 @@ using SpectroscopyVisualizer.Consumers;
 using SpectroscopyVisualizer.Factories;
 using SpectroscopyVisualizer.Presenters;
 using SpectroscopyVisualizer.Producers;
-using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer {
     /// <summary>
@@ -28,49 +27,55 @@ namespace SpectroscopyVisualizer {
         public MainWindow() {
             // init system components
             InitializeComponent();
-            // init configurations
-            SamplingConfigurations.Initialize(
-                deviceName: "Dev2",
-                channel: 0,
-                samplingRateInMHz: 100,
-                recordLengthInM: 1,
-                range: 10);
 
-            GeneralConfigurations.Initialize(
-                repetitionRate: 400,
-                threadNum: 4,
-                dispPoints: 1000,
-                directory: @"C:\buffer\captured\",
-                viewPhase:false);
+            if (File.Exists(@"default.svcfg")) {
+                ConfigsHolder.Load(@"default.svcfg");
+            } else {
+                // init configurations
+                SamplingConfigurations.Initialize(
+                    deviceName: "Dev2",
+                    channel: 0,
+                    samplingRateInMHz: 100,
+                    recordLengthInM: 1,
+                    range: 10);
 
-            SliceConfigurations.Initialize(
-                crestAmplitudeThreshold: 1,
-                pointsBeforeCrest: 1000,
-                crestAtCenter: true,
-                rulerType: RulerType.MinLength,
-                findAbs: true,
-                autoAdjust: false,
-                fixedLength: 232171
-                );
+                GeneralConfigurations.Initialize(
+                    repetitionRate: 400,
+                    threadNum: 4,
+                    dispPoints: 1000,
+                    directory: @"C:\buffer\captured\",
+                    viewPhase: false);
 
-            CorrectorConfigurations.Initialize(
-                zeroFillFactor: 1,
-                centerSpanLength: 512,
-                correctorType: CorrectorType.Mertz,
-                apodizerType: ApodizerType.Hann,
-                phaseType: PhaseType.FullRange,
-                autoFlip: false,
-                realPhase: false,
-                rangeStart: 18000,
-                rangeEnd: 20000);
+                SliceConfigurations.Initialize(
+                    crestAmplitudeThreshold: 1,
+                    pointsBeforeCrest: 1000,
+                    crestAtCenter: true,
+                    rulerType: RulerType.MinLength,
+                    findAbs: true,
+                    autoAdjust: false,
+                    fixedLength: 232171
+                    );
+
+                CorrectorConfigurations.Initialize(
+                    zeroFillFactor: 1,
+                    centerSpanLength: 512,
+                    correctorType: CorrectorType.Mertz,
+                    apodizerType: ApodizerType.Hann,
+                    phaseType: PhaseType.FullRange,
+                    autoFlip: false,
+                    realPhase: false,
+                    rangeStart: 18000,
+                    rangeEnd: 20000);
+            }
             //            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\configuration.bin"));
             // bind configs to controls
             SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
-            GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath,CkPhase);
-            SliceConfigurations.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs,TbFixedLength);
+            GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase);
+            SliceConfigurations.Get()
+                .Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength);
             CorrectorConfigurations.Get()
                 .Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart,
-                    TbRangeEnd,CkAutoFlip,CkSpecReal);
+                    TbRangeEnd, CkAutoFlip, CkSpecReal);
             // init custom components
             _canvasView = new CanvasView(ScopeCanvas);
             HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
@@ -122,8 +127,8 @@ namespace SpectroscopyVisualizer {
         public HorizontalAxisView HorizontalAxisView { get; }
         public VerticalAxisView VerticalAxisView { get; }
 
-        [CanBeNull]
-        public Scheduler Scheduler { get; private set; }
+        [NotNull]
+        public IScheduler Scheduler { get; private set; } = new EmptyScheduler();
 
 
         private void HideAllPhaseOptions() {
@@ -157,30 +162,23 @@ namespace SpectroscopyVisualizer {
         }
 
         private void TurnOff() {
-            Scheduler?.Stop();
+            Scheduler.Stop();
         }
 
         private void AttachWriter(IProducerV2<SampleRecord> producer) {
             if (IsChecked(CbCaptureSample)) {
                 var newSampleWriter = FactoryHolder.Get().NewSampleWriter();
-                producer.NewProduct += record => {
-                    newSampleWriter.Write(record);
-                };
+                producer.NewProduct += record => { newSampleWriter.Write(record); };
             }
         }
 
         private void TurnOn() {
             GC.Collect();
-            IProducerV2<SampleRecord> producer;
             var factory = FactoryHolder.Get();
-//            if (DeveloperMode()) {
-//                producer = new DummyProducer();
-//            } else {
-                producer = factory.NewProducer();
-//            }
+            var producer = factory.NewProducer();
             AttachWriter(producer);
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
-            var newSpectrumWriter = IsChecked(CbCaptureSpec)?factory.NewSpectrumWriter():null;
+            var newSpectrumWriter = IsChecked(CbCaptureSpec) ? factory.NewSpectrumWriter() : null;
             var consumer = factory.NewConsumer(producer, Adapter, newSpectrumWriter, null);
             try {
                 Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
@@ -189,30 +187,27 @@ namespace SpectroscopyVisualizer {
             }
             Scheduler = new Scheduler(producer, consumer);
             consumer.SourceInvalid += ConsumerOnFailEvent;
-            consumer.ElementConsumedSuccessfully += ConsumerOnConsumeEvent;
-
+            consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
             TbStartFreq.DataContext = Adapter;
             TbEndFreq.DataContext = Adapter;
             Scheduler.Start();
         }
 
-        private void ConsumerOnConsumeEvent() {
+        private void ConsumerOnConsumeEvent(IConsumerV2 consumer, StopWatch watch) {
             var sizeInM = SamplingConfigurations.Get().RecordLength/1e6;
             Application.Current.Dispatcher.InvokeAsync(() => {
-                var consumedCnt = Scheduler?.Consumer.ConsumedCnt;
-                var elapsedSeconds = Scheduler?.Watch.ElapsedSeconds();
+                var consumedCnt = consumer.ConsumedCnt;
+                var elapsedSeconds = watch.ElapsedSeconds();
                 var speed = consumedCnt*sizeInM/elapsedSeconds;
-                if (consumedCnt.HasValue) {
-                    TbConsumerSpeed.Text = speed.Value.ToString("F3");
-                    TbTotalData.Text = (consumedCnt.Value*sizeInM).ToString();
-                }
+                TbConsumerSpeed.Text = speed.ToString("F3");
+                TbTotalData.Text = (consumedCnt*sizeInM).ToString();
                 PbLoading.Value += 1;
             });
         }
 
 
         private void ConsumerOnFailEvent() {
-            Scheduler?.Stop();
+            Scheduler.Stop();
             MessageBox.Show("It seems that the source is invalid.");
             Application.Current.Dispatcher.InvokeAsync(() => { SwitchButton.Toggle(false); });
         }
@@ -249,7 +244,9 @@ namespace SpectroscopyVisualizer {
         private static string[] SelectFiles() {
             // Create OpenFileDialog 
             var dlg = new OpenFileDialog {
-                DefaultExt = ".txt", Filter = "Text documents (.txt)|*.txt", Multiselect = true
+                DefaultExt = ".txt",
+                Filter = "Text documents (.txt)|*.txt",
+                Multiselect = true
             };
 
             // Set filter for file extension and default file extension 
@@ -275,10 +272,10 @@ namespace SpectroscopyVisualizer {
             var factory = FactoryHolder.Get();
             var producer = factory.NewProducer(fileNames, compressed);
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
-            var newSpectrumWriter = IsChecked(CbCaptureSpec)?factory.NewSpectrumWriter():null;
+            var newSpectrumWriter = IsChecked(CbCaptureSpec) ? factory.NewSpectrumWriter() : null;
             var consumer = factory.NewConsumer(producer, Adapter, newSpectrumWriter, fileNames.Length);
             consumer.SourceInvalid += ConsumerOnFailEvent;
-            consumer.ElementConsumedSuccessfully += ConsumerOnConsumeEvent;
+            consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
             consumer.ProducerEmpty += OnConsumerStopped;
             consumer.TargetAmountReached += OnConsumerStopped;
             CbCaptureSpec.IsChecked = !GeneralConfigurations.Get().ViewPhase;
@@ -289,10 +286,10 @@ namespace SpectroscopyVisualizer {
         }
 
         private void OnConsumerStopped() {
-            Scheduler?.Stop();
+            Scheduler.Stop();
             MessageBox.Show("processing finished");
-            Scheduler = null;
         }
+
         private void About_OnClick(object sender, RoutedEventArgs e) {
             MessageBox.Show("A 2016 ST Workshop Production. All Rights Reserved.");
         }
@@ -310,14 +307,10 @@ namespace SpectroscopyVisualizer {
             }
             var consumer = new DataSerializer(producer.BlockingQueue, workers, total);
             consumer.SourceInvalid += ConsumerOnFailEvent;
-            consumer.ElementConsumedSuccessfully += ConsumerOnConsumeEvent;
+            consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
             consumer.TargetAmountReached += () => {
-                    Scheduler?.Stop();
-            };
-            consumer.ProducerEmpty += () => {
-                Scheduler?.Stop();
+                Scheduler.Stop();
                 MessageBox.Show("processing finished");
-                Scheduler = null;
             };
             Scheduler = new Scheduler(producer, consumer);
             Scheduler?.Start();
@@ -337,20 +330,30 @@ namespace SpectroscopyVisualizer {
             var producer = factory.NewProducer(fileNames, true);
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
 
-            List<PulseChecker> checkers = new List<PulseChecker>();
-            for (int i = 0; i < 4; i++) {
-                checkers.Add(new PulseChecker(factory.NewCrestFinder(),factory.NewSlicer(),factory.NewPulsePreprocessor(),factory.NewCorrector()));
+            var checkers = new List<PulseChecker>();
+            for (var i = 0; i < 4; i++) {
+                checkers.Add(new PulseChecker(factory.NewCrestFinder(), factory.NewSlicer(),
+                    factory.NewPulsePreprocessor(), factory.NewCorrector()));
             }
-            var consumer = new PulseByPulseChecker(producer.BlockingQueue, checkers,fileNames.Length);
-            consumer.ElementConsumedSuccessfully += () => {
-                PbLoading.Dispatcher.InvokeAsync(() => {
-                    PbLoading.Value += 1;
-                });
-            };
+            var consumer = new PulseByPulseChecker(producer.BlockingQueue, checkers, fileNames.Length);
+            consumer.ElementConsumedSuccessfully +=
+                () => { PbLoading.Dispatcher.InvokeAsync(() => { PbLoading.Value += 1; }); };
             PbLoading.Maximum = fileNames.Length;
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
-            Scheduler?.Start();
+            Scheduler.Start();
+        }
+
+        private void LoadConfig_OnClick(object sender, RoutedEventArgs e) {
+            ConfigsHolder.Load();
+        }
+
+        private void SaveConfig_OnClick(object sender, RoutedEventArgs e) {
+            new ConfigsHolder().Dump();
+        }
+
+        private void SetConfigAsDef_OnClick(object sender, RoutedEventArgs e) {
+            new ConfigsHolder().Dump("default.svcfg");
         }
     }
 }

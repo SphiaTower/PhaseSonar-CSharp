@@ -22,7 +22,8 @@
                 <MenuItem Header="_Configs">
                     <MenuItem Header="_Save Config" Click="SaveConfig_OnClick"/>
                     <MenuItem Header="_Load Config File" Click="LoadConfig_OnClick" />
-                    <MenuItem Header="_Set Current Configs as Default" Click="SetConfigAsDef_OnClick"/>
+                    <Separator />
+                    <MenuItem Header="_Set Current Config as Default" Click="SetConfigAsDef_OnClick"/>
                 </MenuItem>
                 <MenuItem Header="_Tools">
                     <MenuItem Header="_Developer Mode" IsCheckable="True" IsChecked="False" />

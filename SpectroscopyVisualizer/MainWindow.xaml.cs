@@ -109,17 +109,16 @@ namespace SpectroscopyVisualizer {
                 TbFixedLength.Visibility = selected == RulerType.FixLength ? Visibility.Visible : Visibility.Hidden;
             };
 
-            SwitchButton = new SwitchButton(ToggleButton, false, "STOP", "START", TurnOn, TurnOff);
-
-//            Toolbox.SerializeData(@"D:\\configuration.bin",CorrectorConfigs.Get());
+            SwitchButton = new ToggleButtonV2(ToggleButton, false, "STOP", "START");
+            SwitchButton.TurnOn += TurnOn;
+            SwitchButton.TurnOff += () => {
+                Scheduler.Stop();
+            };
             SizeChanged += (sender, args) => { Adapter?.OnWindowZoomed(); };
             // todo text disapeared
-
-            ConsoleManager.Show();
-//            Logger.WriteLine("testing","testtest");
         }
 
-        private SwitchButton SwitchButton { get; }
+        private ToggleButtonV2 SwitchButton { get; }
 
         [CanBeNull]
         public DisplayAdapter Adapter { get; set; }
@@ -158,11 +157,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ToggleButton_OnClick(object sender, RoutedEventArgs routedEventArgs) {
-            SwitchButton.Toggle();
-        }
-
-        private void TurnOff() {
-            Scheduler.Stop();
+            SwitchButton.Push();
         }
 
         private void AttachWriter(IProducerV2<SampleRecord> producer) {
@@ -186,7 +181,7 @@ namespace SpectroscopyVisualizer {
             } catch (Exception) {
             }
             Scheduler = new Scheduler(producer, consumer);
-            consumer.SourceInvalid += ConsumerOnFailEvent;
+            consumer.SourceInvalid += ConsumerOnSourceInvalid;
             consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
             TbStartFreq.DataContext = Adapter;
             TbEndFreq.DataContext = Adapter;
@@ -206,10 +201,10 @@ namespace SpectroscopyVisualizer {
         }
 
 
-        private void ConsumerOnFailEvent() {
+        private void ConsumerOnSourceInvalid() {
             Scheduler.Stop();
             MessageBox.Show("It seems that the source is invalid.");
-            Application.Current.Dispatcher.InvokeAsync(() => { SwitchButton.Toggle(false); });
+            Application.Current.Dispatcher.InvokeAsync(() => { SwitchButton.Push(); });
         }
 
 
@@ -264,7 +259,17 @@ namespace SpectroscopyVisualizer {
             LoadFiles(true);
         }
 
+        private bool IsProgramRunning() {
+            if (SwitchButton.State) {
+                MessageBox.Show("Command rejected! Plz terminate current processing first.");
+            }
+            return SwitchButton.State;
+        }
+
         private void LoadFiles(bool compressed) {
+            if (IsProgramRunning()) {
+                return;
+            }
             var fileNames = SelectFiles();
             if (fileNames.IsEmpty()) return;
             GeneralConfigurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
@@ -274,7 +279,7 @@ namespace SpectroscopyVisualizer {
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
             var newSpectrumWriter = IsChecked(CbCaptureSpec) ? factory.NewSpectrumWriter() : null;
             var consumer = factory.NewConsumer(producer, Adapter, newSpectrumWriter, fileNames.Length);
-            consumer.SourceInvalid += ConsumerOnFailEvent;
+            consumer.SourceInvalid += ConsumerOnSourceInvalid;
             consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
             consumer.ProducerEmpty += OnConsumerStopped;
             consumer.TargetAmountReached += OnConsumerStopped;
@@ -282,7 +287,8 @@ namespace SpectroscopyVisualizer {
             PbLoading.Maximum = fileNames.Length;
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
-            Scheduler?.Start();
+            Scheduler.Start();
+            SwitchButton.State = true;
         }
 
         private void OnConsumerStopped() {
@@ -295,6 +301,9 @@ namespace SpectroscopyVisualizer {
         }
 
         private void StartSample_OnClick(object sender, RoutedEventArgs e) {
+            if (IsProgramRunning()) {
+                return;
+            }
             var total = int.Parse(TbTotalData.Text);
             var factory = FactoryHolder.Get();
 
@@ -306,14 +315,15 @@ namespace SpectroscopyVisualizer {
                 workers.Add(new SpecialSampleWriter(GeneralConfigurations.Get().Directory, "[Binary]"));
             }
             var consumer = new DataSerializer(producer.BlockingQueue, workers, total);
-            consumer.SourceInvalid += ConsumerOnFailEvent;
+            consumer.SourceInvalid += ConsumerOnSourceInvalid;
             consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
             consumer.TargetAmountReached += () => {
                 Scheduler.Stop();
                 MessageBox.Show("processing finished");
             };
             Scheduler = new Scheduler(producer, consumer);
-            Scheduler?.Start();
+            Scheduler.Start();
+            SwitchButton.State = true;
         }
 
         private void LoadDataFiles_OnClick(object sender, RoutedEventArgs e) {
@@ -321,6 +331,9 @@ namespace SpectroscopyVisualizer {
         }
 
         private void DebugCmd_OnClick(object sender, RoutedEventArgs e) {
+            if (IsProgramRunning()) {
+                return;
+            }
             var fileNames = SelectFiles();
             if (fileNames.IsEmpty()) return;
 
@@ -342,6 +355,7 @@ namespace SpectroscopyVisualizer {
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
             Scheduler.Start();
+            SwitchButton.State = true;
         }
 
         private void LoadConfig_OnClick(object sender, RoutedEventArgs e) {
@@ -354,6 +368,7 @@ namespace SpectroscopyVisualizer {
 
         private void SetConfigAsDef_OnClick(object sender, RoutedEventArgs e) {
             new ConfigsHolder().Dump("default.svcfg");
+            MessageBox.Show("Default configuration set successfully");
         }
     }
 }

@@ -23,10 +23,10 @@ namespace SpectroscopyVisualizer.Factories {
         DisplayAdapter NewAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,
             VerticalAxisView verticalAxisView,TextBox tbX, TextBox tbDelta);
 
-        Sampler NewSampler();
+        bool TryNewSampler(out Sampler newSampler);
         IPhaseExtractor NewPhaseExtractor();
         ICorrectorV2 NewCorrector();
-        IProducerV2<SampleRecord> NewProducer(int? targetCnt=null);
+        bool TryNewSampleProducer(out IProducerV2<SampleRecord> newProducer,int? targetCnt=null);
         IProducerV2<SampleRecord> NewProducer(IReadOnlyCollection<string> paths, bool compressed);
         IWriterV2<TracedSpectrum> NewSpectrumWriter();
         IWriterV2<SampleRecord> NewSampleWriter();

@@ -56,29 +56,28 @@ namespace SpectroscopyVisualizer.Producers {
         private void DoInBackground() {
             while (!_cts.IsCancellationRequested) {
                 T data;
-                try {
-                    data = _dataRetriever.RetrieveData();
+                if (_dataRetriever.TryRetrieveData(out data)) {
                     NewProduct?.Invoke(data);
                     _continuousFailCnt = 0;
-                } catch (Exception ex) {
+                    if (_cts.IsCancellationRequested) break;
+                    BlockingQueue.Add(data); // blocking method
+                    ProductCnt++;
+                    if (ProductCnt == TargetCnt) {
+                        HitTarget?.Invoke();
+                        break;
+                    }
+                } else {
                     _continuousFailCnt++;
                     if (_continuousFailCnt == 10) {
                         ProductionFailed?.Invoke();
                     }
-                    continue;
                 }
-                if (_cts.IsCancellationRequested) break;
-                BlockingQueue.Add(data); // blocking method
-                ProductCnt++;
-                if (ProductCnt == TargetCnt) {
-                    HitTarget?.Invoke();
-                    break;
-                }
+               
             }
         }
 
         public interface IDataRetriever {
-            T RetrieveData();
+            bool TryRetrieveData(out T data);
         }
     }
 }

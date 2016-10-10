@@ -71,8 +71,13 @@ namespace SpectroscopyVisualizer.Producers {
             remove { _producer.NewProduct -= value; }
         }
 
+
         [NotNull]
-        public SampleRecord RetrieveData() {
+        private SampleRecord CreateRecord(string path, int num) {
+            return new SampleRecord(_readFileFunc(path), num);
+        }
+
+        public bool TryRetrieveData(out SampleRecord data) {
             if (_enumerator.MoveNext()) {
                 var path = _enumerator.Current;
                 var match = _regex.Match(path);
@@ -80,14 +85,12 @@ namespace SpectroscopyVisualizer.Producers {
                 if (!int.TryParse(match.Value, out num)) {
                     num = ProductCnt;
                 }
-                return CreateRecord(path, num);
+                data = CreateRecord(path, num);
+                return true;
+            } else {
+                data = null;
+                return false;
             }
-            throw new InvalidOperationException("iteration should have been stopped");
-        }
-
-        [NotNull]
-        private SampleRecord CreateRecord(string path, int num) {
-            return new SampleRecord(_readFileFunc(path), num);
         }
     }
 }

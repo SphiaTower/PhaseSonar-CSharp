@@ -11,16 +11,22 @@ namespace NationalInstruments.Examples.StreamToDiskConsole {
         private long _recordLengthMin;
         private double _sampleRateMin;
 
-        public Sampler(string deviceName, string channelList, double range, double sampleRateMin, long recordLengthMin) {
+        public static bool TryCreateSampler(out Sampler sampler, string deviceName, string channelList, double range, double sampleRateMin, long recordLengthMin) {
             try {
+                sampler = new Sampler(deviceName,channelList,range,sampleRateMin,recordLengthMin);
+                return true;
+            } catch (Exception) {
+                sampler = null;
+                return false;
+            }   
+        }
+
+        private Sampler(string deviceName, string channelList, double range, double sampleRateMin, long recordLengthMin) {
                 DeviceName = deviceName;
                 ChannelList = channelList;
                 Range = range;
                 SampleRateMin = sampleRateMin;
                 RecordLengthMin = recordLengthMin;
-            } catch (Exception e) {
-                Console.WriteLine("Error occured in NI-Scope: " + e.Message);
-            }
         }
 
         public NIScope ScopeSession { get; private set; }
@@ -67,12 +73,6 @@ namespace NationalInstruments.Examples.StreamToDiskConsole {
         }
 
         public double[] Buffer { get; private set; }
-
-        public static Sampler FromBinder(IParamBinder binder) {
-            return new Sampler(binder.DeviceName, binder.ChanelList, binder.Range, binder.SampleRate,
-                binder.RecordLength);
-        }
-
 
         private static void DriverOperation_Warning(object sender, ScopeWarningEventArgs e) {
             Console.WriteLine(e.Text);

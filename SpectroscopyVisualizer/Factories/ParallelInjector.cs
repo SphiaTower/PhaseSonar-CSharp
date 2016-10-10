@@ -87,12 +87,10 @@ namespace SpectroscopyVisualizer.Factories {
                 SamplingConfigurations.Get().SamplingRate);
         }
 
-
-        [NotNull]
-        public Sampler NewSampler() {
+        public bool TryNewSampler(out Sampler newSampler) {
             var configs = SamplingConfigurations.Get();
-            return new Sampler(configs.DeviceName, configs.Channel.ToString(), configs.Range, configs.SamplingRate,
-                configs.RecordLength);
+            return Sampler.TryCreateSampler(out newSampler, configs.DeviceName, configs.Channel.ToString(), configs.Range, configs.SamplingRate,
+                configs.RecordLength) ;
         }
 
         [NotNull]
@@ -147,9 +145,15 @@ namespace SpectroscopyVisualizer.Factories {
             }
         }
 
-        [NotNull]
-        public IProducerV2<SampleRecord> NewProducer(int? targetCnt) {
-            return new SampleProducerV2(NewSampler(),48, targetCnt);
+        public bool TryNewSampleProducer(out IProducerV2<SampleRecord> newProducer, int? targetCnt = null) {
+            Sampler sampler;
+            if (TryNewSampler(out sampler)) {
+                newProducer = new SampleProducerV2(sampler,48,targetCnt);
+                return true;
+            } else {
+                newProducer = null;
+                return false;
+            }
         }
 
         [NotNull]

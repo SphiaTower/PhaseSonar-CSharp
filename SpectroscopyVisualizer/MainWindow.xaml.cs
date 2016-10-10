@@ -111,9 +111,7 @@ namespace SpectroscopyVisualizer {
 
             SwitchButton = new ToggleButtonV2(ToggleButton, false, "STOP", "START");
             SwitchButton.TurnOn += TurnOn;
-            SwitchButton.TurnOff += () => {
-                Scheduler.Stop();
-            };
+            SwitchButton.TurnOff += () => { Scheduler.Stop(); };
             SizeChanged += (sender, args) => { Adapter?.OnWindowZoomed(); };
             // todo text disapeared
         }
@@ -157,7 +155,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ToggleButton_OnClick(object sender, RoutedEventArgs routedEventArgs) {
-            SwitchButton.Push();
+            SwitchButton.State = !SwitchButton.State;
         }
 
         private void AttachWriter(IProducerV2<SampleRecord> producer) {
@@ -170,7 +168,18 @@ namespace SpectroscopyVisualizer {
         private void TurnOn() {
             GC.Collect();
             var factory = FactoryHolder.Get();
-            var producer = factory.NewProducer();
+            IProducerV2<SampleRecord> producer;
+            if (!factory.TryNewSampleProducer(out producer)) {
+                SwitchButton.State = false;
+                MessageBox.Show("Sampler can't be initialized");
+                return;
+            }
+            producer.ProductionFailed += () => {
+                Dispatcher.InvokeAsync(() => {
+                    SwitchButton.State = false;
+                    MessageBox.Show("Unable to sample data.");
+                });
+            };
             AttachWriter(producer);
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
             var newSpectrumWriter = IsChecked(CbCaptureSpec) ? factory.NewSpectrumWriter() : null;
@@ -204,7 +213,7 @@ namespace SpectroscopyVisualizer {
         private void ConsumerOnSourceInvalid() {
             Scheduler.Stop();
             MessageBox.Show("It seems that the source is invalid.");
-            Application.Current.Dispatcher.InvokeAsync(() => { SwitchButton.Push(); });
+            Application.Current.Dispatcher.InvokeAsync(() => { SwitchButton.State = false; });
         }
 
 
@@ -288,12 +297,11 @@ namespace SpectroscopyVisualizer {
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
             Scheduler.Start();
-            SwitchButton.State = true;
+            SetButtonRunning();
         }
 
         private void OnConsumerStopped() {
-            Scheduler.Stop();
-            MessageBox.Show("processing finished");
+            Dispatcher.InvokeAsync(() => { SwitchButton.State = false; });
         }
 
         private void About_OnClick(object sender, RoutedEventArgs e) {
@@ -307,7 +315,11 @@ namespace SpectroscopyVisualizer {
             var total = int.Parse(TbTotalData.Text);
             var factory = FactoryHolder.Get();
 
-            var producer = factory.NewProducer(total);
+            IProducerV2<SampleRecord> producer;
+            if (!factory.TryNewSampleProducer(out producer)) {
+                MessageBox.Show("Sampler can't be initialized");
+                return;
+            }
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
             var threadNum = GeneralConfigurations.Get().ThreadNum;
             var workers = new List<SpecialSampleWriter>(threadNum);
@@ -319,11 +331,17 @@ namespace SpectroscopyVisualizer {
             consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
             consumer.TargetAmountReached += () => {
                 Scheduler.Stop();
-                MessageBox.Show("processing finished");
+                // MessageBox.Show("processing finished");
             };
             Scheduler = new Scheduler(producer, consumer);
             Scheduler.Start();
+            SetButtonRunning();
+        }
+
+        private void SetButtonRunning() {
+            SwitchButton.TurnOn -= TurnOn;
             SwitchButton.State = true;
+            SwitchButton.TurnOn += TurnOn;
         }
 
         private void LoadDataFiles_OnClick(object sender, RoutedEventArgs e) {
@@ -355,7 +373,7 @@ namespace SpectroscopyVisualizer {
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
             Scheduler.Start();
-            SwitchButton.State = true;
+            SetButtonRunning();
         }
 
         private void LoadConfig_OnClick(object sender, RoutedEventArgs e) {

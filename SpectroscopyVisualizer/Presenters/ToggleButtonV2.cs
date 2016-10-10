@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Controls;
+using System.Windows.Media;
 using JetBrains.Annotations;
 
 namespace SpectroscopyVisualizer.Presenters {
@@ -14,16 +15,26 @@ namespace SpectroscopyVisualizer.Presenters {
             _button = button;
             _onText = onText;
             _offText = offText;
+            TurnOn = () => {
+                _button.Content = _onText;
+                _button.Background = new SolidColorBrush(Colors.Yellow);
+            };
+            TurnOff = () => {
+                _button.Content = _offText;
+                _button.Background = new SolidColorBrush(Colors.FloralWhite);
+            };
             State = state;
-            TurnOn = () => _button.Content = _onText;
-            TurnOff = () => _button.Content = _offText;
         }
 
         public bool State {
             get { return _state; }
             set {
                 _state = value;
-                _button.Content = value ? _onText : _offText;
+                if (value) {
+                    TurnOn();
+                } else {
+                    TurnOff();
+                }
             }
         }
 
@@ -32,14 +43,5 @@ namespace SpectroscopyVisualizer.Presenters {
 
         [NotNull]
         public event Action TurnOff;
-
-        public void Push() {
-            if (State) {
-                TurnOff();
-            } else {
-                TurnOn();
-            }
-            State = !State;
-        }
     }
 }

@@ -68,5 +68,17 @@ namespace SpectroscopyVisualizer.Producers {
             var pulseSequence = _sampler.Retrieve();
             return new SampleRecord(pulseSequence, ProductCnt);
         }
+
+        public bool TryRetrieveData(out SampleRecord data) {
+            double[] pulseSequence;
+            try {
+                pulseSequence = _sampler.Retrieve();
+            } catch (Exception) {
+                data = null;
+                return false;
+            }
+            data = new SampleRecord(pulseSequence, ProductCnt);
+            return true;
+        }
     }
 }

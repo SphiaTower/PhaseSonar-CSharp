@@ -7,7 +7,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:types="clr-namespace:SpectroscopyVisualizer.Configs"
         mc:Ignorable="d"
-        Title="Spectroscopy Visualizer" Height="600" Width="1200"
+        Title="Spectroscopy Visualizer 2.0.1" Height="600" Width="1200"
         d:DataContext="{d:DesignData }">
 
     <Grid>
@@ -26,7 +26,7 @@
                     <MenuItem Header="_Set Current Config as Default" Click="SetConfigAsDef_OnClick"/>
                 </MenuItem>
                 <MenuItem Header="_Tools">
-                    <MenuItem Header="_Developer Mode" IsCheckable="True" IsChecked="False" />
+                    <MenuItem Name="CkUltraFast" Header="_Ultra Fast Mode" IsCheckable="True" IsChecked="False" Checked="UltraFast_OnChecked" Unchecked="CkUltraFast_OnUnchecked" />
                     <MenuItem Header="_Debug Command" Click="DebugCmd_OnClick"/>
                     <Separator />
                     <MenuItem Header="_Start Sample..." Click="StartSample_OnClick" />
@@ -35,11 +35,11 @@
                     <MenuItem Header="View Help" />
                     <MenuItem Header="Check for Update" />
                     <Separator />
-                    <MenuItem Header="Contact Author" />
-                    <MenuItem Header="Report a Bug" />
-                    <MenuItem Header="Donate" />
+                    <MenuItem Header="Tech Support" Click="ContactAuthor_OnClick"/>
+                    <MenuItem Header="Report a Bug" Click="ReportBug_OnClick"/>
+                    <MenuItem Header="Donate" Click="Donate_OnClick"/>
                     <Separator />
-                    <MenuItem Header="_About Spectroscopy Visualizer" Click="About_OnClick" />
+                    <MenuItem Header="_About Spectroscopy Visualizer 2.0" Click="About_OnClick" />
                 </MenuItem>
             </Menu>
             <Grid Background="#FFE5E5E5">
@@ -277,20 +277,32 @@
                                  RenderTransformOrigin="0.498,0.93" />
                     </Grid>
                     <Grid Row="4">
+                        <Grid.Resources>
+                            <ObjectDataProvider x:Key="Data5" MethodName="GetValues"
+                                                ObjectType="{x:Type system:Enum}">
+                                <ObjectDataProvider.MethodParameters>
+                                    <x:Type TypeName="types:SaveType" />
+                                </ObjectDataProvider.MethodParameters>
+                            </ObjectDataProvider>
+                        </Grid.Resources>
                         <Button x:Name="BnPath" Content="Set Save&#xD;&#xA;Directory" HorizontalAlignment="Left"
                                 Margin="5,11,0,0" VerticalAlignment="Top" Width="78"
                                 RenderTransformOrigin="3.756,-1.336"
                                 Click="BnPath_Click" Height="43" />
                         <TextBox x:Name="TbSavePath" HorizontalAlignment="Left" Height="43" Margin="88,10,0,0"
                                  TextWrapping="Wrap" Text="{Binding Directory}" VerticalAlignment="Top" Width="187" />
-                        <CheckBox x:Name="CbCaptureSample" Content="Data Sampled" HorizontalAlignment="Left"
+                        <CheckBox x:Name="CbCaptureSample" Content="Samples" HorizontalAlignment="Left"
                                   Margin="52,74,0,0" VerticalAlignment="Top"  />
                         <CheckBox x:Name="CbCaptureSpec" Content="Spectrum" HorizontalAlignment="Left"
-                                  Margin="170,74,0,0"
+                                  Margin="136,74,0,0"
                                   VerticalAlignment="Top"  />
                         <Label x:Name="textBlock234" HorizontalAlignment="Left" Margin="5,69,0,0" Content="Save:"
                                VerticalAlignment="Top" Width="47" Height="26" RenderTransformOrigin="0.41,-0.225" />
                         <ProgressBar x:Name="PbLoading" HorizontalAlignment="Left" Height="28" Margin="10,100,0,0" VerticalAlignment="Top" Width="316"/>
+                        <ComboBox x:Name="CbSaveType"
+                                  ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:SaveType}}}"
+                                  SelectedItem="{Binding Path=SaveType}" 
+                                  HorizontalAlignment="Left" Margin="216,69,0,0" VerticalAlignment="Top" Width="110"/>
                     </Grid>
                 </Grid>
             </Grid>

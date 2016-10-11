@@ -72,14 +72,15 @@ namespace PhaseSonar.Correctors {
         int Length();
 
         double Magnitude(int index);
+        double Phase(int index);
+
+        Complex[] Array { get; }
     }
 
     public class Spectrum : ISpectrum {
-        private readonly Complex[] _data;
-
         /// <summary>初始化 <see cref="T:System.Object" /> 类的新实例。</summary>
         public Spectrum(Complex[] data, int pulseCount) {
-            _data = data;
+            Array = data;
             PulseCount = pulseCount;
         }
 
@@ -92,8 +93,8 @@ namespace PhaseSonar.Correctors {
         ///     Clear the container.
         /// </summary>
         public void Clear() {
-            for (var i = 0; i < _data.Length; i++) {
-                _data[i] = Complex.Zero;
+            for (var i = 0; i < Array.Length; i++) {
+                Array[i] = Complex.Zero;
             }
         }
 
@@ -103,7 +104,7 @@ namespace PhaseSonar.Correctors {
         /// <returns></returns>
         [NotNull]
         public ISpectrum Clone() {
-            return new Spectrum(_data, PulseCount);
+            return new Spectrum(Array, PulseCount);
         }
 
         /// <summary>
@@ -112,15 +113,20 @@ namespace PhaseSonar.Correctors {
         /// <param name="another"></param>
         public bool TryAbsorb(ISpectrum another) {
             var spectrum = another as Spectrum;
-            _data.Increase(spectrum._data);
+            Array.Increase(spectrum.Array);
             PulseCount += another.PulseCount;
             return true;
         }
 
         public double Magnitude(int index) {
-            return _data[index].Magnitude;
+            return Array[index].Magnitude;
         }
-    
+
+        public double Phase(int index) {
+            return Array[index].Phase;
+        }
+
+        public Complex[] Array { get; }
 
         /// <summary>
         ///     Get the intensity of the accumulated data at a specified index.
@@ -128,8 +134,7 @@ namespace PhaseSonar.Correctors {
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
         public double Intensity(int index) {
-            var magnitude = _data[index].Magnitude;
-            return Math.Pow(magnitude, 2);
+            return Math.Pow(Magnitude(index), 2);
         }
 
         /// <summary>
@@ -138,7 +143,7 @@ namespace PhaseSonar.Correctors {
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
         public double Real(int index) {
-            return _data[index].Real;
+            return Array[index].Real;
         }
 
         /// <summary>
@@ -147,7 +152,7 @@ namespace PhaseSonar.Correctors {
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
         public double Imag(int index) {
-            return _data[index].Imaginary;
+            return Array[index].Imaginary;
         }
 
         /// <summary>
@@ -155,7 +160,7 @@ namespace PhaseSonar.Correctors {
         /// </summary>
         /// <returns></returns>
         public bool HasImag() {
-            return !_data[0].Imaginary.Equals(0.0);
+            return !Array[0].Imaginary.Equals(0.0);
         }
 
         /// <summary>
@@ -172,7 +177,7 @@ namespace PhaseSonar.Correctors {
         /// </summary>
         /// <returns>The size of the data container</returns>
         public int Length() {
-            return _data.Length;
+            return Array.Length;
         }
     }
 
@@ -204,6 +209,13 @@ namespace PhaseSonar.Correctors {
         public ISpectrum Clone() {
             return new RealSpectrum(_data,PulseCount);
         }
+
+        public double Phase(int index) {
+            return 0;
+        }
+
+        [NotNull]
+        public Complex[] Array => _data.ToComplex();
 
         /// <summary>
         ///     Try to add up another spectrum. The added spectrum must be of the same type.

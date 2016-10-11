@@ -34,6 +34,17 @@ namespace SpectroscopyVisualizer.Configs {
         [Description("Specified Freq Range")] SpecifiedFreqRange
     }
 
+    [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+    public enum SaveType {
+        [Description("Complex")] Complex,
+        [Description("Magnitude")] Magnitude,
+        [Description("Intensity")] Intensity,
+        [Description("Phase")] Phase,
+        [Description("Unwrapped Phase")] UnwrappedPhase,
+        [Description("Real")] Real,
+        [Description("Imaginary")] Imaginary
+    }
+
     [Serializable]
     public class CorrectorConfigurations {
         private static CorrectorConfigurations _singleton;

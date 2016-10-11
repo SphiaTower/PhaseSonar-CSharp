@@ -106,5 +106,11 @@ namespace SpectroscopyVisualizer.Consumers {
         public double Magnitude(int index) {
             return _spectrum.Magnitude(index);
         }
+
+        public double Phase(int index) {
+            return _spectrum.Phase(index);
+        }
+
+        public Complex[] Array => _spectrum.Array;
     }
 }

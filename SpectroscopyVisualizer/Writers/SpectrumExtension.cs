@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using PhaseSonar.Correctors;
 
 namespace SpectroscopyVisualizer.Writers {
@@ -13,12 +14,33 @@ namespace SpectroscopyVisualizer.Writers {
         /// <param name="index"></param>
         /// <returns></returns>
         [NotNull]
-        public static string ToString([NotNull] this ISpectrum spectrum, int index) {
+        public static string ToStringMagnitude([NotNull] this ISpectrum spectrum, int index) {
+            return spectrum.Magnitude(index).ToString();
+        }
+
+        [NotNull]
+        public static string ToStringComplex([NotNull] this ISpectrum spectrum, int index) {
             if (spectrum.HasImag()) {
-//                return spectrum.Real(index) + "\t" + spectrum.Imag(index);
-                return spectrum.Magnitude(index).ToString();
+                return spectrum.Real(index) + "\t" + spectrum.Imag(index);
             }
             return spectrum.Real(index).ToString();
+        }
+        [NotNull]
+        public static string ToStringIntensity([NotNull] this ISpectrum spectrum, int index) {
+           return spectrum.Intensity(index).ToString();
+        }
+
+        [NotNull]
+        public static string ToStringPhase([NotNull] this ISpectrum spectrum, int index) {
+           return spectrum.Phase(index).ToString();
+        }
+        [NotNull]
+        public static string ToStringReal([NotNull] this ISpectrum spectrum, int index) {
+           return spectrum.Real(index).ToString();
+        }
+        [NotNull]
+        public static string ToStringImag([NotNull] this ISpectrum spectrum, int index) {
+           return spectrum.Imag(index).ToString();
         }
 
         /// <summary>
@@ -26,10 +48,10 @@ namespace SpectroscopyVisualizer.Writers {
         /// </summary>
         /// <returns></returns>
         [NotNull]
-        public static string[] ToStringArray([NotNull] this ISpectrum spectrum) {
+        public static string[] ToStringArray([NotNull] this ISpectrum spectrum,Func<ISpectrum,int,string> toStringFunc) {
             var array = new string[spectrum.Length()];
             for (var i = 0; i < array.Length; i++) {
-                array[i] = ToString(spectrum, i);
+                array[i] = toStringFunc(spectrum, i);
             }
             return array;
         }

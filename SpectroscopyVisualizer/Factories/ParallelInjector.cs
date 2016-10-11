@@ -84,13 +84,15 @@ namespace SpectroscopyVisualizer.Factories {
             TextBox tbX, TextBox tbDelta) {
             return new DisplayAdapter(view, horizontalAxisView, verticalAxisView, tbX, tbDelta,
                 GeneralConfigurations.Get().DispPoints,
-                SamplingConfigurations.Get().SamplingRate);
+                SamplingConfigurations.Get().SamplingRate, 0,
+                (int) Math.Round(SamplingConfigurations.Get().SamplingRateInMHz/2));
         }
 
         public bool TryNewSampler(out Sampler newSampler) {
             var configs = SamplingConfigurations.Get();
-            return Sampler.TryCreateSampler(out newSampler, configs.DeviceName, configs.Channel.ToString(), configs.Range, configs.SamplingRate,
-                configs.RecordLength) ;
+            return Sampler.TryCreateSampler(out newSampler, configs.DeviceName, configs.Channel.ToString(),
+                configs.Range, configs.SamplingRate,
+                configs.RecordLength);
         }
 
         [NotNull]
@@ -116,54 +118,31 @@ namespace SpectroscopyVisualizer.Factories {
         }
 
         [NotNull]
-        public IPhaseSynthesizer NewPhaseSynthesizer() {
-            if (CorrectorConfigurations.Get().RealSpec) {
-                return new RealPhaseSynthesizer();
-            } else {
-                return new ComplexPhaseSynthesizer();
-            }
-        }
-
-        [NotNull]
-        private ICorrectorV2 NewCorrectorNoFlip() {
-            switch (CorrectorConfigurations.Get().CorrectorType) {
-                case CorrectorType.Mertz:
-                    return new MertzCorrectorV2(NewPhaseExtractor(), NewApodizer(),NewPhaseSynthesizer());
-                case CorrectorType.Fake:
-                    return new FakeCorrectorV2(NewApodizer());
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-        
-        [NotNull]
         public virtual ICorrectorV2 NewCorrector() {
             if (CorrectorConfigurations.Get().AutoFlip) {
                 return new AutoFlipCorrectorV2(NewCorrectorNoFlip());
-            } else {
-                return NewCorrectorNoFlip();
             }
+            return NewCorrectorNoFlip();
         }
 
         public bool TryNewSampleProducer(out IProducerV2<SampleRecord> newProducer, int? targetCnt = null) {
             Sampler sampler;
             if (TryNewSampler(out sampler)) {
-                newProducer = new SampleProducerV2(sampler,48,targetCnt);
+                newProducer = new SampleProducerV2(sampler, 48, targetCnt);
                 return true;
-            } else {
-                newProducer = null;
-                return false;
             }
+            newProducer = null;
+            return false;
         }
 
         [NotNull]
         public IProducerV2<SampleRecord> NewProducer([NotNull] IReadOnlyCollection<string> paths, bool compressed) {
-            return new DiskProducerV2(paths,compressed);
+            return new DiskProducerV2(paths, compressed);
         }
 
         [NotNull]
         public IWriterV2<TracedSpectrum> NewSpectrumWriter() {
-            return new SpectrumWriterV2(GeneralConfigurations.Get().Directory, "[Sum][Magnitude]");
+            return new SpectrumWriterV2(GeneralConfigurations.Get().Directory, "[Sum]",GeneralConfigurations.Get().SaveType);
         }
 
         [NotNull]
@@ -171,16 +150,36 @@ namespace SpectroscopyVisualizer.Factories {
             return new SampleWriterV2(GeneralConfigurations.Get().Directory, "[Binary]");
         }
 
-      
 
         [NotNull]
-        public IConsumerV2 NewConsumer([NotNull] IProducerV2<SampleRecord> producer, [NotNull] DisplayAdapter adapter, IWriterV2<TracedSpectrum> writer, int? targetCnt) {
+        public IConsumerV2 NewConsumer([NotNull] IProducerV2<SampleRecord> producer, [NotNull] DisplayAdapter adapter,
+            IWriterV2<TracedSpectrum> writer, int? targetCnt) {
             var threadNum = GeneralConfigurations.Get().ThreadNum;
             var accumulators = new List<IPulseSequenceProcessor>(threadNum);
             for (var i = 0; i < threadNum; i++) {
                 accumulators.Add(NewPulseSequenceProcessor());
             }
-            return new ParralelSpectroscopyVisualizerV2(producer.BlockingQueue, accumulators, adapter, writer,targetCnt);
+            return new ParralelSpectroscopyVisualizerV2(producer.BlockingQueue, accumulators, adapter, writer, targetCnt);
+        }
+
+        [NotNull]
+        public IPhaseSynthesizer NewPhaseSynthesizer() {
+            if (CorrectorConfigurations.Get().RealSpec) {
+                return new RealPhaseSynthesizer();
+            }
+            return new ComplexPhaseSynthesizer();
+        }
+
+        [NotNull]
+        private ICorrectorV2 NewCorrectorNoFlip() {
+            switch (CorrectorConfigurations.Get().CorrectorType) {
+                case CorrectorType.Mertz:
+                    return new MertzCorrectorV2(NewPhaseExtractor(), NewApodizer(), NewPhaseSynthesizer());
+                case CorrectorType.Fake:
+                    return new FakeCorrectorV2(NewApodizer());
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         [NotNull]

@@ -47,6 +47,15 @@ namespace PhaseSonar.Utils {
             }
         }
 
+        [NotNull]
+        public static Complex[] ToComplex([NotNull] this double[] doubles) {
+            var container = new Complex[doubles.Length];
+            for (var i = 0; i < doubles.Length; i++) {
+                container[i] = doubles[i];
+            }
+            return container;
+        }
+
         public static void Increase([NotNull] this Complex[] complexs, [NotNull] Complex[] another) {
             for (var i = 0; i < complexs.Length; i++) {
                 complexs[i] += another[i];

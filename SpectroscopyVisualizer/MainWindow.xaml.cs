@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 using JetBrains.Annotations;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -23,6 +25,8 @@ namespace SpectroscopyVisualizer {
     /// </summary>
     public partial class MainWindow : Window {
         private readonly CanvasView _canvasView;
+
+        private bool _ultraFastMode;
 
         public MainWindow() {
             // init system components
@@ -44,7 +48,8 @@ namespace SpectroscopyVisualizer {
                     threadNum: 4,
                     dispPoints: 1000,
                     directory: @"C:\buffer\captured\",
-                    viewPhase: false);
+                    viewPhase: false,
+                    saveType: SaveType.Magnitude);
 
                 SliceConfigurations.Initialize(
                     crestAmplitudeThreshold: 1,
@@ -70,7 +75,7 @@ namespace SpectroscopyVisualizer {
             //            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\configuration.bin"));
             // bind configs to controls
             SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
-            GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase);
+            GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase, CbSaveType);
             SliceConfigurations.Get()
                 .Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength);
             CorrectorConfigurations.Get()
@@ -150,9 +155,6 @@ namespace SpectroscopyVisualizer {
             return checkBox.IsChecked != null && checkBox.IsChecked.Value;
         }
 
-        private bool DeveloperMode() {
-            return TbChannel.Text == "256";
-        }
 
         private void ToggleButton_OnClick(object sender, RoutedEventArgs routedEventArgs) {
             SwitchButton.State = !SwitchButton.State;
@@ -167,6 +169,19 @@ namespace SpectroscopyVisualizer {
 
         private void TurnOn() {
             GC.Collect();
+            if (_ultraFastMode) {
+                var textBlock = new TextBlock {
+                    Text = "Happy 2016!",
+                    Foreground = new SolidColorBrush(Colors.Wheat),
+                    FontSize = 30
+                };
+                Canvas.SetTop(textBlock, _canvasView.ScopeHeight/2);
+                Canvas.SetLeft(textBlock, _canvasView.ScopeWidth/3);
+                _canvasView.Canvas.Children.Add(textBlock);
+                SwitchButton.State = false;
+                return;
+            }
+
             var factory = FactoryHolder.Get();
             IProducerV2<SampleRecord> producer;
             if (!factory.TryNewSampleProducer(out producer)) {
@@ -286,13 +301,13 @@ namespace SpectroscopyVisualizer {
             var factory = FactoryHolder.Get();
             var producer = factory.NewProducer(fileNames, compressed);
             Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
+            CbCaptureSpec.IsChecked = !GeneralConfigurations.Get().ViewPhase;
             var newSpectrumWriter = IsChecked(CbCaptureSpec) ? factory.NewSpectrumWriter() : null;
             var consumer = factory.NewConsumer(producer, Adapter, newSpectrumWriter, fileNames.Length);
             consumer.SourceInvalid += ConsumerOnSourceInvalid;
             consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
             consumer.ProducerEmpty += OnConsumerStopped;
             consumer.TargetAmountReached += OnConsumerStopped;
-            CbCaptureSpec.IsChecked = !GeneralConfigurations.Get().ViewPhase;
             PbLoading.Maximum = fileNames.Length;
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
@@ -387,6 +402,28 @@ namespace SpectroscopyVisualizer {
         private void SetConfigAsDef_OnClick(object sender, RoutedEventArgs e) {
             new ConfigsHolder().Dump("default.svcfg");
             MessageBox.Show("Default configuration set successfully");
+        }
+
+        private void Donate_OnClick(object sender, RoutedEventArgs e) {
+            MessageBox.Show(
+                "If you think this app is valuable, plz pay $10 USD to the author. \n\nYour support is very important! Thanks!");
+        }
+
+        private void ReportBug_OnClick(object sender, RoutedEventArgs e) {
+            var issue = @"https://github.com/SphiaTower/PhaseSonar-CSharp/issues";
+            Process.Start(issue);
+        }
+
+        private void ContactAuthor_OnClick(object sender, RoutedEventArgs e) {
+        
+        }
+
+        private void UltraFast_OnChecked(object sender, RoutedEventArgs e) {
+            _ultraFastMode = CkUltraFast.IsChecked;
+        }
+
+        private void CkUltraFast_OnUnchecked(object sender, RoutedEventArgs e) {
+            _ultraFastMode = CkUltraFast.IsChecked;
         }
     }
 }

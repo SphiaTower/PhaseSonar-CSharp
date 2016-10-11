@@ -58,10 +58,10 @@ namespace SpectroscopyVisualizer.Presenters {
         private readonly PointCollection _instantPts;
         private readonly double _sampleRateInMHz;
         private readonly VerticalAxisView _verticalAxisView;
-
+        [CanBeNull]
         private ISpectrum _accumulatedSpectrumCache;
         private double _endFreqInMHz;
-
+        [CanBeNull]
         private ISpectrum _instantSpectrumCache;
         private double _max;
 
@@ -221,11 +221,31 @@ namespace SpectroscopyVisualizer.Presenters {
             _accumulatedSpectrumCache = accumulated;
         }
 
+        public void UpdateData([NotNull] ISpectrum instant) {
+            // todo bug!
+            // called in background
+            SampleAverage(instant, _instantDispValues);
+            WavefromView.Canvas.Dispatcher.InvokeAsync(
+                () => {
+                    var instantPts = CreateGraphPoints(_dummyAxis, _instantDispValues, _instantPts);
+//                    WavefromView.ClearWaveform();
+                    WavefromView.DrawWaveform(instantPts, Colors.OrangeRed, 0);
+                });
+            _instantSpectrumCache = instant;
+        }
+
 
         public void ResetYScale() {
             _scaleX = null;
             _scaleY = null;
-            UpdateData(_instantSpectrumCache, _accumulatedSpectrumCache);
+            if (_instantSpectrumCache==null) {
+                return;
+            }
+            if (_accumulatedSpectrumCache==null) {
+                UpdateData(_instantSpectrumCache);
+            } else {
+                UpdateData(_instantSpectrumCache, _accumulatedSpectrumCache);
+            }
         }
 
         [NotNull]
@@ -277,6 +297,31 @@ namespace SpectroscopyVisualizer.Presenters {
             var divider = spec.PulseCount*spec.PulseCount;
             for (int i = 0, j = lo; i < DispPointsCnt; i++,j += interval) {
                 resultContainer[i] = spec.Intensity(j)/divider;
+            }
+        }
+
+        public void SampleAverage([NotNull] ISpectrum spec, double[] resultContainer) {
+            var indexOverFreq = (spec.Length() - 1)/(_sampleRateInMHz/2);
+            var lo = (int) (indexOverFreq*StartFreqInMHz);
+            var hi = (int) (indexOverFreq*EndFreqInMHz);
+
+            var interval = (hi - lo)/(DispPointsCnt - 1);
+            if (interval < 1) {
+                while (interval < 1) {
+                    var broader = (EndFreqInMHz - StartFreqInMHz)*0.05;
+                    _startFreqInMHz -= broader;
+                    _endFreqInMHz += broader;
+                    lo = (int) (indexOverFreq*StartFreqInMHz);
+                    hi = (int) (indexOverFreq*EndFreqInMHz);
+                    interval = (hi - lo)/(DispPointsCnt - 1);
+                }
+                StartFreqInMHz = _startFreqInMHz;
+                EndFreqInMHz = _endFreqInMHz;
+            }
+
+            var divider = spec.PulseCount;
+            for (int i = 0, j = lo; i < DispPointsCnt; i++,j += interval) {
+                resultContainer[i] = spec.Magnitude(j)/divider;
             }
         }
 

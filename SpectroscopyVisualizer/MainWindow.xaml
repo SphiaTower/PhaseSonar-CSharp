@@ -291,9 +291,9 @@
                                 Click="BnPath_Click" Height="43" />
                         <TextBox x:Name="TbSavePath" HorizontalAlignment="Left" Height="43" Margin="88,10,0,0"
                                  TextWrapping="Wrap" Text="{Binding Directory}" VerticalAlignment="Top" Width="187" />
-                        <CheckBox x:Name="CbCaptureSample" Content="Samples" HorizontalAlignment="Left"
+                        <CheckBox x:Name="CkCaptureSample" Content="Samples" HorizontalAlignment="Left"
                                   Margin="52,74,0,0" VerticalAlignment="Top"  />
-                        <CheckBox x:Name="CbCaptureSpec" Content="Spectrum" HorizontalAlignment="Left"
+                        <CheckBox x:Name="CkCaptureSpec" Content="Spectrum" HorizontalAlignment="Left"
                                   Margin="136,74,0,0"
                                   VerticalAlignment="Top"  />
                         <Label x:Name="textBlock234" HorizontalAlignment="Left" Margin="5,69,0,0" Content="Save:"

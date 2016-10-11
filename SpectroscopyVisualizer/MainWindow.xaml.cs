@@ -24,7 +24,7 @@ namespace SpectroscopyVisualizer {
     ///     Interaction logic for MainWindow.xaml, also the entrance of the whole program.
     /// </summary>
     public partial class MainWindow : Window {
-        private readonly CanvasView _canvasView;
+//        private readonly CanvasView _canvasView;
 
         private bool _ultraFastMode;
 
@@ -37,7 +37,7 @@ namespace SpectroscopyVisualizer {
             } else {
                 // init configurations
                 SamplingConfigurations.Initialize(
-                    deviceName: "Dev2",
+                    deviceName: "Dev3",
                     channel: 0,
                     samplingRateInMHz: 100,
                     recordLengthInM: 1,
@@ -82,9 +82,9 @@ namespace SpectroscopyVisualizer {
                 .Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart,
                     TbRangeEnd, CkAutoFlip, CkSpecReal);
             // init custom components
-            _canvasView = new CanvasView(ScopeCanvas);
-            HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
-            VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
+//            _canvasView = new CanvasView(ScopeCanvas);
+//            HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
+//            VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
 
             CbPhaseType.SelectionChanged += (sender, args) => {
                 var selected = (PhaseType) args.AddedItems[0];
@@ -116,7 +116,7 @@ namespace SpectroscopyVisualizer {
 
             SwitchButton = new ToggleButtonV2(ToggleButton, false, "STOP", "START");
             SwitchButton.TurnOn += TurnOn;
-            SwitchButton.TurnOff += () => { Scheduler.Stop(); };
+            SwitchButton.TurnOff += ClearFromRunningState;
             SizeChanged += (sender, args) => { Adapter?.OnWindowZoomed(); };
             // todo text disapeared
         }
@@ -125,9 +125,6 @@ namespace SpectroscopyVisualizer {
 
         [CanBeNull]
         public DisplayAdapter Adapter { get; set; }
-
-        public HorizontalAxisView HorizontalAxisView { get; }
-        public VerticalAxisView VerticalAxisView { get; }
 
         [NotNull]
         public IScheduler Scheduler { get; private set; } = new EmptyScheduler();
@@ -161,7 +158,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void AttachWriter(IProducerV2<SampleRecord> producer) {
-            if (IsChecked(CbCaptureSample)) {
+            if (IsChecked(CkCaptureSample)) {
                 var newSampleWriter = FactoryHolder.Get().NewSampleWriter();
                 producer.NewProduct += record => { newSampleWriter.Write(record); };
             }
@@ -175,9 +172,10 @@ namespace SpectroscopyVisualizer {
                     Foreground = new SolidColorBrush(Colors.Wheat),
                     FontSize = 30
                 };
-                Canvas.SetTop(textBlock, _canvasView.ScopeHeight/2);
-                Canvas.SetLeft(textBlock, _canvasView.ScopeWidth/3);
-                _canvasView.Canvas.Children.Add(textBlock);
+                CanvasView canvasView = new CanvasView(ScopeCanvas);
+                Canvas.SetTop(textBlock, canvasView.ScopeHeight/2);
+                Canvas.SetLeft(textBlock, canvasView.ScopeWidth/3);
+                canvasView.Canvas.Children.Add(textBlock);
                 SwitchButton.State = false;
                 return;
             }
@@ -196,8 +194,8 @@ namespace SpectroscopyVisualizer {
                 });
             };
             AttachWriter(producer);
-            Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
-            var newSpectrumWriter = IsChecked(CbCaptureSpec) ? factory.NewSpectrumWriter() : null;
+            Adapter = NewAdapter();
+            var newSpectrumWriter = IsChecked(CkCaptureSpec) ? factory.NewSpectrumWriter() : null;
             var consumer = factory.NewConsumer(producer, Adapter, newSpectrumWriter, null);
             try {
                 Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
@@ -209,7 +207,14 @@ namespace SpectroscopyVisualizer {
             consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
             TbStartFreq.DataContext = Adapter;
             TbEndFreq.DataContext = Adapter;
+            PbLoading.IsIndeterminate = true;
             Scheduler.Start();
+        }
+
+        [NotNull]
+        private DisplayAdapter NewAdapter() {
+            return FactoryHolder.Get().NewAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas), new VerticalAxisView(VerAxisCanvas),
+                TbXCoordinate, TbDistance);
         }
 
         private void ConsumerOnConsumeEvent(IConsumerV2 consumer, StopWatch watch) {
@@ -226,9 +231,16 @@ namespace SpectroscopyVisualizer {
 
 
         private void ConsumerOnSourceInvalid() {
+            Dispatcher.InvokeAsync(() => {
+                SwitchButton.State = false;
+                MessageBox.Show("It seems that the source is invalid.");
+            });
+        }
+
+        private void ClearFromRunningState() {
             Scheduler.Stop();
-            MessageBox.Show("It seems that the source is invalid.");
-            Application.Current.Dispatcher.InvokeAsync(() => { SwitchButton.State = false; });
+            PbLoading.IsIndeterminate = false;
+            PbLoading.Value = 0;
         }
 
 
@@ -300,9 +312,9 @@ namespace SpectroscopyVisualizer {
             TbSavePath.Text = GeneralConfigurations.Get().Directory;
             var factory = FactoryHolder.Get();
             var producer = factory.NewProducer(fileNames, compressed);
-            Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
-            CbCaptureSpec.IsChecked = !GeneralConfigurations.Get().ViewPhase;
-            var newSpectrumWriter = IsChecked(CbCaptureSpec) ? factory.NewSpectrumWriter() : null;
+            Adapter = NewAdapter();
+            CkCaptureSpec.IsChecked = !GeneralConfigurations.Get().ViewPhase;
+            var newSpectrumWriter = IsChecked(CkCaptureSpec) ? factory.NewSpectrumWriter() : null;
             var consumer = factory.NewConsumer(producer, Adapter, newSpectrumWriter, fileNames.Length);
             consumer.SourceInvalid += ConsumerOnSourceInvalid;
             consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
@@ -331,11 +343,18 @@ namespace SpectroscopyVisualizer {
             var factory = FactoryHolder.Get();
 
             IProducerV2<SampleRecord> producer;
-            if (!factory.TryNewSampleProducer(out producer)) {
+            if (!factory.TryNewSampleProducer(out producer, total)) {
+                SwitchButton.State = false;
                 MessageBox.Show("Sampler can't be initialized");
                 return;
             }
-            Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
+            producer.HitTarget += () => {
+                Dispatcher.InvokeAsync(() => {
+                    SwitchButton.State = false;
+                });
+            };
+            PbLoading.Maximum = total;
+            Adapter = NewAdapter();
             var threadNum = GeneralConfigurations.Get().ThreadNum;
             var workers = new List<SpecialSampleWriter>(threadNum);
             for (var i = 0; i < threadNum; i++) {
@@ -344,10 +363,8 @@ namespace SpectroscopyVisualizer {
             var consumer = new DataSerializer(producer.BlockingQueue, workers, total);
             consumer.SourceInvalid += ConsumerOnSourceInvalid;
             consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
-            consumer.TargetAmountReached += () => {
-                Scheduler.Stop();
-                // MessageBox.Show("processing finished");
-            };
+
+            CkCaptureSample.IsChecked = true;
             Scheduler = new Scheduler(producer, consumer);
             Scheduler.Start();
             SetButtonRunning();
@@ -374,7 +391,7 @@ namespace SpectroscopyVisualizer {
             TbSavePath.Text = GeneralConfigurations.Get().Directory;
             var factory = FactoryHolder.Get();
             var producer = factory.NewProducer(fileNames, true);
-            Adapter = factory.NewAdapter(_canvasView, HorizontalAxisView, VerticalAxisView, TbXCoordinate, TbDistance);
+            Adapter = NewAdapter();
 
             var checkers = new List<PulseChecker>();
             for (var i = 0; i < 4; i++) {
@@ -415,7 +432,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ContactAuthor_OnClick(object sender, RoutedEventArgs e) {
-        
+       
         }
 
         private void UltraFast_OnChecked(object sender, RoutedEventArgs e) {

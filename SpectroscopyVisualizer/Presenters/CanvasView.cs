@@ -115,6 +115,7 @@ namespace SpectroscopyVisualizer.Presenters {
         public void Reload() {
             _lines.Clear();
             _waveformMap.Clear();
+            Canvas.Children.Clear();
         }
     }
 }

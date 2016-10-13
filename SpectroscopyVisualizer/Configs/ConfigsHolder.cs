@@ -13,13 +13,15 @@ namespace SpectroscopyVisualizer.Configs {
         private readonly GeneralConfigurations _general = GeneralConfigurations.Get();
         private readonly SamplingConfigurations _sampling = SamplingConfigurations.Get();
         private readonly SliceConfigurations _slice = SliceConfigurations.Get();
-        public static void CopyTo<T>(T source,T destiny) {
+
+        public static void CopyTo<T>(T source, T destiny) {
             var properties = TypeDescriptor.GetProperties(typeof(T)).Cast<PropertyDescriptor>();
 
             foreach (var property in properties) {
                 property.SetValue(destiny, property.GetValue(source));
             }
         }
+
         public static void Load() {
             var dialog = new OpenFileDialog {
                 Filter = "SpectroscopyVisualizer Config Files (*.svcfg)|*.svcfg|Show All Files (*.*)|*.*",
@@ -30,9 +32,10 @@ namespace SpectroscopyVisualizer.Configs {
                 configsHolder.Register();
             }
         }
+
         public static void Load(string path) {
-                var configsHolder = Toolbox.DeserializeData<ConfigsHolder>(path);
-                configsHolder.Register();
+            var configsHolder = Toolbox.DeserializeData<ConfigsHolder>(path);
+            configsHolder.Register();
         }
 
         public void Register() {
@@ -53,7 +56,7 @@ namespace SpectroscopyVisualizer.Configs {
         }
 
         public void Dump([NotNull] string path) {
-           Toolbox.SerializeData(path, this);
+            Toolbox.SerializeData(path, this);
         }
     }
 }

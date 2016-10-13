@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 namespace SpectroscopyVisualizer.Presenters {
     public class CanvasView {
         private readonly List<Polyline> _lines = new List<Polyline>();
-        private readonly Dictionary<int,Polyline> _waveformMap = new Dictionary<int, Polyline>();
+        private readonly Dictionary<int, Polyline> _waveformMap = new Dictionary<int, Polyline>();
 
         public CanvasView(Canvas canvas) {
             Canvas = canvas;
@@ -53,7 +53,6 @@ namespace SpectroscopyVisualizer.Presenters {
             _lines.Add(line);
         }
 
-    
 
         public void DrawGrid() {
             Canvas.Children.Clear();
@@ -102,8 +101,8 @@ namespace SpectroscopyVisualizer.Presenters {
                 Foreground = new SolidColorBrush(Colors.Wheat),
                 Text = text
             };
-            Canvas.SetTop(textBlock,y);
-            Canvas.SetLeft(textBlock,x);
+            Canvas.SetTop(textBlock, y);
+            Canvas.SetLeft(textBlock, x);
             Canvas.Children.Add(textBlock);
             return textBlock;
         }

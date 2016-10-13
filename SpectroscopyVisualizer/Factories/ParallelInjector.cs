@@ -142,7 +142,8 @@ namespace SpectroscopyVisualizer.Factories {
 
         [NotNull]
         public IWriterV2<TracedSpectrum> NewSpectrumWriter() {
-            return new SpectrumWriterV2(GeneralConfigurations.Get().Directory, "[Sum]",GeneralConfigurations.Get().SaveType);
+            return new SpectrumWriterV2(GeneralConfigurations.Get().Directory, "[Sum]",
+                GeneralConfigurations.Get().SaveType);
         }
 
         [NotNull]
@@ -156,15 +157,15 @@ namespace SpectroscopyVisualizer.Factories {
             IWriterV2<TracedSpectrum> writer, int? targetCnt) {
             var configurations = GeneralConfigurations.Get();
             if (configurations.ViewPhase) {
-                return new PhaseVisualizer(producer.BlockingQueue,NewPulseSequenceProcessor(),adapter,writer,targetCnt);
-            } else {
-                var threadNum = configurations.ThreadNum;
-                var accumulators = new List<IPulseSequenceProcessor>(threadNum);
-                for (var i = 0; i < threadNum; i++) {
-                    accumulators.Add(NewPulseSequenceProcessor());
-                }
-                return new ParralelSpectroscopyVisualizerV2(producer.BlockingQueue, accumulators, adapter, writer, targetCnt);
+                return new PhaseVisualizer(producer.BlockingQueue, NewPulseSequenceProcessor(), adapter, writer,
+                    targetCnt);
             }
+            var threadNum = configurations.ThreadNum;
+            var accumulators = new List<IPulseSequenceProcessor>(threadNum);
+            for (var i = 0; i < threadNum; i++) {
+                accumulators.Add(NewPulseSequenceProcessor());
+            }
+            return new ParralelSpectroscopyVisualizerV2(producer.BlockingQueue, accumulators, adapter, writer, targetCnt);
         }
 
         [NotNull]

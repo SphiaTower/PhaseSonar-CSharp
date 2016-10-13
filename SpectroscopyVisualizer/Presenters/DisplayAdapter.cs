@@ -58,11 +58,13 @@ namespace SpectroscopyVisualizer.Presenters {
         private readonly PointCollection _instantPts;
         private readonly double _sampleRateInMHz;
         private readonly VerticalAxisView _verticalAxisView;
-        [CanBeNull]
-        private ISpectrum _accumulatedSpectrumCache;
+
+        [CanBeNull] private ISpectrum _accumulatedSpectrumCache;
+
         private double _endFreqInMHz;
-        [CanBeNull]
-        private ISpectrum _instantSpectrumCache;
+
+        [CanBeNull] private ISpectrum _instantSpectrumCache;
+
         private double _max;
 
         private double _min;
@@ -238,10 +240,10 @@ namespace SpectroscopyVisualizer.Presenters {
         public void ResetYScale() {
             _scaleX = null;
             _scaleY = null;
-            if (_instantSpectrumCache==null) {
+            if (_instantSpectrumCache == null) {
                 return;
             }
-            if (_accumulatedSpectrumCache==null) {
+            if (_accumulatedSpectrumCache == null) {
                 UpdateData(_instantSpectrumCache);
             } else {
                 UpdateData(_instantSpectrumCache, _accumulatedSpectrumCache);

@@ -21,7 +21,8 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <param name="writer"></param>
         /// <param name="targetCnt"></param>
         public ParralelSpectroscopyVisualizerV2(BlockingCollection<SampleRecord> queue,
-            IEnumerable<IPulseSequenceProcessor> workers, DisplayAdapter adapter, [CanBeNull] IWriterV2<TracedSpectrum> writer,
+            IEnumerable<IPulseSequenceProcessor> workers, DisplayAdapter adapter,
+            [CanBeNull] IWriterV2<TracedSpectrum> writer,
             int? targetCnt) {
             _consumer = new ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, ResultImpl>(
                 queue, workers, ProcessElement, HandleResultSync, 2000, targetCnt);

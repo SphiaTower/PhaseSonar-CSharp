@@ -62,13 +62,6 @@ namespace SpectroscopyVisualizer.Producers {
             remove { _producer.NewProduct -= value; }
         }
 
-
-        [NotNull]
-        public SampleRecord RetrieveData() {
-            var pulseSequence = _sampler.Retrieve();
-            return new SampleRecord(pulseSequence, ProductCnt);
-        }
-
         public bool TryRetrieveData(out SampleRecord data) {
             double[] pulseSequence;
             try {
@@ -79,6 +72,13 @@ namespace SpectroscopyVisualizer.Producers {
             }
             data = new SampleRecord(pulseSequence, ProductCnt);
             return true;
+        }
+
+
+        [NotNull]
+        public SampleRecord RetrieveData() {
+            var pulseSequence = _sampler.Retrieve();
+            return new SampleRecord(pulseSequence, ProductCnt);
         }
     }
 }

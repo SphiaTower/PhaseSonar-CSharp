@@ -6,6 +6,7 @@ using SpectroscopyVisualizer.Producers;
 namespace SpectroscopyVisualizer {
     public interface IScheduler {
         StopWatch Watch { get; }
+
         /// <summary>
         ///     Start the system.
         /// </summary>
@@ -52,11 +53,6 @@ namespace SpectroscopyVisualizer {
         }
 
         /// <summary>
-        ///     A stopwatch.
-        /// </summary>
-        public StopWatch Watch { get; } = new StopWatch();
-
-        /// <summary>
         ///     The producerss
         /// </summary>
         [NotNull]
@@ -67,6 +63,11 @@ namespace SpectroscopyVisualizer {
         /// </summary>
         [NotNull]
         public IConsumerV2 Consumer { get; }
+
+        /// <summary>
+        ///     A stopwatch.
+        /// </summary>
+        public StopWatch Watch { get; } = new StopWatch();
 
         /// <summary>
         ///     Start the system.

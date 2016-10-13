@@ -8,6 +8,8 @@ namespace PhaseSonar.Maths {
     ///     A set of static helper functions.
     /// </summary>
     public static class Functions {
+        public static readonly double CIRCLE = Math.PI*2;
+
         /// <summary>
         ///     Copy array.
         /// </summary>
@@ -37,10 +39,10 @@ namespace PhaseSonar.Maths {
         public static void ToComplexRotate([NotNull] double[] symmetryPulse, IList<Complex> array) {
             var length = symmetryPulse.Length;
             var j = 0;
-            for (var i = length / 2; i < length; i++, j++) {
+            for (var i = length/2; i < length; i++, j++) {
                 array[j] = symmetryPulse[i];
             }
-            for (var i = 0; i < length / 2; i++, j++) {
+            for (var i = 0; i < length/2; i++, j++) {
                 array[j] = symmetryPulse[i];
             }
         }
@@ -54,16 +56,15 @@ namespace PhaseSonar.Maths {
         public static int CalZeroFilledLength(int dataLength, int zeroFillFactor) {
             return (int) Math.Pow(2, (int) Math.Log(dataLength, 2) + zeroFillFactor);
         }
-        public static readonly double CIRCLE = Math.PI * 2;
 
         public static void UnwrapInPlace([NotNull] double[] phase) {
             var length = phase.Length;
             var prev = phase[0];
-            for (int i = 1; i < length; i++) {
+            for (var i = 1; i < length; i++) {
                 while (prev - phase[i] >= Math.PI) {
                     phase[i] += CIRCLE;
                 }
-                while (phase[i]-prev>= Math.PI) {
+                while (phase[i] - prev > Math.PI) {
                     phase[i] -= CIRCLE;
                 }
                 prev = phase[i];
@@ -71,7 +72,7 @@ namespace PhaseSonar.Maths {
         }
 
         public static double[] Unwrap([NotNull] double[] phase) {
-            double[] unwrapDoubles = phase.Clone() as double[];
+            var unwrapDoubles = phase.Clone() as double[];
             UnwrapInPlace(unwrapDoubles);
             return unwrapDoubles;
         }
@@ -208,6 +209,12 @@ namespace PhaseSonar.Maths {
             return result;
         }
 
+        public static double[] LineSpace(int start, int stop) {
+            var result = new double[stop - start + 1];
+            LineSpaceInPlace(start, stop, result);
+            return result;
+        }
+
         /// <summary>
         ///     Allocate linespace in space. [start, stop]
         /// </summary>
@@ -227,6 +234,19 @@ namespace PhaseSonar.Maths {
             var step = (stop - start)/(length - 1);
             for (var i = 0; i < length; i++) {
                 container[i] = start + i*step;
+            }
+        }
+
+        public static void LineSpaceInPlace(int start, int stop, double[] container) {
+            if (container == null) {
+                throw new ArgumentNullException("container must not be null");
+            }
+            var length = stop - start + 1;
+            if (container.Length != length) {
+                throw new ArgumentException("container size not matched");
+            }
+            for (var i = 0; i < length; i++) {
+                container[i] = start + i;
             }
         }
 

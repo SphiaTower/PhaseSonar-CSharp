@@ -8,9 +8,8 @@ namespace SpectroscopyVisualizer.Configs {
     public class GeneralConfigurations {
         private static GeneralConfigurations _singleton;
 
-        public bool ViewPhase { get; set; }
-
-        private GeneralConfigurations(double repetitionRate, int threadNum, int dispPoints, string directory,bool viewPhase,SaveType saveType) {
+        private GeneralConfigurations(double repetitionRate, int threadNum, int dispPoints, string directory,
+            bool viewPhase, SaveType saveType) {
             RepetitionRate = repetitionRate;
             ThreadNum = threadNum;
             DispPoints = dispPoints;
@@ -18,6 +17,8 @@ namespace SpectroscopyVisualizer.Configs {
             ViewPhase = viewPhase;
             SaveType = saveType;
         }
+
+        public bool ViewPhase { get; set; }
 
         public double RepetitionRate { get; set; }
 
@@ -38,7 +39,7 @@ namespace SpectroscopyVisualizer.Configs {
 
 
         public void Bind([NotNull] Control repetitionRate, [NotNull] Control threadNum, [NotNull] Control dispPoints,
-            [NotNull] Control savePath, [NotNull] Control viewPhase,[NotNull]Control saveType) {
+            [NotNull] Control savePath, [NotNull] Control viewPhase, [NotNull] Control saveType) {
             repetitionRate.DataContext = this;
             threadNum.DataContext = this;
             dispPoints.DataContext = this;
@@ -47,11 +48,12 @@ namespace SpectroscopyVisualizer.Configs {
             saveType.DataContext = this;
         }
 
-        public static void Initialize(double repetitionRate, int threadNum, int dispPoints, string directory, bool viewPhase, SaveType saveType) {
+        public static void Initialize(double repetitionRate, int threadNum, int dispPoints, string directory,
+            bool viewPhase, SaveType saveType) {
             if (_singleton != null) {
                 throw new Exception("environment already init");
             }
-            _singleton = new GeneralConfigurations(repetitionRate, threadNum, dispPoints, directory,viewPhase,saveType);
+            _singleton = new GeneralConfigurations(repetitionRate, threadNum, dispPoints, directory, viewPhase, saveType);
         }
 
         public static GeneralConfigurations Get() {

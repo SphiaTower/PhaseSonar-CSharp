@@ -5,7 +5,6 @@ using System.Linq;
 using System.Numerics;
 using System.Windows;
 using JetBrains.Annotations;
-using NationalInstruments.Restricted;
 using PhaseSonar.Analyzers;
 using PhaseSonar.Utils;
 using SpectroscopyVisualizer.Producers;
@@ -85,11 +84,9 @@ namespace SpectroscopyVisualizer.Consumers {
                 return 0;
             });
             var strings = _specInfos.Select(info => info.FileId + " " + info.Number + " " + info.First).ToArray();
-            Toolbox.WriteStringArray(@"D:\zbf\temp\pp.txt",strings);
+            Toolbox.WriteStringArray(@"D:\zbf\temp\pp.txt", strings);
             var aggregate = strings.Aggregate((s1, s2) => s1 + s2);
-            Application.Current.MainWindow.Dispatcher.InvokeAsync(() => {
-                Console.Write(aggregate);
-            });
+            Application.Current.MainWindow.Dispatcher.InvokeAsync(() => { Console.Write(aggregate); });
         }
 
         private void ResultHandleFunc(ProcessResult result) {

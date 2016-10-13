@@ -11,9 +11,11 @@ namespace SpectroscopyVisualizer.Consumers {
     public class TrueResult : IResult {
         public bool Success => true;
     }
+
     public class DataSerializer : IConsumerV2 {
-      
         private readonly ParallelConsumerV2<SampleRecord, SpecialSampleWriter, TrueResult> _consumer;
+
+        private readonly TrueResult _result = new TrueResult();
 
         /// <summary>
         ///     Create a Consumer.
@@ -21,23 +23,12 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <param name="blockingQueue">The queue which containing elements to be consumed</param>
         /// <param name="workers">A collection of workers consuming the products in parallel.</param>
         /// <param name="targetCnt"></param>
-        public DataSerializer([NotNull] BlockingCollection<SampleRecord> blockingQueue, [NotNull] IEnumerable<SpecialSampleWriter> workers, int? targetCnt) {
-            _consumer = new ParallelConsumerV2<SampleRecord, SpecialSampleWriter,TrueResult>(blockingQueue,workers,ConsumeElement,
-                result => { },2000,targetCnt);
+        public DataSerializer([NotNull] BlockingCollection<SampleRecord> blockingQueue,
+            [NotNull] IEnumerable<SpecialSampleWriter> workers, int? targetCnt) {
+            _consumer = new ParallelConsumerV2<SampleRecord, SpecialSampleWriter, TrueResult>(blockingQueue, workers,
+                ConsumeElement,
+                result => { }, 2000, targetCnt);
         }
-
-        /// <summary>
-        ///     Consume element in a branch.
-        /// </summary>
-        /// <param name="element">The product</param>
-        /// <param name="worker">The worker in this branch.</param>
-        /// <returns>Whether consuming succeeds.</returns>
-        private TrueResult ConsumeElement(SampleRecord element, SpecialSampleWriter worker) {
-            worker.Write(element);
-            return _result;
-        }
-
-        private readonly TrueResult _result = new TrueResult();
 
         /// <summary>
         ///     The number of elements have been consumed.
@@ -78,6 +69,17 @@ namespace SpectroscopyVisualizer.Consumers {
         public event Action TargetAmountReached {
             add { _consumer.TargetAmountReached += value; }
             remove { _consumer.TargetAmountReached -= value; }
+        }
+
+        /// <summary>
+        ///     Consume element in a branch.
+        /// </summary>
+        /// <param name="element">The product</param>
+        /// <param name="worker">The worker in this branch.</param>
+        /// <returns>Whether consuming succeeds.</returns>
+        private TrueResult ConsumeElement(SampleRecord element, SpecialSampleWriter worker) {
+            worker.Write(element);
+            return _result;
         }
     }
 

@@ -50,7 +50,8 @@ namespace SpectroscopyVisualizer.Configs {
         private static CorrectorConfigurations _singleton;
 
         private CorrectorConfigurations(int zeroFillFactor, int centerSpanLength, CorrectorType correctorType,
-            ApodizerType apodizerType,PhaseType phaseType, double rangeStart, double rangeEnd,bool autoFlip, bool realSpec) {
+            ApodizerType apodizerType, PhaseType phaseType, double rangeStart, double rangeEnd, bool autoFlip,
+            bool realSpec) {
             ZeroFillFactor = zeroFillFactor;
             CenterSpanLength = centerSpanLength;
             CorrectorType = correctorType;
@@ -78,23 +79,26 @@ namespace SpectroscopyVisualizer.Configs {
         }
 
         public static void Register(CorrectorConfigurations configuration) {
-            if (_singleton==null) {
+            if (_singleton == null) {
                 _singleton = configuration;
             } else {
-                ConfigsHolder.CopyTo(configuration,_singleton);
+                ConfigsHolder.CopyTo(configuration, _singleton);
             }
         }
 
         public static void Initialize(int zeroFillFactor, int centerSpanLength, CorrectorType correctorType,
-            ApodizerType apodizerType,PhaseType phaseType, double rangeStart, double rangeEnd,bool autoFlip, bool realPhase) {
+            ApodizerType apodizerType, PhaseType phaseType, double rangeStart, double rangeEnd, bool autoFlip,
+            bool realPhase) {
             if (_singleton != null) {
                 throw new Exception("environment already init");
             }
-            _singleton = new CorrectorConfigurations(zeroFillFactor, centerSpanLength, correctorType, apodizerType, phaseType,rangeStart,rangeEnd,autoFlip,realPhase);
+            _singleton = new CorrectorConfigurations(zeroFillFactor, centerSpanLength, correctorType, apodizerType,
+                phaseType, rangeStart, rangeEnd, autoFlip, realPhase);
         }
 
         public void Bind(Control tbZeroFillFactor, Control tbCenterSpanLength, Control cbCorrectorType,
-            Control cbApodizationType,Control cbPhaseType,Control tbRangeStart, Control tbRangeEnd,Control ckAutoFlip,Control ckRealSpec) {
+            Control cbApodizationType, Control cbPhaseType, Control tbRangeStart, Control tbRangeEnd, Control ckAutoFlip,
+            Control ckRealSpec) {
             tbZeroFillFactor.DataContext = this;
             tbCenterSpanLength.DataContext = this;
             cbCorrectorType.DataContext = this;

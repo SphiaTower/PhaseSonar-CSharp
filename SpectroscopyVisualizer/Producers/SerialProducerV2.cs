@@ -72,7 +72,6 @@ namespace SpectroscopyVisualizer.Producers {
                         ProductionFailed?.Invoke();
                     }
                 }
-               
             }
         }
 

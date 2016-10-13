@@ -1,19 +1,16 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SpectroscopyVisualizer.Writers {
-    public class SerialWriterV2<T> :IWriterV2<T> {
+    public class SerialWriterV2<T> : IWriterV2<T> {
+        private readonly ConcurrentQueue<T> _queue = new ConcurrentQueue<T>();
+
         /// <summary>
         ///     The queue storing data to be saved.
         /// </summary>
+        private volatile bool _isProcessing;
 
-        private volatile bool _isProcessing = false;
-        private readonly ConcurrentQueue<T> _queue = new ConcurrentQueue<T>();
         public event Action<T> ElementDequeued;
 
         /// <summary>

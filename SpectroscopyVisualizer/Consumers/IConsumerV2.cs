@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpectroscopyVisualizer.Consumers {
     public interface IConsumerV2 {
@@ -12,6 +8,7 @@ namespace SpectroscopyVisualizer.Consumers {
         int ConsumedCnt { get; }
 
         int? TargetCnt { get; }
+
         /// <summary>
         ///     Stop consuming.
         /// </summary>

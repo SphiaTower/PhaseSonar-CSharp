@@ -19,18 +19,20 @@ namespace SpectroscopyVisualizer.Factories {
         ICrestFinder NewCrestFinder();
         IPulsePreprocessor NewPulsePreprocessor();
         IPulseSequenceProcessor NewPulseSequenceProcessor();
+
         [NotNull]
         DisplayAdapter NewAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,
-            VerticalAxisView verticalAxisView,TextBox tbX, TextBox tbDelta);
+            VerticalAxisView verticalAxisView, TextBox tbX, TextBox tbDelta);
 
         bool TryNewSampler(out Sampler newSampler);
         IPhaseExtractor NewPhaseExtractor();
         ICorrectorV2 NewCorrector();
-        bool TryNewSampleProducer(out IProducerV2<SampleRecord> newProducer,int? targetCnt=null);
+        bool TryNewSampleProducer(out IProducerV2<SampleRecord> newProducer, int? targetCnt = null);
         IProducerV2<SampleRecord> NewProducer(IReadOnlyCollection<string> paths, bool compressed);
         IWriterV2<TracedSpectrum> NewSpectrumWriter();
         IWriterV2<SampleRecord> NewSampleWriter();
 
-        IConsumerV2 NewConsumer([NotNull] IProducerV2<SampleRecord> producer, [NotNull] DisplayAdapter adapter, IWriterV2<TracedSpectrum> writer, int? targetCnt);
+        IConsumerV2 NewConsumer([NotNull] IProducerV2<SampleRecord> producer, [NotNull] DisplayAdapter adapter,
+            IWriterV2<TracedSpectrum> writer, int? targetCnt);
     }
 }

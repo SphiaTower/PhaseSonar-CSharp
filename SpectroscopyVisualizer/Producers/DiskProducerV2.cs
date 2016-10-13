@@ -71,12 +71,6 @@ namespace SpectroscopyVisualizer.Producers {
             remove { _producer.NewProduct -= value; }
         }
 
-
-        [NotNull]
-        private SampleRecord CreateRecord(string path, int num) {
-            return new SampleRecord(_readFileFunc(path), num);
-        }
-
         public bool TryRetrieveData(out SampleRecord data) {
             if (_enumerator.MoveNext()) {
                 var path = _enumerator.Current;
@@ -87,10 +81,15 @@ namespace SpectroscopyVisualizer.Producers {
                 }
                 data = CreateRecord(path, num);
                 return true;
-            } else {
-                data = null;
-                return false;
             }
+            data = null;
+            return false;
+        }
+
+
+        [NotNull]
+        private SampleRecord CreateRecord(string path, int num) {
+            return new SampleRecord(_readFileFunc(path), num);
         }
     }
 }

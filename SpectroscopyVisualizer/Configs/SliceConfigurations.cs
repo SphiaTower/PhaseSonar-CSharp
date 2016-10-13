@@ -27,7 +27,8 @@ namespace SpectroscopyVisualizer.Configs {
 
         public static void Initialize(int pointsBeforeCrest, bool crestAtCenter, double crestAmplitudeThreshold,
             RulerType rulerType, bool autoAdjust, bool findAbs, int fixedLength) {
-            _singleton = new SliceConfigurations(pointsBeforeCrest, crestAtCenter, crestAmplitudeThreshold, rulerType,  autoAdjust,  findAbs,fixedLength);
+            _singleton = new SliceConfigurations(pointsBeforeCrest, crestAtCenter, crestAmplitudeThreshold, rulerType,
+                autoAdjust, findAbs, fixedLength);
         }
 
         public static void Register(SliceConfigurations sliceConfigurations) {
@@ -42,7 +43,8 @@ namespace SpectroscopyVisualizer.Configs {
             return _singleton;
         }
 
-        public void Bind(Control pointsBeforeCrest, Control crestAmpThreshold, Control rulerType, Control autoAdjust, Control findAbs,Control fixedLength) {
+        public void Bind(Control pointsBeforeCrest, Control crestAmpThreshold, Control rulerType, Control autoAdjust,
+            Control findAbs, Control fixedLength) {
             pointsBeforeCrest.DataContext = this;
             crestAmpThreshold.DataContext = this;
             rulerType.DataContext = this;

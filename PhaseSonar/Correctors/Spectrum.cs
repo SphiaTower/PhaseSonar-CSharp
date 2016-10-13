@@ -14,6 +14,8 @@ namespace PhaseSonar.Correctors {
         /// </summary>
         int PulseCount { get; set; }
 
+        Complex[] Array { get; }
+
         /// <summary>
         ///     Clear the container.
         /// </summary>
@@ -73,8 +75,6 @@ namespace PhaseSonar.Correctors {
 
         double Magnitude(int index);
         double Phase(int index);
-
-        Complex[] Array { get; }
     }
 
     public class Spectrum : ISpectrum {
@@ -207,7 +207,7 @@ namespace PhaseSonar.Correctors {
         /// <returns></returns>
         [NotNull]
         public ISpectrum Clone() {
-            return new RealSpectrum(_data,PulseCount);
+            return new RealSpectrum(_data, PulseCount);
         }
 
         public double Phase(int index) {
@@ -226,7 +226,7 @@ namespace PhaseSonar.Correctors {
             if (realSpectrum == null) {
                 return false;
             }
-            Functions.AddTo(_data,realSpectrum._data);
+            Functions.AddTo(_data, realSpectrum._data);
             PulseCount += another.PulseCount;
             return true;
         }

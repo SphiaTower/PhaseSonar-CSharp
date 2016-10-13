@@ -25,22 +25,25 @@ namespace SpectroscopyVisualizer.Writers {
             }
             return spectrum.Real(index).ToString();
         }
+
         [NotNull]
         public static string ToStringIntensity([NotNull] this ISpectrum spectrum, int index) {
-           return spectrum.Intensity(index).ToString();
+            return spectrum.Intensity(index).ToString();
         }
 
         [NotNull]
         public static string ToStringPhase([NotNull] this ISpectrum spectrum, int index) {
-           return spectrum.Phase(index).ToString();
+            return spectrum.Phase(index).ToString();
         }
+
         [NotNull]
         public static string ToStringReal([NotNull] this ISpectrum spectrum, int index) {
-           return spectrum.Real(index).ToString();
+            return spectrum.Real(index).ToString();
         }
+
         [NotNull]
         public static string ToStringImag([NotNull] this ISpectrum spectrum, int index) {
-           return spectrum.Imag(index).ToString();
+            return spectrum.Imag(index).ToString();
         }
 
         /// <summary>
@@ -48,7 +51,8 @@ namespace SpectroscopyVisualizer.Writers {
         /// </summary>
         /// <returns></returns>
         [NotNull]
-        public static string[] ToStringArray([NotNull] this ISpectrum spectrum,Func<ISpectrum,int,string> toStringFunc) {
+        public static string[] ToStringArray([NotNull] this ISpectrum spectrum,
+            Func<ISpectrum, int, string> toStringFunc) {
             var array = new string[spectrum.Length()];
             for (var i = 0; i < array.Length; i++) {
                 array[i] = toStringFunc(spectrum, i);

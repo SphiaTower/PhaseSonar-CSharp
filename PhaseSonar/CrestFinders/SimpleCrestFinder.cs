@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace PhaseSonar.CrestFinders {
-    public class SimpleCrestFinder:ICrestFinder {
+    public class SimpleCrestFinder : ICrestFinder {
         /// <summary>
         ///     Create an absolute crest finder.
         /// </summary>
@@ -47,7 +43,7 @@ namespace PhaseSonar.CrestFinders {
         /// <param name="pulseSequence">A pulse sequence containing multiple pulses</param>
         /// <returns>The indices of the crests</returns>
         public virtual IList<int> Find(double[] pulseSequence) {
-            var rightThreshold = SampleRate / (RepetitionRate + 300);
+            var rightThreshold = SampleRate/(RepetitionRate + 300);
 
             var maxValue = .0;
             var maxIndex = 0;

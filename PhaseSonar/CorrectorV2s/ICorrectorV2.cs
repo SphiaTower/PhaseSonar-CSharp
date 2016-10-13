@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Numerics;
 using JetBrains.Annotations;
 using MathNet.Numerics.IntegralTransforms;
@@ -8,6 +7,12 @@ using PhaseSonar.Utils;
 
 namespace PhaseSonar.CorrectorV2s {
     public interface ICorrectorV2 {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="symmetryPulse"></param>
+        /// <throws><exception cref="CorrectFailException"></exception></throws>
+        /// <returns></returns>
         Complex[] Correct([NotNull] double[] symmetryPulse);
     }
 
@@ -22,12 +27,12 @@ namespace PhaseSonar.CorrectorV2s {
         [NotNull]
         public Complex[] Correct(double[] symmetryPulse) {
             var complexSpectrum = _delegate.Correct(symmetryPulse);
-            int length = complexSpectrum.Length;
+            var length = complexSpectrum.Length;
             double sum = 0;
-            for (int i = length/4; i < length/2; i++) {
+            for (var i = length/4; i < length/2; i++) {
                 sum += complexSpectrum[i].Real;
             }
-            if (sum<0) {
+            if (sum < 0) {
                 for (var i = 0; i < length; i++) {
                     complexSpectrum[i] = -complexSpectrum[i];
                 }
@@ -44,18 +49,18 @@ namespace PhaseSonar.CorrectorV2s {
 
     public class MertzCorrectorV2 : ICorrectorV2 {
         [NotNull] private readonly IApodizer _apodizer;
-        private readonly IPhaseSynthesizer _synthesizer;
 
         [NotNull] private readonly IPhaseExtractor _phaseExtractor;
 
         [NotNull] private readonly Rotator _rotator = new Rotator();
+        private readonly IPhaseSynthesizer _synthesizer;
 
         [CanBeNull] private Complex[] _outputArray;
 
         [CanBeNull] private Complex[] _spectrumArray;
 
         /// <summary>初始化 <see cref="T:System.Object" /> 类的新实例。</summary>
-        public MertzCorrectorV2(IPhaseExtractor phaseExtractor, IApodizer apodizer,IPhaseSynthesizer synthesizer) {
+        public MertzCorrectorV2(IPhaseExtractor phaseExtractor, IApodizer apodizer, IPhaseSynthesizer synthesizer) {
             _apodizer = apodizer;
             _synthesizer = synthesizer;
             _phaseExtractor = phaseExtractor;
@@ -95,10 +100,15 @@ namespace PhaseSonar.CorrectorV2s {
             Fourier.Forward(_spectrumArray, FourierOptions.Matlab);
             //            Toolbox.WriteData(@"D:\zbf\temp\5_fft.txt", _spectrumArray);
 
-            var phaseArray = _phaseExtractor.GetPhase(symmetryPulse, _spectrumArray);
+            double[] phaseArray;
+            try {
+                phaseArray = _phaseExtractor.GetPhase(symmetryPulse, _spectrumArray);
+            } catch (PhaseFitException) {
+                throw new CorrectFailException();
+            }
 
-            _synthesizer.Synthesize(_spectrumArray,phaseArray, _outputArray);
-          
+            _synthesizer.Synthesize(_spectrumArray, phaseArray, _outputArray);
+
 //            Toolbox.WriteData(@"D:\zbf\temp\6_output.txt", _outputArray);
 
             return _outputArray;
@@ -121,7 +131,7 @@ namespace PhaseSonar.CorrectorV2s {
         [CanBeNull] private Complex[] _spectrumArray;
 
         /// <summary>初始化 <see cref="T:System.Object" /> 类的新实例。</summary>
-        public FakeCorrectorV2( IApodizer apodizer) {
+        public FakeCorrectorV2(IApodizer apodizer) {
             _apodizer = apodizer;
         }
 

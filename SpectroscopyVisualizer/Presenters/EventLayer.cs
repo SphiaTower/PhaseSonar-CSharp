@@ -6,10 +6,9 @@ using JetBrains.Annotations;
 
 namespace SpectroscopyVisualizer.Presenters {
     public class EventLayer {
+        private readonly int _lastTime = 0;
         private readonly Canvas _wavefromView;
         private Point _lastPoint;
-
-        private readonly int _lastTime = 0;
         private bool _leftMouseDown;
 
         private EventLayer(Canvas canvas) {

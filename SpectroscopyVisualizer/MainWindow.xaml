@@ -20,14 +20,15 @@
                     <MenuItem Header="_Exit" />
                 </MenuItem>
                 <MenuItem Header="_Configs">
-                    <MenuItem Header="_Save Config" Click="SaveConfig_OnClick"/>
+                    <MenuItem Header="_Save Config" Click="SaveConfig_OnClick" />
                     <MenuItem Header="_Load Config File" Click="LoadConfig_OnClick" />
                     <Separator />
-                    <MenuItem Header="_Set Current Config as Default" Click="SetConfigAsDef_OnClick"/>
+                    <MenuItem Header="_Set Current Config as Default" Click="SetConfigAsDef_OnClick" />
                 </MenuItem>
                 <MenuItem Header="_Tools">
-                    <MenuItem Name="CkUltraFast" Header="_Ultra Fast Mode" IsCheckable="True" IsChecked="False" Checked="UltraFast_OnChecked" Unchecked="CkUltraFast_OnUnchecked" />
-                    <MenuItem Header="_Debug Command" Click="DebugCmd_OnClick"/>
+                    <MenuItem Name="CkUltraFast" Header="_Ultra Fast Mode" IsCheckable="True" IsChecked="False"
+                              Checked="UltraFast_OnChecked" Unchecked="CkUltraFast_OnUnchecked" />
+                    <MenuItem Header="_Debug Command" Click="DebugCmd_OnClick" />
                     <Separator />
                     <MenuItem Header="_Start Sample..." Click="StartSample_OnClick" />
                 </MenuItem>
@@ -35,9 +36,9 @@
                     <MenuItem Header="View Help" />
                     <MenuItem Header="Check for Update" />
                     <Separator />
-                    <MenuItem Header="Tech Support" Click="ContactAuthor_OnClick"/>
-                    <MenuItem Header="Report a Bug" Click="ReportBug_OnClick"/>
-                    <MenuItem Header="Donate" Click="Donate_OnClick"/>
+                    <MenuItem Header="Tech Support" Click="ContactAuthor_OnClick" />
+                    <MenuItem Header="Report a Bug" Click="ReportBug_OnClick" />
+                    <MenuItem Header="Donate" Click="Donate_OnClick" />
                     <Separator />
                     <MenuItem Header="_About Spectroscopy Visualizer 2.0" Click="About_OnClick" />
                 </MenuItem>
@@ -154,7 +155,8 @@
                                  Margin="280,40,0,0" RenderTransformOrigin="0.485,-0.07" />
                         <Label x:Name="label5" Content="Range/V" HorizontalAlignment="Left" VerticalAlignment="Top"
                                Margin="208,40,0,0" Width="60" RenderTransformOrigin="3.038,-0.798" />
-                        <Label x:Name="label7" Content="Rep Rate Diff/Hz" HorizontalAlignment="Left" Margin="174,81,0,0"
+                        <Label x:Name="label7" Content="Rep Rate Diff/Hz" HorizontalAlignment="Left"
+                               Margin="174,81,0,0"
                                VerticalAlignment="Top" />
                         <TextBox x:Name="TbRepRate" HorizontalAlignment="Left" Height="23" Margin="280,81,0,0"
                                  TextWrapping="Wrap" Text="{Binding RepetitionRate}" VerticalAlignment="Top" Width="51" />
@@ -190,11 +192,15 @@
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:RulerType}}}"
                                   SelectedItem="{Binding Path=RulerType}" HorizontalAlignment="Left"
                                   VerticalAlignment="Top" Width="138" Margin="85,60,0,0" />
-                        <CheckBox x:Name="CkAutoAdjust" IsChecked="{Binding Path=AutoAdjust}"  Content="Auto-adjust Min Amp" HorizontalAlignment="Left" Margin="195,14,0,0" VerticalAlignment="Top"/>
-                        <CheckBox x:Name="CkFindAbs" IsChecked="{Binding Path=FindAbsoluteValue}"  Content="Find Absolute Value" HorizontalAlignment="Left" Margin="196,37,0,0" VerticalAlignment="Top" Width="145"/>
+                        <CheckBox x:Name="CkAutoAdjust" IsChecked="{Binding Path=AutoAdjust}"
+                                  Content="Auto-adjust Min Amp" HorizontalAlignment="Left" Margin="195,14,0,0"
+                                  VerticalAlignment="Top" />
+                        <CheckBox x:Name="CkFindAbs" IsChecked="{Binding Path=FindAbsoluteValue}"
+                                  Content="Find Absolute Value" HorizontalAlignment="Left" Margin="196,37,0,0"
+                                  VerticalAlignment="Top" Width="145" />
                         <TextBox x:Name="TbFixedLength" HorizontalAlignment="Left" Height="21" Margin="228,60,0,0"
-                            TextWrapping="Wrap" Text="{Binding FixedLength}" VerticalAlignment="Top"
-                            Width="59" RenderTransformOrigin="0.59,0.412" />
+                                 TextWrapping="Wrap" Text="{Binding FixedLength}" VerticalAlignment="Top"
+                                 Width="59" RenderTransformOrigin="0.59,0.412" />
 
                     </Grid>
                     <Grid Grid.Row="2">
@@ -256,12 +262,18 @@
                         <Label x:Name="LbRangeEnd" Content="End" HorizontalAlignment="Left" Margin="260,66,0,0"
                                VerticalAlignment="Top" RenderTransformOrigin="0.624,0.068" />
                         <TextBox x:Name="TbRangeStart" HorizontalAlignment="Left" Height="23" Margin="212,70,0,0"
-                                 TextWrapping="Wrap" Text="{Binding RangeStart,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="48" />
+                                 TextWrapping="Wrap" Text="{Binding RangeStart,UpdateSourceTrigger=PropertyChanged}"
+                                 VerticalAlignment="Top" Width="48" />
                         <TextBox x:Name="TbRangeEnd" HorizontalAlignment="Left" Height="23" Margin="297,69,0,0"
-                                 TextWrapping="Wrap" Text="{Binding RangeEnd,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="49" />
-                        <CheckBox x:Name="CkAutoFlip" IsChecked="{Binding Path=AutoFlip}" Content="Auto-flip Minus Spec" HorizontalAlignment="Left" Margin="189,107,0,0" VerticalAlignment="Top" Width="151"/>
-                        <CheckBox x:Name="CkPhase" IsChecked="{Binding Path=ViewPhase}"  Content="View Phase" HorizontalAlignment="Left" Margin="212,11,0,0" VerticalAlignment="Top" Width="113"/>
-                        <CheckBox x:Name="CkSpecReal" IsChecked="{Binding RealSpec}"  Content="Discard Imag Spec" HorizontalAlignment="Left" Margin="212,39,0,0" VerticalAlignment="Top" Width="138"/>
+                                 TextWrapping="Wrap" Text="{Binding RangeEnd,UpdateSourceTrigger=PropertyChanged}"
+                                 VerticalAlignment="Top" Width="49" />
+                        <CheckBox x:Name="CkAutoFlip" IsChecked="{Binding Path=AutoFlip}"
+                                  Content="Auto-flip Minus Spec" HorizontalAlignment="Left" Margin="189,107,0,0"
+                                  VerticalAlignment="Top" Width="151" />
+                        <CheckBox x:Name="CkPhase" IsChecked="{Binding Path=ViewPhase}" Content="View Phase"
+                                  HorizontalAlignment="Left" Margin="212,11,0,0" VerticalAlignment="Top" Width="113" />
+                        <CheckBox x:Name="CkSpecReal" IsChecked="{Binding RealSpec}" Content="Discard Imag Spec"
+                                  HorizontalAlignment="Left" Margin="212,39,0,0" VerticalAlignment="Top" Width="138" />
                     </Grid>
                     <Grid Grid.Row="3">
                         <Rectangle Stroke="DarkGray" StrokeThickness="0.5" />
@@ -292,17 +304,18 @@
                         <TextBox x:Name="TbSavePath" HorizontalAlignment="Left" Height="43" Margin="88,10,0,0"
                                  TextWrapping="Wrap" Text="{Binding Directory}" VerticalAlignment="Top" Width="187" />
                         <CheckBox x:Name="CkCaptureSample" Content="Samples" HorizontalAlignment="Left"
-                                  Margin="52,74,0,0" VerticalAlignment="Top"  />
+                                  Margin="52,74,0,0" VerticalAlignment="Top" />
                         <CheckBox x:Name="CkCaptureSpec" Content="Spectrum" HorizontalAlignment="Left"
                                   Margin="136,74,0,0"
-                                  VerticalAlignment="Top"  />
+                                  VerticalAlignment="Top" />
                         <Label x:Name="textBlock234" HorizontalAlignment="Left" Margin="5,69,0,0" Content="Save:"
                                VerticalAlignment="Top" Width="47" Height="26" RenderTransformOrigin="0.41,-0.225" />
-                        <ProgressBar x:Name="PbLoading" HorizontalAlignment="Left" Height="28" Margin="10,100,0,0" VerticalAlignment="Top" Width="316"/>
+                        <ProgressBar x:Name="PbLoading" HorizontalAlignment="Left" Height="28" Margin="10,100,0,0"
+                                     VerticalAlignment="Top" Width="316" />
                         <ComboBox x:Name="CbSaveType"
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:SaveType}}}"
-                                  SelectedItem="{Binding Path=SaveType}" 
-                                  HorizontalAlignment="Left" Margin="216,69,0,0" VerticalAlignment="Top" Width="110"/>
+                                  SelectedItem="{Binding Path=SaveType}"
+                                  HorizontalAlignment="Left" Margin="216,69,0,0" VerticalAlignment="Top" Width="110" />
                     </Grid>
                 </Grid>
             </Grid>

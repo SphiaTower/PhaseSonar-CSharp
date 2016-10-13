@@ -72,19 +72,6 @@ namespace SpectroscopyVisualizer {
                     rangeStart: 18000,
                     rangeEnd: 20000);
             }
-            //            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\configuration.bin"));
-            // bind configs to controls
-            SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
-            GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase, CbSaveType);
-            SliceConfigurations.Get()
-                .Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength);
-            CorrectorConfigurations.Get()
-                .Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart,
-                    TbRangeEnd, CkAutoFlip, CkSpecReal);
-            // init custom components
-//            _canvasView = new CanvasView(ScopeCanvas);
-//            HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
-//            VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
 
             CbPhaseType.SelectionChanged += (sender, args) => {
                 var selected = (PhaseType) args.AddedItems[0];
@@ -114,12 +101,36 @@ namespace SpectroscopyVisualizer {
                 TbFixedLength.Visibility = selected == RulerType.FixLength ? Visibility.Visible : Visibility.Hidden;
             };
 
+            RoutedEventHandler ckPhaseOnChecked = (sender, args) => {
+                var correct = !CkPhase.IsChecked.GetValueOrDefault(false);
+                CbCorrector.IsEnabled = correct;
+            };
+            CkPhase.Checked += ckPhaseOnChecked;
+            CkPhase.Unchecked += ckPhaseOnChecked;
+
+
+            //            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\configuration.bin"));
+            // bind configs to controls
+            SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
+            GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase, CbSaveType);
+            SliceConfigurations.Get()
+                .Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength);
+            CorrectorConfigurations.Get()
+                .Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart,
+                    TbRangeEnd, CkAutoFlip, CkSpecReal);
+            // init custom components
+//            _canvasView = new CanvasView(ScopeCanvas);
+//            HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
+//            VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
+
+
             SwitchButton = new ToggleButtonV2(ToggleButton, false, "STOP", "START");
             SwitchButton.TurnOn += TurnOn;
             SwitchButton.TurnOff += ClearFromRunningState;
             SizeChanged += (sender, args) => { Adapter?.OnWindowZoomed(); };
             // todo text disapeared
         }
+
 
         private ToggleButtonV2 SwitchButton { get; }
 
@@ -172,7 +183,7 @@ namespace SpectroscopyVisualizer {
                     Foreground = new SolidColorBrush(Colors.Wheat),
                     FontSize = 30
                 };
-                CanvasView canvasView = new CanvasView(ScopeCanvas);
+                var canvasView = new CanvasView(ScopeCanvas);
                 Canvas.SetTop(textBlock, canvasView.ScopeHeight/2);
                 Canvas.SetLeft(textBlock, canvasView.ScopeWidth/3);
                 canvasView.Canvas.Children.Add(textBlock);
@@ -213,8 +224,10 @@ namespace SpectroscopyVisualizer {
 
         [NotNull]
         private DisplayAdapter NewAdapter() {
-            return FactoryHolder.Get().NewAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas), new VerticalAxisView(VerAxisCanvas),
-                TbXCoordinate, TbDistance);
+            return FactoryHolder.Get()
+                .NewAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas),
+                    new VerticalAxisView(VerAxisCanvas),
+                    TbXCoordinate, TbDistance);
         }
 
         private void ConsumerOnConsumeEvent(IConsumerV2 consumer, StopWatch watch) {
@@ -348,11 +361,7 @@ namespace SpectroscopyVisualizer {
                 MessageBox.Show("Sampler can't be initialized");
                 return;
             }
-            producer.HitTarget += () => {
-                Dispatcher.InvokeAsync(() => {
-                    SwitchButton.State = false;
-                });
-            };
+            producer.HitTarget += () => { Dispatcher.InvokeAsync(() => { SwitchButton.State = false; }); };
             PbLoading.Maximum = total;
             Adapter = NewAdapter();
             var threadNum = GeneralConfigurations.Get().ThreadNum;

@@ -57,6 +57,7 @@ namespace PhaseSonar.Maths {
             return (int) Math.Pow(2, (int) Math.Log(dataLength, 2) + zeroFillFactor);
         }
 
+
         public static void UnwrapInPlace([NotNull] double[] phase) {
             var length = phase.Length;
             var prev = phase[0];
@@ -70,6 +71,7 @@ namespace PhaseSonar.Maths {
                 prev = phase[i];
             }
         }
+
 
         public static double[] Unwrap([NotNull] double[] phase) {
             var unwrapDoubles = phase.Clone() as double[];

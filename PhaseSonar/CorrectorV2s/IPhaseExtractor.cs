@@ -165,17 +165,17 @@ namespace PhaseSonar.CorrectorV2s {
 
             RawPhaseReady?.Invoke(_rangePhaseContainer);
             Tuple<double, double> tuple;
-                Tuple<int, int> bestZone;
-             if (TryCheckLeap(_rangePhaseContainer, out bestZone)) {
-                 var start = bestZone.Item1;
-                 var end = bestZone.Item2;
-                 var lineSpace = Functions.LineSpace(start + _start, end + _start);
-                 var doubles =
-                     _rangePhaseContainer.Where((d, i) => i >= start && i <= end).ToArray();
-                  tuple = Fit.Line(lineSpace, doubles);
-             } else {
-                 tuple = Fit.Line(_linespace, _rangePhaseContainer);
-             }
+            Tuple<int, int> bestZone;
+            if (TryGetSmoothestInterval(_rangePhaseContainer, out bestZone)) {
+                var start = bestZone.Item1;
+                var end = bestZone.Item2;
+                var lineSpace = Functions.LineSpace(start + _start, end + _start);
+                var doubles =
+                    _rangePhaseContainer.Where((d, i) => i >= start && i <= end).ToArray();
+                tuple = Fit.Line(lineSpace, doubles);
+            } else {
+                tuple = Fit.Line(_linespace, _rangePhaseContainer);
+            }
 //            tuple = Fit.Line(_linespace, _rangePhaseContainer);
             var slope = tuple.Item2;
 //             if (Math.Abs(slope)>0.05) {
@@ -193,7 +193,7 @@ namespace PhaseSonar.CorrectorV2s {
         public event SpectrumReadyEventHandler RawSpectrumReady;
         public event PhaseReadyEventHandler RawPhaseReady;
 
-        public bool TryCheckLeap(double[] phase, out Tuple<int, int> bestZone) {
+        public bool TryGetSmoothestInterval(double[] phase, out Tuple<int, int> bestZone) {
             var last = phase[0];
 
             var leapPts = new List<int>();
@@ -211,12 +211,12 @@ namespace PhaseSonar.CorrectorV2s {
             }
 
             var intervals = new List<Tuple<int, int>> {new Tuple<int, int>(0, leapPts.First() - 1)};
-            for (var i = 0; i < leapPts.Count-1; i++) {
+            for (var i = 0; i < leapPts.Count - 1; i++) {
                 var start = leapPts[i];
-                var end = leapPts[i+1]-1;
-                intervals.Add(new Tuple<int, int>(start,end));
+                var end = leapPts[i + 1] - 1;
+                intervals.Add(new Tuple<int, int>(start, end));
             }
-            intervals.Add(new Tuple<int, int>(leapPts.Last(),phase.Length-1));
+            intervals.Add(new Tuple<int, int>(leapPts.Last(), phase.Length - 1));
             intervals.RemoveAll(tuple => tuple.Item2 - tuple.Item1 <= 200);
             if (intervals.IsEmpty()) {
                 bestZone = null;

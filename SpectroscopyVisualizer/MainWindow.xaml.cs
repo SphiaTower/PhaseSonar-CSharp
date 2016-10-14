@@ -441,7 +441,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ContactAuthor_OnClick(object sender, RoutedEventArgs e) {
-       
+
         }
 
         private void UltraFast_OnChecked(object sender, RoutedEventArgs e) {

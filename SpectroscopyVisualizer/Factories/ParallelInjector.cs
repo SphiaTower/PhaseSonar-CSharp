@@ -97,6 +97,9 @@ namespace SpectroscopyVisualizer.Factories {
 
         [NotNull]
         public IPhaseExtractor NewPhaseExtractor() {
+            if (GeneralConfigurations.Get().ViewPhase) {
+                return new FourierOnlyPhaseExtractor();
+            }
             var config = CorrectorConfigurations.Get();
             switch (config.PhaseType) {
                 case PhaseType.FullRange:
@@ -128,7 +131,7 @@ namespace SpectroscopyVisualizer.Factories {
         public bool TryNewSampleProducer(out IProducerV2<SampleRecord> newProducer, int? targetCnt = null) {
             Sampler sampler;
             if (TryNewSampler(out sampler)) {
-                newProducer = new SampleProducerV2(sampler, 48, targetCnt);
+                newProducer = new SampleProducerV2(sampler, GeneralConfigurations.Get().QueueSize, targetCnt);
                 return true;
             }
             newProducer = null;

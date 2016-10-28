@@ -13,7 +13,7 @@ namespace SpectroscopyVisualizer.Producers {
         /// </summary>
         int ProductCnt { get; }
 
-        int? MaxCapacity { get; set; }
+        int? MaxCapacity { get; }
 
         int? TargetCnt { get; }
 

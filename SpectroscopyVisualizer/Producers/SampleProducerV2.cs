@@ -25,10 +25,7 @@ namespace SpectroscopyVisualizer.Producers {
         /// </summary>
         public int ProductCnt => _producer.ProductCnt;
 
-        public int? MaxCapacity {
-            get { return _producer.MaxCapacity; }
-            set { _producer.MaxCapacity = value; }
-        }
+        public int? MaxCapacity => _producer.MaxCapacity;
 
 
         public int? TargetCnt => _producer.TargetCnt;

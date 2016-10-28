@@ -49,7 +49,8 @@ namespace SpectroscopyVisualizer {
                     dispPoints: 1000,
                     directory: @"C:\buffer\captured\",
                     viewPhase: false,
-                    saveType: SaveType.Magnitude);
+                    saveType: SaveType.Magnitude,
+                    queueSize:48);
 
                 SliceConfigurations.Initialize(
                     crestAmplitudeThreshold: 1,
@@ -74,26 +75,10 @@ namespace SpectroscopyVisualizer {
             }
 
             CbPhaseType.SelectionChanged += (sender, args) => {
-                var selected = (PhaseType) args.AddedItems[0];
                 HideAllPhaseOptions();
-                switch (selected) {
-                    case PhaseType.FullRange:
-                        break;
-                    case PhaseType.CenterInterpolation:
-                    case PhaseType.OldCenterInterpolation:
-                        Show(TbCenterSpanLength);
-                        Show(LbCentralSpan);
-                        break;
-                    case PhaseType.SpecifiedRange:
-                    case PhaseType.SpecifiedFreqRange:
-                        Show(LbRangeStart);
-                        Show(LbRangeEnd);
-                        Show(TbRangeStart);
-                        Show(TbRangeEnd);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+
+                var selected = (PhaseType) args.AddedItems[0];
+                HandleAdditionalPhaseOptions(selected);
             };
 
             CbSliceLength.SelectionChanged += (sender, args) => {
@@ -101,9 +86,47 @@ namespace SpectroscopyVisualizer {
                 TbFixedLength.Visibility = selected == RulerType.FixLength ? Visibility.Visible : Visibility.Hidden;
             };
 
+            CbCorrector.SelectionChanged += (sender, args) => {
+                var selected = (CorrectorType) args.AddedItems[0];
+                switch (selected) {
+                    case CorrectorType.Fake:
+                        Hide(CbPhaseType);
+                        Hide(LbPhaseType);
+                        HideAllPhaseOptions();
+                        break;
+                    case CorrectorType.Mertz:
+                        Show(CbPhaseType);
+                        Show(LbPhaseType);
+                        HandleAdditionalPhaseOptions((PhaseType?) CbPhaseType.SelectedItem ?? PhaseType.FullRange);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            };
+
             RoutedEventHandler ckPhaseOnChecked = (sender, args) => {
                 var correct = !CkPhase.IsChecked.GetValueOrDefault(false);
-                CbCorrector.IsEnabled = correct;
+                if (correct) {
+                    Show(LbCorrector);
+                    Show(CbCorrector);
+                    Show(CbApodizationType);
+                    Show(LbApodize);
+                    Show(CkAutoFlip);
+                    Show(CkSpecReal);
+                    Show(CbPhaseType);
+                    Show(LbPhaseType);
+                    HandleAdditionalPhaseOptions((PhaseType?)CbPhaseType.SelectedItem ?? PhaseType.FullRange);
+                } else {
+                    Hide(CbCorrector);
+                    Hide(LbCorrector);
+                    Hide(CbApodizationType);
+                    Hide(LbApodize);
+                    Hide(CkAutoFlip);
+                    Hide(CkSpecReal);
+                    Hide(CbPhaseType);
+                    Hide(LbPhaseType);
+                    HideAllPhaseOptions();
+                }
             };
             CkPhase.Checked += ckPhaseOnChecked;
             CkPhase.Unchecked += ckPhaseOnChecked;
@@ -112,12 +135,9 @@ namespace SpectroscopyVisualizer {
             //            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\configuration.bin"));
             // bind configs to controls
             SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
-            GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase, CbSaveType);
-            SliceConfigurations.Get()
-                .Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength);
-            CorrectorConfigurations.Get()
-                .Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart,
-                    TbRangeEnd, CkAutoFlip, CkSpecReal);
+            GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase, CbSaveType, TbQueueSize);
+            SliceConfigurations.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength);
+            CorrectorConfigurations.Get().Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart, TbRangeEnd, CkAutoFlip, CkSpecReal);
             // init custom components
 //            _canvasView = new CanvasView(ScopeCanvas);
 //            HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
@@ -129,6 +149,27 @@ namespace SpectroscopyVisualizer {
             SwitchButton.TurnOff += ClearFromRunningState;
             SizeChanged += (sender, args) => { Adapter?.OnWindowZoomed(); };
             // todo text disapeared
+        }
+
+        private void HandleAdditionalPhaseOptions(PhaseType selected) {
+            switch (selected) {
+                case PhaseType.FullRange:
+                    break;
+                case PhaseType.CenterInterpolation:
+                case PhaseType.OldCenterInterpolation:
+                    Show(TbCenterSpanLength);
+                    Show(LbCentralSpan);
+                    break;
+                case PhaseType.SpecifiedRange:
+                case PhaseType.SpecifiedFreqRange:
+                    Show(LbRangeStart);
+                    Show(LbRangeEnd);
+                    Show(TbRangeStart);
+                    Show(TbRangeEnd);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
 
@@ -179,9 +220,7 @@ namespace SpectroscopyVisualizer {
             GC.Collect();
             if (_ultraFastMode) {
                 var textBlock = new TextBlock {
-                    Text = "Happy 2016!",
-                    Foreground = new SolidColorBrush(Colors.Wheat),
-                    FontSize = 30
+                    Text = "Happy 2016!", Foreground = new SolidColorBrush(Colors.Wheat), FontSize = 30
                 };
                 var canvasView = new CanvasView(ScopeCanvas);
                 Canvas.SetTop(textBlock, canvasView.ScopeHeight/2);
@@ -201,7 +240,7 @@ namespace SpectroscopyVisualizer {
             producer.ProductionFailed += () => {
                 Dispatcher.InvokeAsync(() => {
                     SwitchButton.State = false;
-                    MessageBox.Show("Unable to sample data.");
+                    MessageBox.Show("Unable to sample data. Maybe out of Memory.");
                 });
             };
             AttachWriter(producer);
@@ -224,10 +263,7 @@ namespace SpectroscopyVisualizer {
 
         [NotNull]
         private DisplayAdapter NewAdapter() {
-            return FactoryHolder.Get()
-                .NewAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas),
-                    new VerticalAxisView(VerAxisCanvas),
-                    TbXCoordinate, TbDistance);
+            return FactoryHolder.Get().NewAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas), new VerticalAxisView(VerAxisCanvas), TbXCoordinate, TbDistance);
         }
 
         private void ConsumerOnConsumeEvent(IConsumerV2 consumer, StopWatch watch) {
@@ -244,10 +280,10 @@ namespace SpectroscopyVisualizer {
 
 
         private void ConsumerOnSourceInvalid() {
-            Dispatcher.InvokeAsync(() => {
+            Dispatcher.Invoke(() => {
                 SwitchButton.State = false;
-                MessageBox.Show("It seems that the source is invalid.");
             });
+            MessageBox.Show("It seems that the source is invalid.");
         }
 
         private void ClearFromRunningState() {
@@ -288,9 +324,7 @@ namespace SpectroscopyVisualizer {
         private static string[] SelectFiles() {
             // Create OpenFileDialog 
             var dlg = new OpenFileDialog {
-                DefaultExt = ".txt",
-                Filter = "Text documents (.txt)|*.txt",
-                Multiselect = true
+                DefaultExt = ".txt", Filter = "Text documents (.txt)|*.txt", Multiselect = true
             };
 
             // Set filter for file extension and default file extension 
@@ -352,7 +386,16 @@ namespace SpectroscopyVisualizer {
             if (IsProgramRunning()) {
                 return;
             }
-            var total = int.Parse(TbTotalData.Text);
+            var numberDialog = new NumberDialog();
+            if (!numberDialog.ShowDialog().GetValueOrDefault(false)) {
+                return;
+            }
+            int total = numberDialog.Number;
+            if (total <= 0) {
+                MessageBox.Show("plz input the number of records to be sampled.");
+                return;
+            }
+           
             var factory = FactoryHolder.Get();
 
             IProducerV2<SampleRecord> producer;
@@ -361,7 +404,7 @@ namespace SpectroscopyVisualizer {
                 MessageBox.Show("Sampler can't be initialized");
                 return;
             }
-            producer.HitTarget += () => { Dispatcher.InvokeAsync(() => { SwitchButton.State = false; }); };
+//            producer.HitTarget += () => { Dispatcher.InvokeAsync(() => { SwitchButton.State = false; }); };
             PbLoading.Maximum = total;
             Adapter = NewAdapter();
             var threadNum = GeneralConfigurations.Get().ThreadNum;
@@ -372,7 +415,7 @@ namespace SpectroscopyVisualizer {
             var consumer = new DataSerializer(producer.BlockingQueue, workers, total);
             consumer.SourceInvalid += ConsumerOnSourceInvalid;
             consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
-
+            consumer.TargetAmountReached += () => { Dispatcher.InvokeAsync(() => { SwitchButton.State = false; }); };
             CkCaptureSample.IsChecked = true;
             Scheduler = new Scheduler(producer, consumer);
             Scheduler.Start();
@@ -404,12 +447,10 @@ namespace SpectroscopyVisualizer {
 
             var checkers = new List<PulseChecker>();
             for (var i = 0; i < 4; i++) {
-                checkers.Add(new PulseChecker(factory.NewCrestFinder(), factory.NewSlicer(),
-                    factory.NewPulsePreprocessor(), factory.NewCorrector()));
+                checkers.Add(new PulseChecker(factory.NewCrestFinder(), factory.NewSlicer(), factory.NewPulsePreprocessor(), factory.NewCorrector()));
             }
             var consumer = new PulseByPulseChecker(producer.BlockingQueue, checkers, fileNames.Length);
-            consumer.ElementConsumedSuccessfully +=
-                () => { PbLoading.Dispatcher.InvokeAsync(() => { PbLoading.Value += 1; }); };
+            consumer.ElementConsumedSuccessfully += () => { PbLoading.Dispatcher.InvokeAsync(() => { PbLoading.Value += 1; }); };
             PbLoading.Maximum = fileNames.Length;
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
@@ -431,8 +472,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void Donate_OnClick(object sender, RoutedEventArgs e) {
-            MessageBox.Show(
-                "If you think this app is valuable, plz pay $10 USD to the author. \n\nYour support is very important! Thanks!");
+            MessageBox.Show("If you think this app is valuable, plz pay $10 USD to the author. \n\nYour support is very important! Thanks!");
         }
 
         private void ReportBug_OnClick(object sender, RoutedEventArgs e) {
@@ -441,7 +481,8 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ContactAuthor_OnClick(object sender, RoutedEventArgs e) {
-
+            var address = @"mailto:traspip@126.com";
+            Process.Start(address);
         }
 
         private void UltraFast_OnChecked(object sender, RoutedEventArgs e) {

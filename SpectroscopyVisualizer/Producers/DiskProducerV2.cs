@@ -16,7 +16,7 @@ namespace SpectroscopyVisualizer.Producers {
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
         public DiskProducerV2([NotNull] IReadOnlyCollection<string> paths, bool isCompressed) {
-            _producer = new SerialProducerV2<SampleRecord>(this, paths.Count, paths.Count);
+            _producer = new SerialProducerV2<SampleRecord>(this, 48, paths.Count);
             if (isCompressed) {
                 _readFileFunc = Toolbox.DeserializeData<double[]>;
             } else {
@@ -35,10 +35,7 @@ namespace SpectroscopyVisualizer.Producers {
         /// </summary>
         public int ProductCnt => _producer.ProductCnt;
 
-        public int? MaxCapacity {
-            get { return _producer.MaxCapacity; }
-            set { _producer.MaxCapacity = value; }
-        }
+        public int? MaxCapacity => _producer.MaxCapacity;
 
         public int? TargetCnt => _producer.TargetCnt;
 

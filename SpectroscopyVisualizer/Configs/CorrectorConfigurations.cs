@@ -5,8 +5,8 @@ using System.Windows.Controls;
 namespace SpectroscopyVisualizer.Configs {
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
     public enum CorrectorType {
-        [Description("None")] Fake,
-        [Description("Mertz")] Mertz
+        [Description("FFT Only")] Fake,
+        [Description("Mertz")] Mertz,
     }
 
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
@@ -29,7 +29,7 @@ namespace SpectroscopyVisualizer.Configs {
     public enum PhaseType {
         [Description("Full Range")] FullRange,
         [Description("Center Interpolation")] CenterInterpolation,
-        [Description("Old Wrong Method")] OldCenterInterpolation,
+        [Description("Classic Method")] OldCenterInterpolation,
         [Description("Specified Range")] SpecifiedRange,
         [Description("Specified Freq Range")] SpecifiedFreqRange
     }

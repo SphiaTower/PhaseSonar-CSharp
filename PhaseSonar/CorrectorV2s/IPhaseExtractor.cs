@@ -165,16 +165,26 @@ namespace PhaseSonar.CorrectorV2s {
 
             RawPhaseReady?.Invoke(_rangePhaseContainer);
             Tuple<double, double> tuple;
-            Tuple<int, int> bestZone;
-            if (TryGetSmoothestInterval(_rangePhaseContainer, out bestZone)) {
-                var start = bestZone.Item1;
-                var end = bestZone.Item2;
-                var lineSpace = Functions.LineSpace(start + _start, end + _start);
-                var doubles =
-                    _rangePhaseContainer.Where((d, i) => i >= start && i <= end).ToArray();
-                tuple = Fit.Line(lineSpace, doubles);
-            } else {
-                tuple = Fit.Line(_linespace, _rangePhaseContainer);
+            Tuple<double,int, int> bestZone;
+            var result = TryGetSmoothestInterval(_rangePhaseContainer, out bestZone);
+            switch (result) {
+                case DivisionResult.BestIntervalFound:
+                    ThrowIfStdTooLarge(bestZone.Item1);
+                    var start = bestZone.Item2;
+                    var end = bestZone.Item3;
+                    var lineSpace = Functions.LineSpace(start + _start, end + _start);
+                    var doubles =
+                        _rangePhaseContainer.Where((d, i) => i >= start && i <= end).ToArray();
+                    tuple = Fit.Line(lineSpace, doubles);
+                    break;
+                case DivisionResult.NoLeapPtsFound:
+                    var standardDeviation = _rangePhaseContainer.AsEnumerable().StandardDeviation();
+                    ThrowIfStdTooLarge(standardDeviation);
+                    tuple = Fit.Line(_linespace, _rangePhaseContainer);
+                    break;
+                case DivisionResult.AllIntervalTooShort:
+                default:
+                    throw new PhaseFitException();
             }
 //            tuple = Fit.Line(_linespace, _rangePhaseContainer);
             var slope = tuple.Item2;
@@ -189,11 +199,21 @@ namespace PhaseSonar.CorrectorV2s {
             return _halfDoubleContainer;
         }
 
+        private static void ThrowIfStdTooLarge(double std) {
+            if (std > 0.34) {
+                throw new PhaseFitException();
+            }
+        }
+
 
         public event SpectrumReadyEventHandler RawSpectrumReady;
         public event PhaseReadyEventHandler RawPhaseReady;
 
-        public bool TryGetSmoothestInterval(double[] phase, out Tuple<int, int> bestZone) {
+        public enum DivisionResult {
+            NoLeapPtsFound, AllIntervalTooShort,BestIntervalFound
+        }
+
+        public DivisionResult TryGetSmoothestInterval(double[] phase, out Tuple<double,int, int> bestZone) {
             var last = phase[0];
 
             var leapPts = new List<int>();
@@ -207,9 +227,9 @@ namespace PhaseSonar.CorrectorV2s {
             }
             if (leapPts.IsEmpty()) {
                 bestZone = null;
-                return false;
+                return DivisionResult.NoLeapPtsFound;
             }
-
+                
             var intervals = new List<Tuple<int, int>> {new Tuple<int, int>(0, leapPts.First() - 1)};
             for (var i = 0; i < leapPts.Count - 1; i++) {
                 var start = leapPts[i];
@@ -220,7 +240,7 @@ namespace PhaseSonar.CorrectorV2s {
             intervals.RemoveAll(tuple => tuple.Item2 - tuple.Item1 <= 200);
             if (intervals.IsEmpty()) {
                 bestZone = null;
-                return false;
+                return DivisionResult.AllIntervalTooShort;
             }
             var leastStd = new Tuple<double, int, int>(double.MaxValue, -1, -1);
             intervals.ForEach(tuple => {
@@ -230,8 +250,8 @@ namespace PhaseSonar.CorrectorV2s {
                     leastStd = new Tuple<double, int, int>(standardDeviation, tuple.Item1, tuple.Item2);
                 }
             });
-            bestZone = new Tuple<int, int>(leastStd.Item2, leastStd.Item3);
-            return true;
+            bestZone = leastStd;
+            return DivisionResult.BestIntervalFound;
         }
     }
 

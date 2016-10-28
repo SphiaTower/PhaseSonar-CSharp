@@ -76,7 +76,7 @@ namespace SpectroscopyVisualizer.Consumers {
                                         return;
                                     }
                                 }
-                                if (ConsumedCnt == TargetCnt) {
+                                if (ConsumedCnt >= TargetCnt.GetValueOrDefault(int.MaxValue)) {
                                     TargetAmountReached?.Invoke();
                                     return;
                                 }

@@ -32,7 +32,7 @@ namespace SpectroscopyVisualizer.Producers {
         /// </summary>
         public int ProductCnt { get; private set; }
 
-        public int? MaxCapacity { get; set; }
+        public int? MaxCapacity { get;}
         public int? TargetCnt { get; }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace SpectroscopyVisualizer.Producers {
                     if (_cts.IsCancellationRequested) break;
                     BlockingQueue.Add(data); // blocking method
                     ProductCnt++;
-                    if (ProductCnt == TargetCnt) {
+                    if (ProductCnt >= TargetCnt.GetValueOrDefault(int.MaxValue)) {
                         HitTarget?.Invoke();
                         break;
                     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using PhaseSonar.Utils;
@@ -72,11 +73,11 @@ namespace SpectroscopyVisualizer.Producers {
             if (_enumerator.MoveNext()) {
                 var path = _enumerator.Current;
                 var match = _regex.Match(path);
+                string id;
                 int num;
-                if (!int.TryParse(match.Value, out num)) {
-                    num = ProductCnt;
-                }
-                data = CreateRecord(path, num);
+                if (int.TryParse(match.Groups[1].Value, out num)) { id = num + "";}
+                else { id = Path.GetFileNameWithoutExtension(path);}
+                data = CreateRecord(path, id);
                 return true;
             }
             data = null;
@@ -85,8 +86,8 @@ namespace SpectroscopyVisualizer.Producers {
 
 
         [NotNull]
-        private SampleRecord CreateRecord(string path, int num) {
-            return new SampleRecord(_readFileFunc(path), num);
+        private SampleRecord CreateRecord(string path, string id) {
+            return new SampleRecord(_readFileFunc(path), id);
         }
     }
 }

@@ -59,7 +59,8 @@ namespace SpectroscopyVisualizer {
                     rulerType: RulerType.MinLength,
                     findAbs: true,
                     autoAdjust: false,
-                    fixedLength: 232171
+                    fixedLength: 232171,
+                    reference:false
                     );
 
                 CorrectorConfigurations.Initialize(
@@ -136,7 +137,7 @@ namespace SpectroscopyVisualizer {
             // bind configs to controls
             SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
             GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase, CbSaveType, TbQueueSize);
-            SliceConfigurations.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength);
+            SliceConfigurations.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength,CkRef);
             CorrectorConfigurations.Get().Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart, TbRangeEnd, CkAutoFlip, CkSpecReal);
             // init custom components
 //            _canvasView = new CanvasView(ScopeCanvas);
@@ -336,6 +337,21 @@ namespace SpectroscopyVisualizer {
                 return dlg.FileNames;
             }
             return new string[0];
+        } private static string SelectFile() {
+            // Create OpenFileDialog 
+            var dlg = new OpenFileDialog {
+                DefaultExt = ".txt", Filter = "Text documents (.txt)|*.txt", Multiselect = false
+            };
+
+            // Set filter for file extension and default file extension 
+
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            var result = dlg.ShowDialog();
+            if (result == true) {
+                return dlg.FileNames[0];
+            }
+            return null;
         }
 
         private void LoadCompressedFiles_OnClick(object sender, RoutedEventArgs e) {
@@ -481,8 +497,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ContactAuthor_OnClick(object sender, RoutedEventArgs e) {
-            var address = @"mailto:traspip@126.com";
-            Process.Start(address);
+          
         }
 
         private void UltraFast_OnChecked(object sender, RoutedEventArgs e) {
@@ -491,6 +506,20 @@ namespace SpectroscopyVisualizer {
 
         private void CkUltraFast_OnUnchecked(object sender, RoutedEventArgs e) {
             _ultraFastMode = CkUltraFast.IsChecked;
+        }
+     
+        private void GenerateWavelengthAxis_OnClick(object sender, RoutedEventArgs e) {
+            var file = SelectFile();
+            if (file != null) {
+                Process.Start(@"C:\Anaconda3\python.exe", @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Mapper.py "+file);
+            }
+        }
+
+        private void FlattenCurves_OnClick(object sender, RoutedEventArgs e) {
+            var file = SelectFile();
+            if (file != null) {
+                Process.Start(@"C:\Anaconda3\python.exe", @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Flatter.py " + file);
+            }
         }
     }
 }

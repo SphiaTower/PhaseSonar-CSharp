@@ -4,9 +4,14 @@
     /// </summary>
     public class SampleRecord {
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
-        public SampleRecord(double[] pulseSequence, int id) {
+        public SampleRecord(double[] pulseSequence, string id) {
             PulseSequence = pulseSequence;
             Id = id;
+        }
+   /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
+        public SampleRecord(double[] pulseSequence, int id) {
+            PulseSequence = pulseSequence;
+            Id = id+"";
         }
 
         /// <summary>
@@ -17,6 +22,6 @@
         /// <summary>
         ///     The id.
         /// </summary>
-        public int Id { get; }
+        public string Id { get; }
     }
 }

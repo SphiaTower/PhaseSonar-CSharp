@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 namespace PhaseSonar.CrestFinders {
-    public class SimpleCrestFinder : ICrestFinder {
+    public sealed class SimpleCrestFinder : ICrestFinder {
         /// <summary>
         ///     Create an absolute crest finder.
         /// </summary>
@@ -42,13 +42,13 @@ namespace PhaseSonar.CrestFinders {
         /// </summary>
         /// <param name="pulseSequence">A pulse sequence containing multiple pulses</param>
         /// <returns>The indices of the crests</returns>
-        public virtual IList<int> Find(double[] pulseSequence) {
+        public IList<int> Find(double[] pulseSequence) {
             var rightThreshold = SampleRate/(RepetitionRate + 300);
 
             var maxValue = .0;
             var maxIndex = 0;
             var i = 0;
-
+            
             var crestIndices = new List<int>();
 
             foreach (var point in pulseSequence) {

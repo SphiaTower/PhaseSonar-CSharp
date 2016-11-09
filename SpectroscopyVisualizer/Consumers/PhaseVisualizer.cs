@@ -15,7 +15,7 @@ namespace SpectroscopyVisualizer.Consumers {
             IPulseSequenceProcessor worker, DisplayAdapter adapter, [CanBeNull] IWriterV2<TracedSpectrum> writer,
             int? targetCnt) {
             _worker = worker;
-            _consumer = new SerialConsumerV2<SampleRecord>(ProcessElement, queue, targetCnt, 2000);
+            _consumer = new SerialConsumerV2<SampleRecord>(ProcessElement, queue, targetCnt, 5000);
             Adapter = adapter;
             Writer = writer;
         }

@@ -14,9 +14,6 @@ namespace PhaseSonar.Slicers {
         /// <summary>
         ///     Create a slicer.
         /// </summary>
-        /// <param name="finder">
-        ///     <see cref="ICrestFinder" />
-        /// </param>
         public SimpleSlicer(int minPtsCntBeforeCrest, IRuler ruler, IAligner aligner) {
             _minPtsCntBeforeCrest = minPtsCntBeforeCrest;
             Ruler = ruler;
@@ -52,7 +49,7 @@ namespace PhaseSonar.Slicers {
         /// <param name="crestIndices">The indices of all crests.</param>
         /// <param name="periodLength">The common pulse length.</param>
         /// <returns>The start indices for all the slices.</returns>
-        protected virtual bool FindStartIndices([NotNull] double[] pulseSequence, [NotNull] IList<int> crestIndices,
+        public static bool FindStartIndices([NotNull] double[] pulseSequence, [NotNull] IList<int> crestIndices,
             int periodLength, int crestOffset, [NotNull] out IList<int> startIndices) {
             var length = pulseSequence.Length;
             startIndices = crestIndices; // todo deep clone

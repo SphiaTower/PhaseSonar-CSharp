@@ -164,11 +164,19 @@ namespace SpectroscopyVisualizer.Factories {
                     targetCnt);
             }
             var threadNum = configurations.ThreadNum;
-            var accumulators = new List<IPulseSequenceProcessor>(threadNum);
-            for (var i = 0; i < threadNum; i++) {
-                accumulators.Add(NewPulseSequenceProcessor());
+            if (SliceConfigurations.Get().Reference) {
+                var splitters = new  List<IRefPulseSequenceProcessor>(threadNum);
+                for (int i = 0; i < threadNum; i++) {
+                    splitters.Add(new Splitter(NewCrestFinder(),new RefSlicer(SliceConfigurations.Get().PointsBeforeCrest,NewRuler(),NewAligner()),NewPulsePreprocessor(),NewCorrector()));
+                }
+                return new RefSpectroscopyVisualizer(producer.BlockingQueue,splitters,adapter,writer,targetCnt);
+            } else {
+                var accumulators = new List<IPulseSequenceProcessor>(threadNum);
+                for (var i = 0; i < threadNum; i++) {
+                    accumulators.Add(NewPulseSequenceProcessor());
+                }
+                return new ParralelSpectroscopyVisualizerV2(producer.BlockingQueue, accumulators, adapter, writer, targetCnt);
             }
-            return new ParralelSpectroscopyVisualizerV2(producer.BlockingQueue, accumulators, adapter, writer, targetCnt);
         }
 
         [NotNull]

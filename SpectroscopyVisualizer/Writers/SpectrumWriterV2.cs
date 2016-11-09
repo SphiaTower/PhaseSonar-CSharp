@@ -32,7 +32,7 @@ namespace SpectroscopyVisualizer.Writers {
                 var toStringFunc = GetToStringFunc(saveType);
                 _writerV2Implementation.ElementDequeued += spectrum => {
                     Toolbox.WriteStringArray(
-                        path + saveType.ToString().Enclose() + spectrum.Tag.Enclose("No") +
+                        path + saveType.ToString().Enclose() + spectrum.Tag.Enclose() +
                         spectrum.PulseCount.Enclose("Cnt") + Suffix,
                         spectrum.ToStringArray(toStringFunc));
                 };

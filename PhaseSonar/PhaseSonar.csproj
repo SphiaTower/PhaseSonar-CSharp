@@ -79,6 +79,7 @@
     <Compile Include="Analyzers\PhaseReader.cs" />
     <Compile Include="Analyzers\PulseChecker.cs" />
     <Compile Include="Analyzers\SplitResult.cs" />
+    <Compile Include="Analyzers\Splitter.cs" />
     <Compile Include="Correctors\Spectrum.cs" />
     <Compile Include="Analyzers\Accumulator.cs" />
     <Compile Include="Analyzers\IPulseSequenceProcessor.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Utils\Maybe.cs" />
     <Compile Include="Utils\StopWatch.cs" />
     <Compile Include="Utils\Toolbox.cs" />
+    <Compile Include="Utils\Duo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

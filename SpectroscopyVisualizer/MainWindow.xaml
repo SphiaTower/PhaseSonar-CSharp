@@ -7,7 +7,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:types="clr-namespace:SpectroscopyVisualizer.Configs"
         mc:Ignorable="d"
-        Title="Spectroscopy Visualizer 2.2.8" Height="600" Width="1200"
+        Title="Spectroscopy Visualizer 2.3.3" Height="600" Width="1200"
         d:DataContext="{d:DesignData }">
 
     <Grid>
@@ -31,6 +31,8 @@
                     <MenuItem Header="_Debug Command" Click="DebugCmd_OnClick" />
                     <Separator />
                     <MenuItem Header="_Start Sample..." Click="StartSample_OnClick" />
+                    <MenuItem Header="_Generate Wavelength Axis..." Click="GenerateWavelengthAxis_OnClick" />
+                    <MenuItem Header="_Flatten Curves..." Click="FlattenCurves_OnClick" />
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="View Help" />
@@ -202,6 +204,9 @@
                         <TextBox x:Name="TbFixedLength" HorizontalAlignment="Left" Height="21" Margin="228,72,0,0"
                                  TextWrapping="Wrap" Text="{Binding FixedLength}" VerticalAlignment="Top"
                                  Width="59" RenderTransformOrigin="0.59,0.412" />
+                           <CheckBox x:Name="CkRef" HorizontalAlignment="Left" Height="21" Margin="228,72,0,0"
+                                                  IsChecked="{Binding Path=Reference}"       VerticalAlignment="Top" Content="Reference"
+                                                         Width="80" RenderTransformOrigin="0.59,0.412" />
 
                     </Grid>
                     <Grid Grid.Row="2">

@@ -68,7 +68,8 @@ namespace SpectroscopyVisualizer.Consumers {
         }
 
         private void OnTargetAmountReached() {
-            _specInfos.Sort((lhs, rhs) => {
+            // todo
+          /*  _specInfos.Sort((lhs, rhs) => {
                 if (lhs.FileId > rhs.FileId) {
                     return 1;
                 }
@@ -82,7 +83,7 @@ namespace SpectroscopyVisualizer.Consumers {
                     return -1;
                 }
                 return 0;
-            });
+            });*/
             var strings = _specInfos.Select(info => info.FileId + " " + info.Number + " " + info.First).ToArray();
             Toolbox.WriteStringArray(@"D:\zbf\temp\pp.txt", strings);
             var aggregate = strings.Aggregate((s1, s2) => s1 + s2);
@@ -113,12 +114,12 @@ namespace SpectroscopyVisualizer.Consumers {
         private class SpecInfoWrapper {
             private readonly SpecInfo _specInfo;
 
-            public SpecInfoWrapper(SpecInfo specInfo, int fileId) {
+            public SpecInfoWrapper(SpecInfo specInfo, string fileId) {
                 _specInfo = specInfo;
                 FileId = fileId;
             }
 
-            public int FileId { get; }
+            public string FileId { get; }
             public Complex First => _specInfo.First;
 
             public int Number => _specInfo.Number;

@@ -25,7 +25,7 @@ namespace SpectroscopyVisualizer.Consumers {
             [CanBeNull] IWriterV2<TracedSpectrum> writer,
             int? targetCnt) {
             _consumer = new ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, ResultImpl>(
-                queue, workers, ProcessElement, HandleResultSync, 2000, targetCnt);
+                queue, workers, ProcessElement, HandleResultSync, 5000, targetCnt);
             Adapter = adapter;
             Writer = writer;
             TargetAmountReached += OnTargetAmountReached;

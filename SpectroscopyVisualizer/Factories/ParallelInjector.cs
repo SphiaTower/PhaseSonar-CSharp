@@ -132,6 +132,10 @@ namespace SpectroscopyVisualizer.Factories {
             Sampler sampler;
             if (TryNewSampler(out sampler)) {
                 newProducer = new SampleProducerV2(sampler, GeneralConfigurations.Get().QueueSize, targetCnt);
+                if (GeneralConfigurations.Get().SaveSample) {
+                    var newSampleWriter = FactoryHolder.Get().NewSampleWriter();
+                    newProducer.NewProduct += record => { newSampleWriter.Write(record); };
+                }
                 return true;
             }
             newProducer = null;
@@ -157,26 +161,27 @@ namespace SpectroscopyVisualizer.Factories {
 
         [NotNull]
         public IConsumerV2 NewConsumer([NotNull] IProducerV2<SampleRecord> producer, [NotNull] DisplayAdapter adapter,
-            IWriterV2<TracedSpectrum> writer, int? targetCnt) {
+            int? targetCnt) {
             var configurations = GeneralConfigurations.Get();
             if (configurations.ViewPhase) {
-                return new PhaseVisualizer(producer.BlockingQueue, NewPulseSequenceProcessor(), adapter, writer,
+                return new PhaseVisualizer(producer.BlockingQueue, NewPulseSequenceProcessor(), adapter, null,
                     targetCnt);
             }
             var threadNum = configurations.ThreadNum;
             if (SliceConfigurations.Get().Reference) {
-                var splitters = new  List<IRefPulseSequenceProcessor>(threadNum);
-                for (int i = 0; i < threadNum; i++) {
-                    splitters.Add(new Splitter(NewCrestFinder(),new RefSlicer(SliceConfigurations.Get().PointsBeforeCrest,NewRuler(),NewAligner()),NewPulsePreprocessor(),NewCorrector()));
-                }
-                return new RefSpectroscopyVisualizer(producer.BlockingQueue,splitters,adapter,writer,targetCnt);
-            } else {
-                var accumulators = new List<IPulseSequenceProcessor>(threadNum);
+                var splitters = new List<IRefPulseSequenceProcessor>(threadNum);
                 for (var i = 0; i < threadNum; i++) {
-                    accumulators.Add(NewPulseSequenceProcessor());
+                    splitters.Add(new Splitter(NewCrestFinder(),
+                        new RefSlicer(SliceConfigurations.Get().PointsBeforeCrest, NewRuler(), NewAligner()),
+                        NewPulsePreprocessor(), NewCorrector()));
                 }
-                return new ParralelSpectroscopyVisualizerV2(producer.BlockingQueue, accumulators, adapter, writer, targetCnt);
+                return new RefSpectroscopyVisualizer(producer.BlockingQueue, splitters, adapter, NewSpectrumWriter(), targetCnt,configurations.SaveSpec,configurations.SaveAcc);
             }
+            var accumulators = new List<IPulseSequenceProcessor>(threadNum);
+            for (var i = 0; i < threadNum; i++) {
+                accumulators.Add(NewPulseSequenceProcessor());
+            }
+            return new ParralelSpectroscopyVisualizerV2(producer.BlockingQueue, accumulators, adapter, NewSpectrumWriter(), targetCnt, configurations.SaveSpec, configurations.SaveAcc);
         }
 
         [NotNull]

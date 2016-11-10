@@ -14,6 +14,7 @@ namespace PhaseSonar.Analyzers {
         /// <returns>The accumulated spectrum</returns>
         Maybe<ISpectrum> Process([NotNull] double[] pulseSequence);
     }
+
     public interface IRefPulseSequenceProcessor {
         /// <summary>
         ///     Process the pulse sequence and accumulate results of all pulses
@@ -23,7 +24,7 @@ namespace PhaseSonar.Analyzers {
         Maybe<SplitResult> Process([NotNull] double[] pulseSequence);
     }
 
-  /*  public class SplitResult {
+    /*  public class SplitResult {
         public readonly ISpectrum Signal;
         public readonly ISpectrum Reference;
 

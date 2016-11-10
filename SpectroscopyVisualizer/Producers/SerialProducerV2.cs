@@ -32,7 +32,7 @@ namespace SpectroscopyVisualizer.Producers {
         /// </summary>
         public int ProductCnt { get; private set; }
 
-        public int? MaxCapacity { get;}
+        public int? MaxCapacity { get; }
         public int? TargetCnt { get; }
 
         /// <summary>

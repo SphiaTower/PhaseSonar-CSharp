@@ -7,7 +7,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:types="clr-namespace:SpectroscopyVisualizer.Configs"
         mc:Ignorable="d"
-        Title="Spectroscopy Visualizer 2.3.3" Height="600" Width="1200"
+        Title="Spectroscopy Visualizer 2.3.5" Height="600" Width="1200"
         d:DataContext="{d:DesignData }">
 
     <Grid>
@@ -17,7 +17,7 @@
                     <MenuItem Header="_Load Compressed Files..." Click="LoadCompressedFiles_OnClick" />
                     <MenuItem Header="_Load Data Files..." Click="LoadDataFiles_OnClick" />
                     <MenuItem Header="_Decompress Files..." Click="DecodeFiles_OnClick" />
-                    <MenuItem Header="_Exit" />
+                    <MenuItem Header="_Exit" Click="Exit_OnClick" />
                 </MenuItem>
                 <MenuItem Header="_Configs">
                     <MenuItem Header="_Save Config" Click="SaveConfig_OnClick" />
@@ -129,9 +129,9 @@
                         <RowDefinition Height="4*" />
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
-                        
+
                         <Rectangle Stroke="DarkGray" StrokeThickness="0.5" />
-                      
+
                         <Label x:Name="label1" Content="Device Name" HorizontalAlignment="Left" Height="27"
                                VerticalAlignment="Top" Width="91" Margin="2,0,0,0" />
                         <TextBox x:Name="TbDeviceName" Height="22"
@@ -204,9 +204,9 @@
                         <TextBox x:Name="TbFixedLength" HorizontalAlignment="Left" Height="21" Margin="228,72,0,0"
                                  TextWrapping="Wrap" Text="{Binding FixedLength}" VerticalAlignment="Top"
                                  Width="59" RenderTransformOrigin="0.59,0.412" />
-                           <CheckBox x:Name="CkRef" HorizontalAlignment="Left" Height="21" Margin="228,72,0,0"
-                                                  IsChecked="{Binding Path=Reference}"       VerticalAlignment="Top" Content="Reference"
-                                                         Width="80" RenderTransformOrigin="0.59,0.412" />
+                        <CheckBox x:Name="CkRef" HorizontalAlignment="Left" Height="21" Margin="228,72,0,0"
+                                  IsChecked="{Binding Path=Reference}" VerticalAlignment="Top" Content="Reference"
+                                  Width="80" RenderTransformOrigin="0.59,0.412" />
 
                     </Grid>
                     <Grid Grid.Row="2">
@@ -247,7 +247,8 @@
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:CorrectorType}}}"
                                   SelectedItem="{Binding Path=CorrectorType}" HorizontalAlignment="Left"
                                   VerticalAlignment="Top" Width="93" Margin="102,5,0,0" />
-                        <Label x:Name="LbCorrector" Content="Correction" HorizontalAlignment="Left" VerticalAlignment="Top"
+                        <Label x:Name="LbCorrector" Content="Correction" HorizontalAlignment="Left"
+                               VerticalAlignment="Top"
                                Margin="0,5,0,0" />
                         <Label x:Name="LbApodize" Content="Temp. Window" HorizontalAlignment="Left"
                                Margin="0,39,0,0"
@@ -294,10 +295,10 @@
                                  TextWrapping="Wrap" Text="{Binding DispPoints}" VerticalAlignment="Top" Width="54"
                                  RenderTransformOrigin="0.498,0.93" />
                         <TextBox x:Name="TbQueueSize" HorizontalAlignment="Left" Height="23" Margin="112,40,0,0"
-                            TextWrapping="Wrap" Text="{Binding QueueSize}" VerticalAlignment="Top" Width="54"
-                            RenderTransformOrigin="0.498,0.93" />
+                                 TextWrapping="Wrap" Text="{Binding QueueSize}" VerticalAlignment="Top" Width="54"
+                                 RenderTransformOrigin="0.498,0.93" />
                         <Label x:Name="label17_Copy" Content="Queue Capacity" HorizontalAlignment="Left"
-                            VerticalAlignment="Top" Margin="0,38,0,0" />
+                               VerticalAlignment="Top" Margin="0,38,0,0" />
                     </Grid>
                     <Grid Row="4">
                         <Grid.Resources>
@@ -314,19 +315,20 @@
                                 Click="BnPath_Click" Height="43" />
                         <TextBox x:Name="TbSavePath" HorizontalAlignment="Left" Height="43" Margin="88,10,0,0"
                                  TextWrapping="Wrap" Text="{Binding Directory}" VerticalAlignment="Top" Width="187" />
-                        <CheckBox x:Name="CkCaptureSample" Content="Samples" HorizontalAlignment="Left"
-                                  Margin="52,74,0,0" VerticalAlignment="Top" />
-                        <CheckBox x:Name="CkCaptureSpec" Content="Spectrum" HorizontalAlignment="Left"
-                                  Margin="136,74,0,0"
+                        <CheckBox x:Name="CkCaptureSample" Content="Samples" IsChecked="{Binding Path=SaveSample}" HorizontalAlignment="Left"
+                                  Margin="12,74,0,0" VerticalAlignment="Top" />
+                        <CheckBox x:Name="CkCaptureSpec" Content="Spec" IsChecked="{Binding Path=SaveSpec}" HorizontalAlignment="Left"
+                                  Margin="95,74,0,0"
                                   VerticalAlignment="Top" />
-                        <Label x:Name="textBlock234" HorizontalAlignment="Left" Margin="5,69,0,0" Content="Save:"
-                               VerticalAlignment="Top" Width="47" Height="26" RenderTransformOrigin="0.41,-0.225" />
+                        <CheckBox x:Name="CkCaptureAcc" Content="Total" IsChecked="{Binding Path=SaveAcc}"  HorizontalAlignment="Left"
+                                  Margin="156,74,0,0"
+                                  VerticalAlignment="Top" />
                         <ProgressBar x:Name="PbLoading" HorizontalAlignment="Left" Height="28" Margin="10,100,0,0"
                                      VerticalAlignment="Top" Width="316" />
                         <ComboBox x:Name="CbSaveType"
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:SaveType}}}"
                                   SelectedItem="{Binding Path=SaveType}"
-                                  HorizontalAlignment="Left" Margin="216,69,0,0" VerticalAlignment="Top" Width="110" />
+                                  HorizontalAlignment="Left" Margin="246,69,0,0" VerticalAlignment="Top" Width="90" />
                     </Grid>
                 </Grid>
             </Grid>

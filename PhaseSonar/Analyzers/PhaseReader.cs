@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using JetBrains.Annotations;
 using PhaseSonar.Correctors;
 using PhaseSonar.CorrectorV2s;
@@ -49,7 +48,7 @@ namespace PhaseSonar.Analyzers {
             _rotator.TrySymmetrize(pulse, example.CrestOffset);
             double[] phase;
             try {
-                 phase = _phaseExtractor.GetPhase(pulse, null);
+                phase = _phaseExtractor.GetPhase(pulse, null);
             } catch (PhaseFitException) {
                 return Maybe<ISpectrum>.Empty();
             }

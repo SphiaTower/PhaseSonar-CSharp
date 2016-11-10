@@ -75,8 +75,11 @@ namespace SpectroscopyVisualizer.Producers {
                 var match = _regex.Match(path);
                 string id;
                 int num;
-                if (int.TryParse(match.Groups[1].Value, out num)) { id = num + "";}
-                else { id = Path.GetFileNameWithoutExtension(path);}
+                if (int.TryParse(match.Groups[1].Value, out num)) {
+                    id = num + "";
+                } else {
+                    id = Path.GetFileNameWithoutExtension(path);
+                }
                 data = CreateRecord(path, id);
                 return true;
             }

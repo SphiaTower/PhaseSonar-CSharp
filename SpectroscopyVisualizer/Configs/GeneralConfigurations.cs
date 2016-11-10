@@ -8,7 +8,8 @@ namespace SpectroscopyVisualizer.Configs {
     public class GeneralConfigurations {
         private static GeneralConfigurations _singleton;
 
-        private GeneralConfigurations(double repetitionRate, int threadNum, int dispPoints, string directory, bool viewPhase, SaveType saveType, int queueSize) {
+        private GeneralConfigurations(double repetitionRate, int threadNum, int dispPoints, string directory,
+            bool viewPhase, SaveType saveType, int queueSize,bool saveSample, bool saveSpec, bool saveAcc) {
             RepetitionRate = repetitionRate;
             ThreadNum = threadNum;
             DispPoints = dispPoints;
@@ -16,6 +17,9 @@ namespace SpectroscopyVisualizer.Configs {
             ViewPhase = viewPhase;
             SaveType = saveType;
             QueueSize = queueSize;
+            SaveSample = saveSample;
+            SaveSpec = saveSpec;
+            SaveAcc = saveAcc;
         }
 
         public bool ViewPhase { get; set; }
@@ -25,6 +29,9 @@ namespace SpectroscopyVisualizer.Configs {
         public int ThreadNum { get; set; }
         public int DispPoints { get; set; }
         public int QueueSize { get; set; }
+        public bool SaveSample { get; set; }
+        public bool SaveSpec { get; set; }
+        public bool SaveAcc { get; set; }
 
         public string Directory { get; set; }
 
@@ -40,7 +47,8 @@ namespace SpectroscopyVisualizer.Configs {
 
 
         public void Bind([NotNull] Control repetitionRate, [NotNull] Control threadNum, [NotNull] Control dispPoints,
-            [NotNull] Control savePath, [NotNull] Control viewPhase, [NotNull] Control saveType,[NotNull]Control queueSize) {
+            [NotNull] Control savePath, [NotNull] Control viewPhase, [NotNull] Control saveType,
+            [NotNull] Control queueSize,Control saveSample,Control saveSpec, Control saveAcc) {
             repetitionRate.DataContext = this;
             threadNum.DataContext = this;
             dispPoints.DataContext = this;
@@ -48,14 +56,18 @@ namespace SpectroscopyVisualizer.Configs {
             viewPhase.DataContext = this;
             saveType.DataContext = this;
             queueSize.DataContext = this;
+            saveSample.DataContext = this;
+            saveSpec.DataContext = this;
+            saveAcc.DataContext = this;
         }
 
         public static void Initialize(double repetitionRate, int threadNum, int dispPoints, string directory,
-            bool viewPhase, SaveType saveType,int queueSize) {
+            bool viewPhase, SaveType saveType, int queueSize, bool saveSample, bool saveSpec, bool saveAcc) {
             if (_singleton != null) {
                 throw new Exception("environment already init");
             }
-            _singleton = new GeneralConfigurations(repetitionRate, threadNum, dispPoints, directory, viewPhase, saveType,queueSize);
+            _singleton = new GeneralConfigurations(repetitionRate, threadNum, dispPoints, directory, viewPhase, saveType,
+                queueSize,  saveSample,  saveSpec,  saveAcc);
         }
 
         public static GeneralConfigurations Get() {

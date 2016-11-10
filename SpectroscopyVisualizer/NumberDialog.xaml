@@ -8,8 +8,11 @@
         Background="#FFE5E5E5"
         Title="NumberDialog" Height="160" Width="300">
     <Grid>
-        <TextBlock MaxHeight="100" TextAlignment="Center" TextWrapping="WrapWithOverflow" Text="Please Input the number of records to be sampled" Margin="0,10,0,49"/>
-        <TextBox Name="InputBox" KeyDown="InputBox_OnKeyDown" Text="{Binding Number}" TextAlignment="Center" Width="50" Height="20" Margin="31,51,111,18" />
-        <Button Content="OK" Click="ButtonBase_OnClick" HorizontalAlignment="Center" Width="40" Height="20" Margin="105,51,37,18" />
+        <TextBlock MaxHeight="100" TextAlignment="Center" TextWrapping="WrapWithOverflow"
+                   Text="Please Input the number of records to be sampled" Margin="0,10,0,49" />
+        <TextBox Name="InputBox" KeyDown="InputBox_OnKeyDown" Text="{Binding Number}" TextAlignment="Center" Width="50"
+                 Height="20" Margin="31,51,111,18" />
+        <Button Content="OK" Click="ButtonBase_OnClick" HorizontalAlignment="Center" Width="40" Height="20"
+                Margin="105,51,37,18" />
     </Grid>
 </Window>

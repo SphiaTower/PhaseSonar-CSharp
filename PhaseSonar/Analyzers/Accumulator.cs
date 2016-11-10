@@ -1,5 +1,4 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using JetBrains.Annotations;
 using PhaseSonar.Correctors;
 using PhaseSonar.CorrectorV2s;
@@ -64,9 +63,9 @@ namespace PhaseSonar.Analyzers {
                 _rotator.TrySymmetrize(pulse, sliceInfo.CrestOffset); // todo do it at preproposs
                 Complex[] correctedSpectrum;
                 try {
-                     correctedSpectrum = _corrector.Correct(pulse);
+                    correctedSpectrum = _corrector.Correct(pulse);
                 } catch (CorrectFailException) {
-                    continue;   
+                    continue;
                 }
 //                Toolbox.WriteData(@"D:\zbf\temp\sp.txt", correctedSpectrum);
                 if (accumulatedSpectrum == null) {
@@ -76,7 +75,9 @@ namespace PhaseSonar.Analyzers {
                 }
                 cnt++;
             }
-            return accumulatedSpectrum==null ? Maybe<ISpectrum>.Empty() : Maybe<ISpectrum>.Of(new Spectrum(accumulatedSpectrum, cnt));
+            return accumulatedSpectrum == null
+                ? Maybe<ISpectrum>.Empty()
+                : Maybe<ISpectrum>.Of(new Spectrum(accumulatedSpectrum, cnt));
         }
     }
 }

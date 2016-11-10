@@ -8,10 +8,11 @@
             PulseSequence = pulseSequence;
             Id = id;
         }
-   /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
+
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
         public SampleRecord(double[] pulseSequence, int id) {
             PulseSequence = pulseSequence;
-            Id = id+"";
+            Id = id + "";
         }
 
         /// <summary>

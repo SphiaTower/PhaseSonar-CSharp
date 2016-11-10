@@ -48,7 +48,7 @@ namespace PhaseSonar.CrestFinders {
             var maxValue = .0;
             var maxIndex = 0;
             var i = 0;
-            
+
             var crestIndices = new List<int>();
 
             foreach (var point in pulseSequence) {

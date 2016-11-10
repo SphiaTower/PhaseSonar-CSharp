@@ -11,6 +11,8 @@ using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Consumers {
     public class ParralelSpectroscopyVisualizerV2 : IConsumerV2 {
+        private readonly bool _saveSpec;
+        private readonly bool _saveAcc;
         private readonly ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, ResultImpl> _consumer;
 
 
@@ -23,7 +25,9 @@ namespace SpectroscopyVisualizer.Consumers {
         public ParralelSpectroscopyVisualizerV2(BlockingCollection<SampleRecord> queue,
             IEnumerable<IPulseSequenceProcessor> workers, DisplayAdapter adapter,
             [CanBeNull] IWriterV2<TracedSpectrum> writer,
-            int? targetCnt) {
+            int? targetCnt,bool saveSpec, bool saveAcc) {
+            _saveSpec = saveSpec;
+            _saveAcc = saveAcc;
             _consumer = new ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, ResultImpl>(
                 queue, workers, ProcessElement, HandleResultSync, 5000, targetCnt);
             Adapter = adapter;
@@ -90,7 +94,9 @@ namespace SpectroscopyVisualizer.Consumers {
         }
 
         private void OnTargetAmountReached() {
-            Writer?.Write(new TracedSpectrum(SumSpectrum, "accumulated"));
+            if (_saveAcc) {
+            Writer?.Write(new TracedSpectrum(SumSpectrum, "Accumulated"));
+            }
         }
 
         private void HandleResultSync([NotNull] ResultImpl result) {
@@ -100,7 +106,9 @@ namespace SpectroscopyVisualizer.Consumers {
                 } else {
                     SumSpectrum.TryAbsorb(spectrum);
                 }
+                if (_saveSpec) {
                 Writer?.Write(new TracedSpectrum(spectrum, result.TAG));
+                }
                 Adapter.UpdateData(spectrum, SumSpectrum);
             });
         }
@@ -108,7 +116,7 @@ namespace SpectroscopyVisualizer.Consumers {
         [NotNull]
         private ResultImpl ProcessElement([NotNull] SampleRecord record, [NotNull] IPulseSequenceProcessor processor) {
             var elementSpectrum = processor.Process(record.PulseSequence);
-            return new ResultImpl(elementSpectrum, record.Id.ToString());
+            return new ResultImpl(elementSpectrum, record.Id);
         }
 
         private class ResultImpl : IResult {

@@ -117,6 +117,12 @@ namespace PhaseSonar.CorrectorV2s {
     }
 
     public class SpecifiedRangePhaseExtractor : IPhaseExtractor {
+        public enum DivisionResult {
+            NoLeapPtsFound,
+            AllIntervalTooShort,
+            BestIntervalFound
+        }
+
         private readonly int _end;
         private readonly double[] _linespace;
         private readonly int _rangeLength;
@@ -165,7 +171,7 @@ namespace PhaseSonar.CorrectorV2s {
 
             RawPhaseReady?.Invoke(_rangePhaseContainer);
             Tuple<double, double> tuple;
-            Tuple<double,int, int> bestZone;
+            Tuple<double, int, int> bestZone;
             var result = TryGetSmoothestInterval(_rangePhaseContainer, out bestZone);
             switch (result) {
                 case DivisionResult.BestIntervalFound:
@@ -199,21 +205,17 @@ namespace PhaseSonar.CorrectorV2s {
             return _halfDoubleContainer;
         }
 
+
+        public event SpectrumReadyEventHandler RawSpectrumReady;
+        public event PhaseReadyEventHandler RawPhaseReady;
+
         private static void ThrowIfStdTooLarge(double std) {
             if (std > 0.34) {
                 throw new PhaseFitException();
             }
         }
 
-
-        public event SpectrumReadyEventHandler RawSpectrumReady;
-        public event PhaseReadyEventHandler RawPhaseReady;
-
-        public enum DivisionResult {
-            NoLeapPtsFound, AllIntervalTooShort,BestIntervalFound
-        }
-
-        public DivisionResult TryGetSmoothestInterval(double[] phase, out Tuple<double,int, int> bestZone) {
+        public DivisionResult TryGetSmoothestInterval(double[] phase, out Tuple<double, int, int> bestZone) {
             var last = phase[0];
 
             var leapPts = new List<int>();
@@ -229,7 +231,7 @@ namespace PhaseSonar.CorrectorV2s {
                 bestZone = null;
                 return DivisionResult.NoLeapPtsFound;
             }
-                
+
             var intervals = new List<Tuple<int, int>> {new Tuple<int, int>(0, leapPts.First() - 1)};
             for (var i = 0; i < leapPts.Count - 1; i++) {
                 var start = leapPts[i];

@@ -69,7 +69,7 @@ namespace SpectroscopyVisualizer.Consumers {
 
         private void OnTargetAmountReached() {
             // todo
-          /*  _specInfos.Sort((lhs, rhs) => {
+            /*  _specInfos.Sort((lhs, rhs) => {
                 if (lhs.FileId > rhs.FileId) {
                     return 1;
                 }

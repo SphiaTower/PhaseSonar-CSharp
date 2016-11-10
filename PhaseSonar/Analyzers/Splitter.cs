@@ -11,21 +11,16 @@ using PhaseSonar.Slicers;
 using PhaseSonar.Utils;
 
 namespace PhaseSonar.Analyzers {
-    public class Splitter:IRefPulseSequenceProcessor {
- 
-        [NotNull]
-        private readonly ICorrectorV2 _corrector;
+    public class Splitter : IRefPulseSequenceProcessor {
+        [NotNull] private readonly ICorrectorV2 _corrector;
 
-        [NotNull]
-        private readonly ICrestFinder _finder;
+        [NotNull] private readonly ICrestFinder _finder;
 
-        [NotNull]
-        private readonly IPulsePreprocessor _preprocessor;
-        [NotNull]
-        private readonly Rotator _rotator = new Rotator();
+        [NotNull] private readonly IPulsePreprocessor _preprocessor;
 
-        [NotNull]
-        private readonly IRefSlicer _slicer;
+        [NotNull] private readonly Rotator _rotator = new Rotator();
+
+        [NotNull] private readonly IRefSlicer _slicer;
 
         /// <summary>
         ///     Create an accumulator
@@ -63,13 +58,13 @@ namespace PhaseSonar.Analyzers {
                 var duo = sliceInfos.Select(list => AccumulatedSpectrum(pulseSequence, list)).ToDuo();
                 for (var i = 0; i < duo.Count; i++) {
                     var spectrum = duo[i];
-                    Toolbox.WriteData(@"D:\zbf\gas\ac"+i+".txt", spectrum.Array.Select(complex => complex.Magnitude).ToArray());
+                    Toolbox.WriteData(@"D:\zbf\gas\ac" + i + ".txt",
+                        spectrum.Array.Select(complex => complex.Magnitude).ToArray());
                 }
-                if (Sum(duo.Item2.Array)>Sum(duo.Item1.Array)) {
-                    return Maybe<SplitResult>.Of(SplitResult.SourceAndRef(duo.Item2,duo.Item1));
-                } else {
-                    return Maybe<SplitResult>.Of(SplitResult.SourceAndRef(duo.Item1,duo.Item2));
+                if (Sum(duo.Item2.Array) > Sum(duo.Item1.Array)) {
+                    return Maybe<SplitResult>.Of(SplitResult.SourceAndRef(duo.Item2, duo.Item1));
                 }
+                return Maybe<SplitResult>.Of(SplitResult.SourceAndRef(duo.Item1, duo.Item2));
             } catch (NoPeriodAvailableException) {
                 return Maybe<SplitResult>.Empty();
             }
@@ -84,9 +79,10 @@ namespace PhaseSonar.Analyzers {
         }
 
         [NotNull]
-        private ISpectrum AccumulatedSpectrum([NotNull] double[] pulseSequence, [NotNull] IEnumerable<SliceInfo> sliceInfos) {
+        private ISpectrum AccumulatedSpectrum([NotNull] double[] pulseSequence,
+            [NotNull] IEnumerable<SliceInfo> sliceInfos) {
             Complex[] accumulatedSpectrum = null;
-            int cnt = 0;
+            var cnt = 0;
 
             foreach (var sliceInfo in sliceInfos) {
                 var pulse = _preprocessor.RetrievePulse(pulseSequence, sliceInfo.StartIndex,
@@ -108,16 +104,13 @@ namespace PhaseSonar.Analyzers {
                 }
                 cnt++;
             }
-            if (accumulatedSpectrum==null) {
+            if (accumulatedSpectrum == null) {
                 throw new NoPeriodAvailableException();
-            } else {
-                return new Spectrum(accumulatedSpectrum,cnt);
-
             }
+            return new Spectrum(accumulatedSpectrum, cnt);
         }
 
-        class NoPeriodAvailableException :Exception {
-            
+        private class NoPeriodAvailableException : Exception {
         }
     }
 }

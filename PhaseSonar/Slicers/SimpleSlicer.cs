@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using PhaseSonar.CrestFinders;
 using PhaseSonar.Utils;
 
 namespace PhaseSonar.Slicers {

@@ -33,6 +33,6 @@ namespace SpectroscopyVisualizer.Factories {
         IWriterV2<SampleRecord> NewSampleWriter();
 
         IConsumerV2 NewConsumer([NotNull] IProducerV2<SampleRecord> producer, [NotNull] DisplayAdapter adapter,
-            IWriterV2<TracedSpectrum> writer, int? targetCnt);
+            int? targetCnt);
     }
 }

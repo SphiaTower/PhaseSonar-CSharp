@@ -11,9 +11,9 @@ using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Consumers {
     public class ParralelSpectroscopyVisualizerV2 : IConsumerV2 {
-        private readonly bool _saveSpec;
-        private readonly bool _saveAcc;
         private readonly ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, ResultImpl> _consumer;
+        private readonly bool _saveAcc;
+        private readonly bool _saveSpec;
 
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
@@ -25,7 +25,7 @@ namespace SpectroscopyVisualizer.Consumers {
         public ParralelSpectroscopyVisualizerV2(BlockingCollection<SampleRecord> queue,
             IEnumerable<IPulseSequenceProcessor> workers, DisplayAdapter adapter,
             [CanBeNull] IWriterV2<TracedSpectrum> writer,
-            int? targetCnt,bool saveSpec, bool saveAcc) {
+            int? targetCnt, bool saveSpec, bool saveAcc) {
             _saveSpec = saveSpec;
             _saveAcc = saveAcc;
             _consumer = new ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, ResultImpl>(
@@ -63,6 +63,7 @@ namespace SpectroscopyVisualizer.Consumers {
         ///     Stop consuming.
         /// </summary>
         public void Stop() {
+            OnTargetAmountReached();
             _consumer.Stop();
         }
 
@@ -95,7 +96,7 @@ namespace SpectroscopyVisualizer.Consumers {
 
         private void OnTargetAmountReached() {
             if (_saveAcc) {
-            Writer?.Write(new TracedSpectrum(SumSpectrum, "Accumulated"));
+                Writer?.Write(new TracedSpectrum(SumSpectrum, "Accumulated"));
             }
         }
 
@@ -107,7 +108,7 @@ namespace SpectroscopyVisualizer.Consumers {
                     SumSpectrum.TryAbsorb(spectrum);
                 }
                 if (_saveSpec) {
-                Writer?.Write(new TracedSpectrum(spectrum, result.TAG));
+                    Writer?.Write(new TracedSpectrum(spectrum, result.TAG));
                 }
                 Adapter.UpdateData(spectrum, SumSpectrum);
             });

@@ -50,7 +50,12 @@ namespace SpectroscopyVisualizer {
                     directory: @"C:\buffer\captured\",
                     viewPhase: false,
                     saveType: SaveType.Magnitude,
-                    queueSize: 48,saveSample:false,saveSpec:false,saveAcc:false);
+                    queueSize: 48,
+                    saveSample:false,
+                    saveSpec:false,
+                    saveAcc:false,
+                    operationMode:OperationMode.Manual,
+                    targetCnt:100);
 
                 SliceConfigurations.Initialize(
                     crestAmplitudeThreshold: 1,
@@ -104,7 +109,20 @@ namespace SpectroscopyVisualizer {
                         throw new ArgumentOutOfRangeException();
                 }
             };
-
+            CbOperationMode.SelectionChanged += (sender, args) => {
+                var selected = (OperationMode) args.AddedItems[0];
+                switch (selected) {
+                    case OperationMode.Manual:
+                        Hide(TbTargetCnt);
+                        break;
+                    case OperationMode.Single:
+                    case OperationMode.Loop:
+                        Show(TbTargetCnt);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            };
             RoutedEventHandler ckPhaseOnChecked = (sender, args) => {
                 var correct = !CkPhase.IsChecked.GetValueOrDefault(false);
                 if (correct) {
@@ -136,13 +154,9 @@ namespace SpectroscopyVisualizer {
             //            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\configuration.bin"));
             // bind configs to controls
             SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
-            GeneralConfigurations.Get()
-                .Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase, CbSaveType, TbQueueSize,CkCaptureSample,CkCaptureSpec,CkCaptureAcc);
-            SliceConfigurations.Get()
-                .Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength, CkRef);
-            CorrectorConfigurations.Get()
-                .Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart,
-                    TbRangeEnd, CkAutoFlip, CkSpecReal);
+            GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase, CbSaveType, TbQueueSize, CkCaptureSample, CkCaptureSpec, CkCaptureAcc, CbOperationMode, TbTargetCnt);
+            SliceConfigurations.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength, CkRef);
+            CorrectorConfigurations.Get().Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart, TbRangeEnd, CkAutoFlip, CkSpecReal);
             // init custom components
 //            _canvasView = new CanvasView(ScopeCanvas);
 //            HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
@@ -215,9 +229,7 @@ namespace SpectroscopyVisualizer {
             GC.Collect();
             if (_ultraFastMode) {
                 var textBlock = new TextBlock {
-                    Text = "Happy 2016!",
-                    Foreground = new SolidColorBrush(Colors.Wheat),
-                    FontSize = 30
+                    Text = "Happy 2016!", Foreground = new SolidColorBrush(Colors.Wheat), FontSize = 30
                 };
                 var canvasView = new CanvasView(ScopeCanvas);
                 Canvas.SetTop(textBlock, canvasView.ScopeHeight/2);
@@ -241,7 +253,14 @@ namespace SpectroscopyVisualizer {
                 });
             };
             Adapter = NewAdapter();
-            var consumer = factory.NewConsumer(producer, Adapter,  null);
+            int? targetCnt;
+            var configs = GeneralConfigurations.Get();
+            if (configs.OperationMode == OperationMode.Manual) {
+                targetCnt = null;
+            } else {
+                targetCnt = configs.TargetCnt;
+            }
+            var consumer = factory.NewConsumer(producer, Adapter, targetCnt);
             try {
                 Adapter.StartFreqInMHz = Convert.ToDouble(TbStartFreq.Text); // todo move to constructor
                 Adapter.EndFreqInMHz = Convert.ToDouble(TbEndFreq.Text);
@@ -249,18 +268,42 @@ namespace SpectroscopyVisualizer {
             }
             Scheduler = new Scheduler(producer, consumer);
             consumer.SourceInvalid += ConsumerOnSourceInvalid;
-            consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
+            consumer.ElementConsumedSuccessfully += () => {
+                ConsumerOnConsumeEvent(consumer, Scheduler.Watch);
+            };
+            switch (configs.OperationMode) {
+                case OperationMode.Manual:
+                    PbLoading.IsIndeterminate = true;
+
+                    break;
+                case OperationMode.Single:
+                    consumer.TargetAmountReached += OnConsumerStopped;
+                    PbLoading.IsIndeterminate = false;
+                    PbLoading.Maximum = targetCnt.Value;
+                    break;
+                case OperationMode.Loop:
+                    PbLoading.IsIndeterminate = false;
+                    PbLoading.Maximum = targetCnt.Value;
+                    consumer.TargetAmountReached += () => {
+                        OnConsumerStopped();
+
+                        Dispatcher.Invoke(() => {
+                            SwitchButton.State = true;
+                        });
+                    };
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
             TbStartFreq.DataContext = Adapter;
             TbEndFreq.DataContext = Adapter;
-            PbLoading.IsIndeterminate = true;
             Scheduler.Start();
         }
 
         [NotNull]
         private DisplayAdapter NewAdapter() {
-            return FactoryHolder.Get()
-                .NewAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas),
-                    new VerticalAxisView(VerAxisCanvas), TbXCoordinate, TbDistance);
+            return FactoryHolder.Get().NewAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas), new VerticalAxisView(VerAxisCanvas), TbXCoordinate, TbDistance);
         }
 
         private void ConsumerOnConsumeEvent(IConsumerV2 consumer, StopWatch watch) {
@@ -271,7 +314,9 @@ namespace SpectroscopyVisualizer {
                 var speed = consumedCnt*sizeInM/elapsedSeconds;
                 TbConsumerSpeed.Text = speed.ToString("F3");
                 TbTotalData.Text = (consumedCnt*sizeInM).ToString();
-                PbLoading.Value += 1;
+                if (PbLoading.Maximum != 12345) {
+                    PbLoading.Value += 1;
+                }
             });
         }
 
@@ -284,7 +329,11 @@ namespace SpectroscopyVisualizer {
         private void ClearFromRunningState() {
             Scheduler.Stop();
             PbLoading.IsIndeterminate = false;
+            if (PbLoading.Value < PbLoading.Maximum) {
+                PbLoading.Value += 1;
+            }
             PbLoading.Value = 0;
+            PbLoading.Maximum = 12345;
         }
 
 
@@ -319,9 +368,7 @@ namespace SpectroscopyVisualizer {
         private static string[] SelectFiles() {
             // Create OpenFileDialog 
             var dlg = new OpenFileDialog {
-                DefaultExt = ".txt",
-                Filter = "Text documents (.txt)|*.txt",
-                Multiselect = true
+                DefaultExt = ".txt", Filter = "Text documents (.txt)|*.txt", Multiselect = true
             };
 
             // Set filter for file extension and default file extension 
@@ -338,9 +385,7 @@ namespace SpectroscopyVisualizer {
         private static string SelectFile() {
             // Create OpenFileDialog 
             var dlg = new OpenFileDialog {
-                DefaultExt = ".txt",
-                Filter = "Text documents (.txt)|*.txt",
-                Multiselect = false
+                DefaultExt = ".txt", Filter = "Text documents (.txt)|*.txt", Multiselect = false
             };
 
             // Set filter for file extension and default file extension 
@@ -389,7 +434,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void OnConsumerStopped() {
-            Dispatcher.InvokeAsync(() => { SwitchButton.State = false; });
+            Dispatcher.Invoke(() => { SwitchButton.State = false; });
         }
 
         private void About_OnClick(object sender, RoutedEventArgs e) {
@@ -461,12 +506,10 @@ namespace SpectroscopyVisualizer {
 
             var checkers = new List<PulseChecker>();
             for (var i = 0; i < 4; i++) {
-                checkers.Add(new PulseChecker(factory.NewCrestFinder(), factory.NewSlicer(),
-                    factory.NewPulsePreprocessor(), factory.NewCorrector()));
+                checkers.Add(new PulseChecker(factory.NewCrestFinder(), factory.NewSlicer(), factory.NewPulsePreprocessor(), factory.NewCorrector()));
             }
             var consumer = new PulseByPulseChecker(producer.BlockingQueue, checkers, fileNames.Length);
-            consumer.ElementConsumedSuccessfully +=
-                () => { PbLoading.Dispatcher.InvokeAsync(() => { PbLoading.Value += 1; }); };
+            consumer.ElementConsumedSuccessfully += () => { PbLoading.Dispatcher.InvokeAsync(() => { PbLoading.Value += 1; }); };
             PbLoading.Maximum = fileNames.Length;
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
@@ -488,8 +531,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void Donate_OnClick(object sender, RoutedEventArgs e) {
-            MessageBox.Show(
-                "If you think this app is valuable, plz pay $10 USD to the author. \n\nYour support is very important! Thanks!");
+            MessageBox.Show("If you think this app is valuable, plz pay $10 USD to the author. \n\nYour support is very important! Thanks!");
         }
 
         private void ReportBug_OnClick(object sender, RoutedEventArgs e) {
@@ -498,6 +540,8 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ContactAuthor_OnClick(object sender, RoutedEventArgs e) {
+            var address = @"mailto:traspip@126.com";
+            Process.Start(address);
         }
 
         private void UltraFast_OnChecked(object sender, RoutedEventArgs e) {
@@ -511,8 +555,7 @@ namespace SpectroscopyVisualizer {
         private void GenerateWavelengthAxis_OnClick(object sender, RoutedEventArgs e) {
             var file = SelectFile();
             if (file != null) {
-                Process.Start(@"C:\Anaconda3\python.exe",
-                    @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Mapper.py " + file);
+                Process.Start(@"C:\Anaconda3\python.exe", @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Mapper.py " + file);
             }
         }
 
@@ -522,19 +565,20 @@ namespace SpectroscopyVisualizer {
                 return;
             }
             if (File.Exists(file.Replace(".txt", "[WavelengthAxis].txt"))) {
-                Process.Start(@"C:\Anaconda3\python.exe",
-                    @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Flatter.py " + file);
+                Process.Start(@"C:\Anaconda3\python.exe", @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Flatter.py " + file);
             } else {
-                Process.Start(@"C:\Anaconda3\python.exe",
-                    @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Mapper.py " + file);
+                Process.Start(@"C:\Anaconda3\python.exe", @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Mapper.py " + file);
                 MessageBox.Show("Generating wavelength axis, please click 'OK' AFTER completion.");
-                Process.Start(@"C:\Anaconda3\python.exe",
-                    @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Flatter.py " + file);
+                Process.Start(@"C:\Anaconda3\python.exe", @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Flatter.py " + file);
             }
         }
 
         private void Exit_OnClick(object sender, RoutedEventArgs e) {
             Close();
+        }
+
+        private void BnOpenPath_OnClick(object sender, RoutedEventArgs e) {
+            Process.Start(GeneralConfigurations.Get().Directory);
         }
     }
 }

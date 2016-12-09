@@ -75,6 +75,7 @@ namespace SpectroscopyVisualizer.Consumers {
         ///     Stop consuming.
         /// </summary>
         public void Stop() {
+            OnTargetAmountReached();
             _consumerV2Implementation.Stop();
         }
 

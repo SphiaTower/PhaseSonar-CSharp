@@ -64,6 +64,7 @@ namespace SpectroscopyVisualizer.Consumers {
                             parallelOptions.CancellationToken.ThrowIfCancellationRequested();
                             var result = ConsumeElement(raw, worker);
                             lock (this) {
+                                parallelOptions.CancellationToken.ThrowIfCancellationRequested();
                                 _syncResultHandleFunc(result);
                                 ConsumedCnt++;
                                 if (result.Success) {
@@ -72,7 +73,6 @@ namespace SpectroscopyVisualizer.Consumers {
                                 } else {
                                     _continuousFailCnt++;
                                     if (_continuousFailCnt >= 10) {
-                                        parallelOptions.CancellationToken.ThrowIfCancellationRequested();
                                         SourceInvalid?.Invoke();
                                         return;
                                     }

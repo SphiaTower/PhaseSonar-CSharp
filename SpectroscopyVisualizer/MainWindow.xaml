@@ -7,7 +7,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:types="clr-namespace:SpectroscopyVisualizer.Configs"
         mc:Ignorable="d"
-        Title="Spectroscopy Visualizer 2.3.5" Height="600" Width="1200"
+        Title="Spectroscopy Visualizer 2.4.1" Height="600" Width="1200"
         d:DataContext="{d:DesignData }">
 
     <Grid>
@@ -48,8 +48,8 @@
             <Grid Background="#FFE5E5E5">
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="350" Name="panelColumn" />
-                    <ColumnDefinition Width="*" Name="scopeColumn" />
+                    <ColumnDefinition Width="350"  />
+                    <ColumnDefinition Width="*"  />
 
                 </Grid.ColumnDefinitions>
 
@@ -199,7 +199,7 @@
                                   Content="Auto-adjust Min Amp" HorizontalAlignment="Left" Margin="195,14,0,0"
                                   VerticalAlignment="Top" />
                         <CheckBox x:Name="CkFindAbs" IsChecked="{Binding Path=FindAbsoluteValue}"
-                                  Content="Find Absolute Value" HorizontalAlignment="Left" Margin="195,45,0,0"
+                                  Content="Find By Absolute Val" HorizontalAlignment="Left" Margin="195,45,0,0"
                                   VerticalAlignment="Top" Width="145" />
                         <TextBox x:Name="TbFixedLength" HorizontalAlignment="Left" Height="21" Margin="228,72,0,0"
                                  TextWrapping="Wrap" Text="{Binding FixedLength}" VerticalAlignment="Top"
@@ -279,10 +279,19 @@
                                   VerticalAlignment="Top" Width="151" />
                         <CheckBox x:Name="CkPhase" IsChecked="{Binding Path=ViewPhase}" Content="View Phase"
                                   HorizontalAlignment="Left" Margin="212,11,0,0" VerticalAlignment="Top" Width="113" />
-                        <CheckBox x:Name="CkSpecReal" IsChecked="{Binding RealSpec}" Content="Discard Imag Spec"
+                        <CheckBox x:Name="CkSpecReal" IsChecked="{Binding RealSpec}" Content="Real Spec Only"
                                   HorizontalAlignment="Left" Margin="212,39,0,0" VerticalAlignment="Top" Width="138" />
                     </Grid>
                     <Grid Grid.Row="3">
+                        <Grid.Resources>
+                            <ObjectDataProvider x:Key="Data7" MethodName="GetValues"
+                                                ObjectType="{x:Type system:Enum}">
+                                <ObjectDataProvider.MethodParameters>
+                                    <x:Type TypeName="types:OperationMode" />
+                                </ObjectDataProvider.MethodParameters>
+                            </ObjectDataProvider>
+
+                        </Grid.Resources>
                         <Rectangle Stroke="DarkGray" StrokeThickness="0.5" />
 
                         <TextBox x:Name="TbThreadNum" HorizontalAlignment="Left" Height="23" Margin="257,12,0,0"
@@ -293,10 +302,17 @@
                                VerticalAlignment="Top" Margin="0,10,0,0" />
                         <TextBox x:Name="TbDispPoints" HorizontalAlignment="Left" Height="23" Margin="112,11,0,0"
                                  TextWrapping="Wrap" Text="{Binding DispPoints}" VerticalAlignment="Top" Width="54"
-                                 RenderTransformOrigin="0.498,0.93" />
+                                  />
                         <TextBox x:Name="TbQueueSize" HorizontalAlignment="Left" Height="23" Margin="112,40,0,0"
                                  TextWrapping="Wrap" Text="{Binding QueueSize}" VerticalAlignment="Top" Width="54"
-                                 RenderTransformOrigin="0.498,0.93" />
+                                 />
+                        <ComboBox x:Name="CbOperationMode"
+                                  ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:OperationMode}}}"
+                                  SelectedItem="{Binding Path=OperationMode}" HorizontalAlignment="Left"
+                                  VerticalAlignment="Top" Width="70" Margin="196,39,0,0" />
+                        <TextBox x:Name="TbTargetCnt" Text="{Binding TargetCnt}" HorizontalAlignment="Left" Height="23" Margin="277,40,0,0"
+                                 TextWrapping="Wrap"  VerticalAlignment="Top" Width="54"
+                                 />
                         <Label x:Name="label17_Copy" Content="Queue Capacity" HorizontalAlignment="Left"
                                VerticalAlignment="Top" Margin="0,38,0,0" />
                     </Grid>
@@ -315,6 +331,8 @@
                                 Click="BnPath_Click" Height="43" />
                         <TextBox x:Name="TbSavePath" HorizontalAlignment="Left" Height="43" Margin="88,10,0,0"
                                  TextWrapping="Wrap" Text="{Binding Directory}" VerticalAlignment="Top" Width="187" />
+                        <Button x:Name="BnOpenPath" HorizontalAlignment="Left" Height="43" Margin="288,10,0,0"
+                                 Content="Open" VerticalAlignment="Top" Width="50" Click="BnOpenPath_OnClick" />
                         <CheckBox x:Name="CkCaptureSample" Content="Samples" IsChecked="{Binding Path=SaveSample}" HorizontalAlignment="Left"
                                   Margin="12,74,0,0" VerticalAlignment="Top" />
                         <CheckBox x:Name="CkCaptureSpec" Content="Spec" IsChecked="{Binding Path=SaveSpec}" HorizontalAlignment="Left"

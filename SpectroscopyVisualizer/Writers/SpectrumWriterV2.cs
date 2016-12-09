@@ -16,7 +16,11 @@ namespace SpectroscopyVisualizer.Writers {
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
         public SpectrumWriterV2([NotNull] string directory, [NotNull] string prefix, SaveType saveType) {
             _writerV2Implementation = new SerialWriterV2<TracedSpectrum>();
-            var path = Path.Combine(directory, prefix);
+            var dateTime = DateTime.Now;
+            var timeStamp = dateTime.ToString("HHmmssfff");
+            var timeStr = timeStamp.Enclose("TS");
+            var path = Path.Combine(directory, timeStr+ prefix);
+
             if (saveType == SaveType.UnwrappedPhase) {
                 _writerV2Implementation.ElementDequeued += spectrum => {
                     var phase = new double[spectrum.Length()];
@@ -33,7 +37,7 @@ namespace SpectroscopyVisualizer.Writers {
                 _writerV2Implementation.ElementDequeued += spectrum => {
                     Toolbox.WriteStringArray(
                         path + saveType.ToString().Enclose() + spectrum.Tag.Enclose() +
-                        spectrum.PulseCount.Enclose("Cnt") + Suffix,
+                        spectrum.PulseCount.Enclose("Cnt")  + Suffix,
                         spectrum.ToStringArray(toStringFunc));
                 };
             }

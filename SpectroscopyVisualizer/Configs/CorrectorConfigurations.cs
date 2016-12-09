@@ -45,6 +45,13 @@ namespace SpectroscopyVisualizer.Configs {
         [Description("Imaginary")] Imaginary
     }
 
+    [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+    public enum OperationMode { 
+        [Description("Manual")] Manual,
+        [Description("Single")] Single,
+        [Description("Loop")] Loop
+    }
+
     [Serializable]
     public class CorrectorConfigurations {
         private static CorrectorConfigurations _singleton;

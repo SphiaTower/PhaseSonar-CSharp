@@ -7,7 +7,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:types="clr-namespace:SpectroscopyVisualizer.Configs"
         mc:Ignorable="d"
-        Title="Spectroscopy Visualizer 2.4.1" Height="600" Width="1200"
+        Title="Spectroscopy Visualizer 2.4.3" Height="600" Width="1200"
         d:DataContext="{d:DesignData }">
 
     <Grid>

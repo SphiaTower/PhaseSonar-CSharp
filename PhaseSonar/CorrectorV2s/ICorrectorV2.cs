@@ -110,7 +110,7 @@ namespace PhaseSonar.CorrectorV2s {
 
             _synthesizer.Synthesize(_spectrumArray, phaseArray, _outputArray);
 
-//            Toolbox.WriteData(@"D:\zbf\temp\6_output.txt", _outputArray);
+          // Toolbox.WriteData(@"D:\zbf\temp2\6_output.txt", _outputArray);
 
             return _outputArray;
         }

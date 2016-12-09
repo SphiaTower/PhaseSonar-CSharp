@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using JetBrains.Annotations;
+using MathNet.Numerics;
 using PhaseSonar.Maths;
 using PhaseSonar.Utils;
 
@@ -134,7 +135,7 @@ namespace PhaseSonar.Correctors {
         /// <param name="index">The index of the data</param>
         /// <returns>The intensity at the input index</returns>
         public double Intensity(int index) {
-            return Math.Pow(Magnitude(index), 2);
+            return Array[index].MagnitudeSquared();
         }
 
         /// <summary>

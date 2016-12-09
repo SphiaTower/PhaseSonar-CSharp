@@ -52,8 +52,12 @@ namespace PhaseSonar.Analyzers {
             } catch (PhaseFitException) {
                 return Maybe<ISpectrum>.Empty();
             }
+            //Toolbox.WriteData(@"D:\zbf\temp2\full_phase.txt", phase);
+
             var unwrap = Functions.Unwrap(phase);
-//            var unwrap = phase;
+            //Toolbox.WriteData(@"D:\zbf\temp2\full_phase_unwrap.txt", unwrap);
+
+            //            var unwrap = phase;
             ISpectrum spectrum = new RealSpectrum(unwrap, 1);
             return Maybe<ISpectrum>.Of(spectrum);
         }

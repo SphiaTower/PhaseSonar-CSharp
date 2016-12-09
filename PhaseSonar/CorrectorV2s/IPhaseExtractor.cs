@@ -163,11 +163,16 @@ namespace PhaseSonar.CorrectorV2s {
             }
             // todo including problem
             Array.Copy(spectrum, _start, _rangeSpecContainer, 0, _rangeLength);
+            //Toolbox.WriteData(@"D:\zbf\temp2\full_spectrum.txt", spectrum.Select(complex => complex.MagnitudeSquared()).ToArray());
 
             RawSpectrumReady?.Invoke(_rangeSpecContainer);
+            //Toolbox.WriteData(@"D:\zbf\temp2\range_spectrum.txt", _rangeSpecContainer.Select(complex => complex.MagnitudeSquared()).ToArray());
 
             _rangeSpecContainer.Phase(_rangePhaseContainer);
+            //Toolbox.WriteData(@"D:\zbf\temp2\range_phase.txt", _rangePhaseContainer);
+
             Functions.UnwrapInPlace(_rangePhaseContainer);
+            //Toolbox.WriteData(@"D:\zbf\temp2\range_phase_unwrap.txt", _rangePhaseContainer);
 
             RawPhaseReady?.Invoke(_rangePhaseContainer);
             Tuple<double, double> tuple;
@@ -202,6 +207,8 @@ namespace PhaseSonar.CorrectorV2s {
             for (var i = 0; i < _halfDoubleContainer.Length; i++) {
                 _halfDoubleContainer[i] = intersect + slope*i;
             }
+            //Toolbox.WriteData(@"D:\zbf\temp2\half_fit.txt", _halfDoubleContainer);
+
             return _halfDoubleContainer;
         }
 

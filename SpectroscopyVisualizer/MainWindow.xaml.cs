@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using System.Windows.Threading;
 using JetBrains.Annotations;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -24,13 +27,19 @@ namespace SpectroscopyVisualizer {
     ///     Interaction logic for MainWindow.xaml, also the entrance of the whole program.
     /// </summary>
     public partial class MainWindow : Window {
-//        private readonly CanvasView _canvasView;
+        private const int ProgressIndeterminable = 12345;
+
+        //        private readonly CanvasView _canvasView;
 
         private bool _ultraFastMode;
 
         public MainWindow() {
             // init system components
             InitializeComponent();
+
+            _possibleWrongLabels = new[] {LbPeakMinAmp, LbRangeStart, LbRangeEnd, LbRepRate,LbChannel};
+            _originalThickness = _possibleWrongLabels[0].BorderThickness;
+            _originalBrush = _possibleWrongLabels[0].BorderBrush;
 
             if (File.Exists(@"default.svcfg")) {
                 ConfigsHolder.Load(@"default.svcfg");
@@ -170,6 +179,10 @@ namespace SpectroscopyVisualizer {
             // todo text disapeared
 
             CkCaptureSpec.Checked += (sender, args) => { CkCaptureAcc.IsChecked = true; };
+
+            Closing += (sender, args) => {
+                _statsWindow?.Close();
+            };
         }
 
 
@@ -225,8 +238,10 @@ namespace SpectroscopyVisualizer {
             SwitchButton.State = !SwitchButton.State;
         }
 
+        private  StatsWindow _statsWindow = new StatsWindow();
         private void TurnOn() {
             GC.Collect();
+           
             if (_ultraFastMode) {
                 var textBlock = new TextBlock {
                     Text = "Happy 2016!", Foreground = new SolidColorBrush(Colors.Wheat), FontSize = 30
@@ -243,7 +258,7 @@ namespace SpectroscopyVisualizer {
             IProducerV2<SampleRecord> producer;
             if (!factory.TryNewSampleProducer(out producer)) {
                 SwitchButton.State = false;
-                MessageBox.Show("Sampler can't be initialized");
+                MessageBox.Show("Sampler can't be initialized. Maybe another instance is running.");
                 return;
             }
             producer.ProductionFailed += () => {
@@ -268,9 +283,7 @@ namespace SpectroscopyVisualizer {
             }
             Scheduler = new Scheduler(producer, consumer);
             consumer.SourceInvalid += ConsumerOnSourceInvalid;
-            consumer.ElementConsumedSuccessfully += () => {
-                ConsumerOnConsumeEvent(consumer, Scheduler.Watch);
-            };
+            consumer.Update += ConsumerOnUpdate;
             switch (configs.OperationMode) {
                 case OperationMode.Manual:
                     PbLoading.IsIndeterminate = true;
@@ -298,7 +311,38 @@ namespace SpectroscopyVisualizer {
 
             TbStartFreq.DataContext = Adapter;
             TbEndFreq.DataContext = Adapter;
+            PrepareStatsWinndow();
             Scheduler.Start();
+        }
+
+        private void PrepareStatsWinndow() {
+            if (_statsWindow==null) {
+                _statsWindow = new StatsWindow();
+            }
+            if (!_statsWindow.IsVisible) {
+                _statsWindow.Left = this.Left + this.Width -15;
+                _statsWindow.Top = this.Top;
+                _statsWindow.Show();
+                _statsWindow.Closed += (sender, args) => {
+                    _statsWindow = null;
+                };
+            }
+            _statsWindow.Reset();
+
+            foreach (var label in _possibleWrongLabels) {
+                label.BorderThickness = _originalThickness;
+                label.BorderBrush = _originalBrush;
+            }
+        }
+
+        private void ConsumerOnUpdate(IResult result) {
+            _statsWindow.Dispatcher.InvokeAsync(() => {
+                _statsWindow.Time = Scheduler.Watch.ElapsedSeconds();
+                _statsWindow.Update(result);
+                if (PbLoading.Maximum != ProgressIndeterminable) {
+                    PbLoading.Value += 1;
+                }
+            });
         }
 
         [NotNull]
@@ -306,24 +350,42 @@ namespace SpectroscopyVisualizer {
             return FactoryHolder.Get().NewAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas), new VerticalAxisView(VerAxisCanvas), TbXCoordinate, TbDistance);
         }
 
-        private void ConsumerOnConsumeEvent(IConsumerV2 consumer, StopWatch watch) {
-            var sizeInM = SamplingConfigurations.Get().RecordLength/1e6;
-            Application.Current.Dispatcher.InvokeAsync(() => {
-                var consumedCnt = consumer.ConsumedCnt;
-                var elapsedSeconds = watch.ElapsedSeconds();
-                var speed = consumedCnt*sizeInM/elapsedSeconds;
-                TbConsumerSpeed.Text = speed.ToString("F3");
-                TbTotalData.Text = (consumedCnt*sizeInM).ToString();
-                if (PbLoading.Maximum != 12345) {
-                    PbLoading.Value += 1;
-                }
+        private Thickness _originalThickness;
+        private Brush _originalBrush;
+
+        private Label[] _possibleWrongLabels;
+        private void ConsumerOnSourceInvalid() {
+            Dispatcher.Invoke(() => {
+                SwitchButton.State = false;
+                var dispatcherTimer = new DispatcherTimer();
+                int cnt=0;
+                dispatcherTimer.Tick += (sender, args) => {
+                    if (cnt%2 == 0) {
+                        foreach (var label in _possibleWrongLabels) {
+                            label.BorderThickness = new Thickness(1.5);
+                            label.BorderBrush = Brushes.Red;
+                        }
+                    } else {
+                        foreach (var label in _possibleWrongLabels) {
+                            label.BorderThickness = _originalThickness;
+                            label.BorderBrush = _originalBrush;
+                        }
+                    }
+
+                    cnt++;
+                    if (cnt==15) {
+                        dispatcherTimer.Stop();
+                    }
+                };
+                dispatcherTimer.Interval = TimeSpan.FromSeconds(0.4);
+                dispatcherTimer.Start();
             });
+
+            MessageBox.Show("Data analysis failed. Please check\n\n   the INPUT signal,\n   PEAK MIN AMP,\n   REP FREQ DIFF\n   or PHASE RANGE.\n\nDetailed information is listed on the stats board.");
         }
 
-
-        private void ConsumerOnSourceInvalid() {
+        private void OnConsumerStopped() {
             Dispatcher.Invoke(() => { SwitchButton.State = false; });
-            MessageBox.Show("It seems that the source is invalid.");
         }
 
         private void ClearFromRunningState() {
@@ -333,7 +395,8 @@ namespace SpectroscopyVisualizer {
                 PbLoading.Value += 1;
             }
             PbLoading.Value = 0;
-            PbLoading.Maximum = 12345;
+            PbLoading.Maximum = ProgressIndeterminable;
+
         }
 
 
@@ -423,18 +486,14 @@ namespace SpectroscopyVisualizer {
             Adapter = NewAdapter();
             var consumer = factory.NewConsumer(producer, Adapter, fileNames.Length);
             consumer.SourceInvalid += ConsumerOnSourceInvalid;
-            consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
+            consumer.Update += ConsumerOnUpdate;
             consumer.ProducerEmpty += OnConsumerStopped;
             consumer.TargetAmountReached += OnConsumerStopped;
             PbLoading.Maximum = fileNames.Length;
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
-            Scheduler.Start();
             SetButtonRunning();
-        }
-
-        private void OnConsumerStopped() {
-            Dispatcher.Invoke(() => { SwitchButton.State = false; });
+            Scheduler.Start();
         }
 
         private void About_OnClick(object sender, RoutedEventArgs e) {
@@ -473,15 +532,16 @@ namespace SpectroscopyVisualizer {
             }
             var consumer = new DataSerializer(producer.BlockingQueue, workers, total);
             consumer.SourceInvalid += ConsumerOnSourceInvalid;
-            consumer.ElementConsumedSuccessfully += () => { ConsumerOnConsumeEvent(consumer, Scheduler.Watch); };
+            consumer.Update += ConsumerOnUpdate;
             consumer.TargetAmountReached += () => { Dispatcher.InvokeAsync(() => { SwitchButton.State = false; }); };
             CkCaptureSample.IsChecked = true;
             Scheduler = new Scheduler(producer, consumer);
-            Scheduler.Start();
             SetButtonRunning();
+            Scheduler.Start();
         }
 
         private void SetButtonRunning() {
+            PrepareStatsWinndow();
             SwitchButton.TurnOn -= TurnOn;
             SwitchButton.State = true;
             SwitchButton.TurnOn += TurnOn;
@@ -509,7 +569,7 @@ namespace SpectroscopyVisualizer {
                 checkers.Add(new PulseChecker(factory.NewCrestFinder(), factory.NewSlicer(), factory.NewPulsePreprocessor(), factory.NewCorrector()));
             }
             var consumer = new PulseByPulseChecker(producer.BlockingQueue, checkers, fileNames.Length);
-            consumer.ElementConsumedSuccessfully += () => { PbLoading.Dispatcher.InvokeAsync(() => { PbLoading.Value += 1; }); };
+            consumer.Update += ConsumerOnUpdate;
             PbLoading.Maximum = fileNames.Length;
             PbLoading.Value = 0;
             Scheduler = new Scheduler(producer, consumer);
@@ -540,8 +600,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ContactAuthor_OnClick(object sender, RoutedEventArgs e) {
-            var address = @"mailto:traspip@126.com";
-            Process.Start(address);
+        
         }
 
         private void UltraFast_OnChecked(object sender, RoutedEventArgs e) {

@@ -7,7 +7,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:types="clr-namespace:SpectroscopyVisualizer.Configs"
         mc:Ignorable="d"
-        Title="Spectroscopy Visualizer 2.4.3" Height="600" Width="1200"
+        Title="Spectroscopy Visualizer 2.5.0" Height="600" Width="1200"
         d:DataContext="{d:DesignData }">
 
     <Grid>
@@ -97,15 +97,7 @@
                         <Button x:Name="ToggleButton" Content="START" HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom" Width="67" Click="ToggleButton_OnClick" Margin="0,0,10,6"
                                 Height="22" RenderTransformOrigin="-4.984,-2.155" />
-                        <TextBox x:Name="TbConsumerSpeed" HorizontalAlignment="Left" Height="21" Margin="562,13,0,0"
-                                 TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="47" />
-                        <Label Content="MSa./s" HorizontalAlignment="Left" Margin="609,10,0,0"
-                               VerticalAlignment="Top" Height="24" RenderTransformOrigin="2.667,0.471" />
-                        <TextBox x:Name="TbTotalData" HorizontalAlignment="Left" Height="20" Margin="679,13,0,0"
-                                 TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="38" />
-                        <Label Content="MSa." HorizontalAlignment="Left" Margin="717,11,0,0"
-                               VerticalAlignment="Top" Height="24" RenderTransformOrigin="2.667,0.471" />
-                        <TextBox x:Name="TbXCoordinate" HorizontalAlignment="Left" Height="21" Margin="263,13,0,0"
+                       <TextBox x:Name="TbXCoordinate" HorizontalAlignment="Left" Height="21" Margin="263,13,0,0"
                                  MaxLines="1"
                                  TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="90" />
                         <TextBox x:Name="TbDistance" HorizontalAlignment="Left" Height="21" Margin="402,13,0,0"
@@ -143,7 +135,7 @@
                         <TextBox x:Name="TbSamplingRate" HorizontalAlignment="Left" Height="23" Margin="118,40,0,0"
                                  TextWrapping="Wrap" Text="{Binding SamplingRateInMHz}" VerticalAlignment="Top"
                                  Width="44" />
-                        <Label x:Name="label2" Content="Channel" HorizontalAlignment="Left" VerticalAlignment="Top"
+                        <Label x:Name="LbChannel" Content="Channel" HorizontalAlignment="Left" VerticalAlignment="Top"
                                Margin="208,0,0,0" RenderTransformOrigin="-2.256,0.712" />
                         <TextBox x:Name="TbChannel" HorizontalAlignment="Left" Height="23" Margin="280,3,0,0"
                                  TextWrapping="Wrap" Text="{Binding Channel}" VerticalAlignment="Top" Width="51"
@@ -158,7 +150,7 @@
                                  Margin="280,38,0,0" RenderTransformOrigin="0.485,-0.07" />
                         <Label x:Name="label5" Content="Range/V" HorizontalAlignment="Left" VerticalAlignment="Top"
                                Margin="208,38,0,0" Width="60" RenderTransformOrigin="3.038,-0.798" />
-                        <Label x:Name="label7" Content="Rep Rate Diff/Hz" HorizontalAlignment="Left"
+                        <Label x:Name="LbRepRate" Content="Rep Rate Diff/Hz" HorizontalAlignment="Left"
                                Margin="174,71,0,0"
                                VerticalAlignment="Top" />
                         <TextBox x:Name="TbRepRate" HorizontalAlignment="Left" Height="23" Margin="280,71,0,0"
@@ -179,7 +171,7 @@
                         <Label x:Name="label9" Content="Peak Min FMHW" HorizontalAlignment="Left"
                                VerticalAlignment="Top"
                                Margin="0,34,0,0" />
-                        <Label x:Name="label11" Content="Peak Min Amp/V" HorizontalAlignment="Left" Margin="0,6,0,0"
+                        <Label x:Name="LbPeakMinAmp" Content="Peak Min Amp/V" HorizontalAlignment="Left" Margin="0,6,0,0"
                                VerticalAlignment="Top" RenderTransformOrigin="0.903,0.34" />
                         <TextBox x:Name="TbPtsBeforeCrest" HorizontalAlignment="Left" Height="23" Margin="117,37,0,0"
                                  TextWrapping="Wrap" Text="{Binding PointsBeforeCrest}" VerticalAlignment="Top"

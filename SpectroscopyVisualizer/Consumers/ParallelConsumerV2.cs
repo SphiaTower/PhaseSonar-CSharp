@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using PhaseSonar.Analyzers;
 
 namespace SpectroscopyVisualizer.Consumers {
-    public interface IResult {
-        bool Success { get; }
-    }
 
     public class ParallelConsumerV2<TProduct, TWorker, TResult> : IConsumerV2 where TResult : IResult {
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
@@ -43,6 +42,7 @@ namespace SpectroscopyVisualizer.Consumers {
 
         public int? TargetCnt { get; }
 
+
         /// <summary>
         ///     Stop consuming.
         /// </summary>
@@ -67,9 +67,9 @@ namespace SpectroscopyVisualizer.Consumers {
                                 parallelOptions.CancellationToken.ThrowIfCancellationRequested();
                                 _syncResultHandleFunc(result);
                                 ConsumedCnt++;
-                                if (result.Success) {
+                                Update?.Invoke(result);
+                                if (result.IsSuccessful) {
                                     _continuousFailCnt = 0;
-                                    ElementConsumedSuccessfully?.Invoke();
                                 } else {
                                     _continuousFailCnt++;
                                     if (_continuousFailCnt >= 10) {
@@ -77,6 +77,7 @@ namespace SpectroscopyVisualizer.Consumers {
                                         return;
                                     }
                                 }
+                                
                                 if (ConsumedCnt >= TargetCnt.GetValueOrDefault(int.MaxValue)) {
                                     TargetAmountReached?.Invoke();
                                     return;
@@ -96,12 +97,20 @@ namespace SpectroscopyVisualizer.Consumers {
 
 
         public event Action SourceInvalid;
-        public event Action ElementConsumedSuccessfully;
+        public event UpdateEventHandler Update;
         public event Action ProducerEmpty;
         public event Action TargetAmountReached;
 
         private TResult ConsumeElement(TProduct raw, TWorker worker) {
             return _processFunc(raw, worker);
         }
+    }
+
+    public interface IResult {
+        bool IsSuccessful { get; }
+        bool HasException { get; }
+        ProcessException? Exception { get; }
+        int ExceptionCnt { get; }
+        int ValidPeriodCnt { get; }
     }
 }

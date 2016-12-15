@@ -12,23 +12,27 @@ using SpectroscopyVisualizer.Producers;
 using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Consumers {
-    internal class ResultImpl2 : IResult {
+    internal class RefTaggedResult : IResult {
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
-        public ResultImpl2(Maybe<SplitResult> splitResult, string tag) {
+        public RefTaggedResult(SplitResult splitResult, string tag) {
             SplitResult = splitResult;
-            TAG = tag;
+            Tag = tag;
         }
-
-        public Maybe<SplitResult> SplitResult { get; }
-        public string TAG { get; }
-        public bool Success => SplitResult.IsPresent();
+        // todo
+        public SplitResult SplitResult { get; }
+        public string Tag { get; }
+        public bool IsSuccessful => SplitResult.HasSpectrum;
+        public bool HasException => !SplitResult.HasException;
+        public ProcessException? Exception => SplitResult.Exception;
+        public int ExceptionCnt => SplitResult.ExceptionCnt;
+        public int ValidPeriodCnt => SplitResult.HasSpectrum ? SplitResult.Spectrum.Gas.PulseCount : 0;
     }
 
     internal class RefSpectroscopyVisualizer : IConsumerV2 {
         private readonly bool _saveSpec;
         private readonly bool _saveAcc;
 
-        private readonly ParallelConsumerV2<SampleRecord, IRefPulseSequenceProcessor, ResultImpl2>
+        private readonly ParallelConsumerV2<SampleRecord, IRefPulseSequenceProcessor, RefTaggedResult>
             _consumerV2Implementation;
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
@@ -38,7 +42,7 @@ namespace SpectroscopyVisualizer.Consumers {
             int? targetCnt,bool saveSpec,bool saveAcc) {
             _saveSpec = saveSpec;
             _saveAcc = saveAcc;
-            _consumerV2Implementation = new ParallelConsumerV2<SampleRecord, IRefPulseSequenceProcessor, ResultImpl2>(
+            _consumerV2Implementation = new ParallelConsumerV2<SampleRecord, IRefPulseSequenceProcessor, RefTaggedResult>(
                 queue, workers, ProcessElement, HandleResultSync, 5000, targetCnt);
             Adapter = adapter;
             Writer = writer;
@@ -86,15 +90,21 @@ namespace SpectroscopyVisualizer.Consumers {
             _consumerV2Implementation.Start();
         }
 
+        event Action IConsumerV2.SourceInvalid {
+            add { _consumerV2Implementation.SourceInvalid += value; }
+            remove { _consumerV2Implementation.SourceInvalid -= value; }
+        }
+
+        public event UpdateEventHandler Update {
+            add { _consumerV2Implementation.Update += value; }
+            remove { _consumerV2Implementation.Update -= value; }
+        }
+
         public event Action SourceInvalid {
             add { _consumerV2Implementation.SourceInvalid += value; }
             remove { _consumerV2Implementation.SourceInvalid -= value; }
         }
 
-        public event Action ElementConsumedSuccessfully {
-            add { _consumerV2Implementation.ElementConsumedSuccessfully += value; }
-            remove { _consumerV2Implementation.ElementConsumedSuccessfully -= value; }
-        }
 
         public event Action ProducerEmpty {
             add { _consumerV2Implementation.ProducerEmpty += value; }
@@ -117,8 +127,9 @@ namespace SpectroscopyVisualizer.Consumers {
             }
         }
 
-        private void HandleResultSync(ResultImpl2 result) {
-            result.SplitResult.IfPresent(split => {
+        private void HandleResultSync(RefTaggedResult refTaggedResult) {
+            if (refTaggedResult.IsSuccessful) {
+                var split = refTaggedResult.SplitResult.Spectrum;
                 if (GasSumSpectrum == null) {
                     GasSumSpectrum = split.Gas.Clone();
                     RefSumSpectrum = split.Reference.Clone();
@@ -128,11 +139,11 @@ namespace SpectroscopyVisualizer.Consumers {
                 }
                 if (_saveSpec) {
 
-                    Writer?.Write(new TracedSpectrum(split.Gas, result.TAG + "-GAS"));
-                    Writer?.Write(new TracedSpectrum(split.Reference, result.TAG + "-REF"));
+                    Writer?.Write(new TracedSpectrum(split.Gas, refTaggedResult.Tag + "-GAS"));
+                    Writer?.Write(new TracedSpectrum(split.Reference, refTaggedResult.Tag + "-REF"));
                 }
                 Adapter.UpdateData(Transmit(split.Gas, split.Reference), Transmit(GasSumSpectrum, RefSumSpectrum));
-            });
+            }
         }
 
         public ISpectrum Transmit(ISpectrum gas, ISpectrum reference) {
@@ -144,9 +155,9 @@ namespace SpectroscopyVisualizer.Consumers {
         }
 
         [NotNull]
-        private ResultImpl2 ProcessElement([NotNull] SampleRecord record, [NotNull] IRefPulseSequenceProcessor processor) {
+        private RefTaggedResult ProcessElement([NotNull] SampleRecord record, [NotNull] IRefPulseSequenceProcessor processor) {
             var splitResult = processor.Process(record.PulseSequence);
-            return new ResultImpl2(splitResult, record.Id);
+            return new RefTaggedResult(splitResult, record.Id);
         }
     }
 }

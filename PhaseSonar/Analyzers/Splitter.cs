@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using JetBrains.Annotations;
 using PhaseSonar.Correctors;
@@ -43,31 +42,57 @@ namespace PhaseSonar.Analyzers {
         /// </summary>
         /// <param name="pulseSequence">The pulse sequence, often a sampled data record</param>
         /// <returns>The accumulated spectrum</returns>
-        public Maybe<SplitResult> Process([NotNull] double[] pulseSequence) {
+        public SplitResult Process([NotNull] double[] pulseSequence) {
             var crestIndices = _finder.Find(pulseSequence);
             if (crestIndices.IsEmpty()) {
-                return Maybe<SplitResult>.Empty();
+                return SplitResult.FromException(ProcessException.NoPeakFound);
             }
             Duo<List<SliceInfo>> sliceInfos;
             try {
                 sliceInfos = _slicer.Slice(pulseSequence, crestIndices);
             } catch (Exception) {
-                return Maybe<SplitResult>.Empty();
+                return SplitResult.FromException(ProcessException.NoSliceValid);
             }
-            try {
-                var duo = sliceInfos.Select(list => AccumulatedSpectrum(pulseSequence, list)).ToDuo();
-                for (var i = 0; i < duo.Count; i++) {
-                    var spectrum = duo[i];
-                    Toolbox.WriteData(@"D:\zbf\gas\ac" + i + ".txt",
-                        spectrum.Array.Select(complex => complex.Magnitude).ToArray());
+            var errorCnt = 0;
+            var spectra = new Spectrum[2];
+            for (var i = 0; i < 2; i++) {
+                var list = sliceInfos[i];
+                Complex[] accumulatedSpectrum = null;
+                var cnt = 0;
+
+                foreach (var sliceInfo in list) {
+                    var pulse = _preprocessor.RetrievePulse(pulseSequence, sliceInfo.StartIndex,
+                        sliceInfo.CrestOffset,
+                        sliceInfo.Length);
+                    _rotator.TrySymmetrize(pulse, sliceInfo.CrestOffset); // todo do it at preproposs
+                    Complex[] correctedSpectrum;
+                    try {
+                        correctedSpectrum = _corrector.Correct(pulse);
+                    } catch (CorrectFailException) {
+                        errorCnt++;
+                        continue;
+                    }
+                    if (accumulatedSpectrum == null) {
+                        accumulatedSpectrum = correctedSpectrum.Clone() as Complex[];
+                    } else {
+                        accumulatedSpectrum.Increase(correctedSpectrum);
+                    }
+                    cnt++;
                 }
-                if (Sum(duo.Item2.Array) > Sum(duo.Item1.Array)) {
-                    return Maybe<SplitResult>.Of(SplitResult.SourceAndRef(duo.Item2, duo.Item1));
+                if (accumulatedSpectrum == null) {
+                    return SplitResult.FromException(ProcessException.NoFlatPhaseIntervalFound, errorCnt);
                 }
-                return Maybe<SplitResult>.Of(SplitResult.SourceAndRef(duo.Item1, duo.Item2));
-            } catch (NoPeriodAvailableException) {
-                return Maybe<SplitResult>.Empty();
+                spectra[i] = new Spectrum(accumulatedSpectrum, cnt);
             }
+
+            var duo = Duo.Create(spectra[0], spectra[1]);
+            GasRefTuple tuple;
+            if (Sum(duo.Item2.Array) > Sum(duo.Item1.Array)) {
+                tuple = GasRefTuple.SourceAndRef(duo.Item2, duo.Item1);
+            } else {
+                tuple = GasRefTuple.SourceAndRef(duo.Item1, duo.Item2);
+            }
+            return new SplitResult(tuple, ProcessException.NoFlatPhaseIntervalFound, errorCnt);
         }
 
         private static double Sum(Complex[] array) {
@@ -78,39 +103,6 @@ namespace PhaseSonar.Analyzers {
             return sum;
         }
 
-        [NotNull]
-        private ISpectrum AccumulatedSpectrum([NotNull] double[] pulseSequence,
-            [NotNull] IEnumerable<SliceInfo> sliceInfos) {
-            Complex[] accumulatedSpectrum = null;
-            var cnt = 0;
-
-            foreach (var sliceInfo in sliceInfos) {
-                var pulse = _preprocessor.RetrievePulse(pulseSequence, sliceInfo.StartIndex,
-                    sliceInfo.CrestOffset,
-                    sliceInfo.Length);
-                //                Toolbox.WriteData(@"D:\zbf\temp\0_zero_filled.txt", pulse);
-                _rotator.TrySymmetrize(pulse, sliceInfo.CrestOffset); // todo do it at preproposs
-                Complex[] correctedSpectrum;
-                try {
-                    correctedSpectrum = _corrector.Correct(pulse);
-                } catch (CorrectFailException) {
-                    continue;
-                }
-                //                Toolbox.WriteData(@"D:\zbf\temp\sp.txt", correctedSpectrum);
-                if (accumulatedSpectrum == null) {
-                    accumulatedSpectrum = correctedSpectrum.Clone() as Complex[];
-                } else {
-                    accumulatedSpectrum.Increase(correctedSpectrum);
-                }
-                cnt++;
-            }
-            if (accumulatedSpectrum == null) {
-                throw new NoPeriodAvailableException();
-            }
-            return new Spectrum(accumulatedSpectrum, cnt);
-        }
-
-        private class NoPeriodAvailableException : Exception {
-        }
+      
     }
 }

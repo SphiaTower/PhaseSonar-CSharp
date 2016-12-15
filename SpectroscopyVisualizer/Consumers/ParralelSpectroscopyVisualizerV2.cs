@@ -11,7 +11,7 @@ using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Consumers {
     public class ParralelSpectroscopyVisualizerV2 : IConsumerV2 {
-        private readonly ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, ResultImpl> _consumer;
+        private readonly ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, TaggedProcessResult> _consumer;
         private readonly bool _saveAcc;
         private readonly bool _saveSpec;
 
@@ -28,7 +28,7 @@ namespace SpectroscopyVisualizer.Consumers {
             int? targetCnt, bool saveSpec, bool saveAcc) {
             _saveSpec = saveSpec;
             _saveAcc = saveAcc;
-            _consumer = new ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, ResultImpl>(
+            _consumer = new ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, TaggedProcessResult>(
                 queue, workers, ProcessElement, HandleResultSync, 5000, targetCnt);
             Adapter = adapter;
             Writer = writer;
@@ -74,14 +74,15 @@ namespace SpectroscopyVisualizer.Consumers {
             _consumer.Start();
         }
 
+
         public event Action SourceInvalid {
             add { _consumer.SourceInvalid += value; }
             remove { _consumer.SourceInvalid -= value; }
         }
 
-        public event Action ElementConsumedSuccessfully {
-            add { _consumer.ElementConsumedSuccessfully += value; }
-            remove { _consumer.ElementConsumedSuccessfully -= value; }
+        public event UpdateEventHandler Update {
+            add { _consumer.Update += value; }
+            remove { _consumer.Update -= value; }
         }
 
         public event Action ProducerEmpty {
@@ -100,36 +101,43 @@ namespace SpectroscopyVisualizer.Consumers {
             }
         }
 
-        private void HandleResultSync([NotNull] ResultImpl result) {
-            result.Spectrum.IfPresent(spectrum => {
+        private void HandleResultSync([NotNull] TaggedProcessResult taggedProcessResult) {
+            var spectrum = taggedProcessResult.Spectrum;
+            if (taggedProcessResult.IsSuccessful) {
                 if (SumSpectrum == null) {
                     SumSpectrum = spectrum.Clone();
                 } else {
                     SumSpectrum.TryAbsorb(spectrum);
                 }
                 if (_saveSpec) {
-                    Writer?.Write(new TracedSpectrum(spectrum, result.TAG));
+                    Writer?.Write(new TracedSpectrum(spectrum, taggedProcessResult.Tag));
                 }
                 Adapter.UpdateData(spectrum, SumSpectrum);
-            });
+            }
         }
 
         [NotNull]
-        private ResultImpl ProcessElement([NotNull] SampleRecord record, [NotNull] IPulseSequenceProcessor processor) {
-            var elementSpectrum = processor.Process(record.PulseSequence);
-            return new ResultImpl(elementSpectrum, record.Id);
+        private TaggedProcessResult ProcessElement([NotNull] SampleRecord record, [NotNull] IPulseSequenceProcessor processor) {
+            var processResult = processor.Process(record.PulseSequence);
+            return new TaggedProcessResult(processResult, record.Id);
         }
 
-        private class ResultImpl : IResult {
+        private class TaggedProcessResult : IResult {
+            private readonly AccumulationResult _accumulationResult;
+
             /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
-            public ResultImpl(Maybe<ISpectrum> spectrum, string tag) {
-                Spectrum = spectrum;
-                TAG = tag;
+            public TaggedProcessResult(AccumulationResult accumulationResult, string tag) {
+                _accumulationResult = accumulationResult;
+                Tag = tag;
             }
 
-            public Maybe<ISpectrum> Spectrum { get; }
-            public string TAG { get; }
-            public bool Success => Spectrum.IsPresent();
+            public ISpectrum Spectrum => _accumulationResult.Spectrum;
+            public string Tag { get; }
+            public bool IsSuccessful => _accumulationResult.HasSpectrum;
+            public bool HasException => _accumulationResult.HasException;
+            public ProcessException? Exception => _accumulationResult.Exception;
+            public int ExceptionCnt => _accumulationResult.Cnt;
+            public int ValidPeriodCnt => _accumulationResult.HasSpectrum?_accumulationResult.Spectrum.PulseCount:0;
         }
     }
 }

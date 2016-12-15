@@ -11,7 +11,7 @@ using SpectroscopyVisualizer.Producers;
 
 namespace SpectroscopyVisualizer.Consumers {
     public class PulseByPulseChecker : IConsumerV2 {
-        private readonly ParallelConsumerV2<SampleRecord, PulseChecker, ProcessResult> _consumer;
+        private readonly ParallelConsumerV2<SampleRecord, PulseChecker, CheckResult> _consumer;
 
         private readonly List<SpecInfoWrapper> _specInfos = new List<SpecInfoWrapper>();
 
@@ -21,7 +21,7 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <param name="targetCnt"></param>
         public PulseByPulseChecker(BlockingCollection<SampleRecord> queue, IEnumerable<PulseChecker> workers,
             int? targetCnt) {
-            _consumer = new ParallelConsumerV2<SampleRecord, PulseChecker, ProcessResult>(
+            _consumer = new ParallelConsumerV2<SampleRecord, PulseChecker, CheckResult>(
                 queue, workers, ProcessFunc, ResultHandleFunc, 2000, targetCnt);
             TargetAmountReached += OnTargetAmountReached;
         }
@@ -52,10 +52,11 @@ namespace SpectroscopyVisualizer.Consumers {
             remove { _consumer.SourceInvalid -= value; }
         }
 
-        public event Action ElementConsumedSuccessfully {
-            add { _consumer.ElementConsumedSuccessfully += value; }
-            remove { _consumer.ElementConsumedSuccessfully -= value; }
+        public event UpdateEventHandler Update {
+            add { _consumer.Update += value; }
+            remove { _consumer.Update -= value; }
         }
+
 
         public event Action ProducerEmpty {
             add { _consumer.ProducerEmpty += value; }
@@ -90,25 +91,29 @@ namespace SpectroscopyVisualizer.Consumers {
             Application.Current.MainWindow.Dispatcher.InvokeAsync(() => { Console.Write(aggregate); });
         }
 
-        private void ResultHandleFunc(ProcessResult result) {
+        private void ResultHandleFunc(CheckResult result) {
             _specInfos.AddRange(result.SpecInfos);
         }
 
         [NotNull]
-        private ProcessResult ProcessFunc(SampleRecord record, PulseChecker checker) {
+        private CheckResult ProcessFunc(SampleRecord record, PulseChecker checker) {
             var specInfos = checker.Process(record.PulseSequence);
-            return new ProcessResult(specInfos.Select(info => new SpecInfoWrapper(info, record.Id)).ToList());
+            return new CheckResult(specInfos.Select(info => new SpecInfoWrapper(info, record.Id)).ToList());
         }
 
-        private class ProcessResult : IResult {
+        private class CheckResult : IResult {
             /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
-            public ProcessResult(IList<SpecInfoWrapper> specInfos) {
+            public CheckResult(IList<SpecInfoWrapper> specInfos) {
                 SpecInfos = specInfos;
             }
 
             public IList<SpecInfoWrapper> SpecInfos { get; }
 
-            public bool Success { get; } = true;
+            public bool IsSuccessful { get; } = true;
+            public bool HasException { get; } = false;
+            public ProcessException? Exception { get; } = null;
+            public int ExceptionCnt { get; } = 0;
+            public int ValidPeriodCnt { get; }
         }
 
         private class SpecInfoWrapper {

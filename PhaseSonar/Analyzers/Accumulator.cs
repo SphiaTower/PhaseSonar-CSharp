@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using JetBrains.Annotations;
 using PhaseSonar.Correctors;
 using PhaseSonar.CorrectorV2s;
@@ -43,18 +44,20 @@ namespace PhaseSonar.Analyzers {
         /// </summary>
         /// <param name="pulseSequence">The pulse sequence, often a sampled data record</param>
         /// <returns>The accumulated spectrum</returns>
-        public Maybe<ISpectrum> Process([NotNull] double[] pulseSequence) {
+        [NotNull]
+        public AccumulationResult Process([NotNull] double[] pulseSequence) {
             var crestIndices = _finder.Find(pulseSequence);
             if (crestIndices.IsEmpty()) {
-                return Maybe<ISpectrum>.Empty();
+                return AccumulationResult.FromException(ProcessException.NoPeakFound);
             }
             var sliceInfos = _slicer.Slice(pulseSequence, crestIndices);
             if (sliceInfos.IsEmpty()) {
-                return Maybe<ISpectrum>.Empty();
+                return AccumulationResult.FromException(ProcessException.NoSliceValid);
             }
 
             var cnt = 0;
             Complex[] accumulatedSpectrum = null;
+            int errorCnt = 0;
             foreach (var sliceInfo in sliceInfos) {
                 var pulse = _preprocessor.RetrievePulse(pulseSequence, sliceInfo.StartIndex,
                     sliceInfo.CrestOffset,
@@ -64,7 +67,8 @@ namespace PhaseSonar.Analyzers {
                 Complex[] correctedSpectrum;
                 try {
                     correctedSpectrum = _corrector.Correct(pulse);
-                } catch (CorrectFailException) {
+                } catch (CorrectFailException e) {
+                    errorCnt++;
                     continue;
                 }
 //                Toolbox.WriteData(@"D:\zbf\temp\sp.txt", correctedSpectrum);
@@ -75,9 +79,28 @@ namespace PhaseSonar.Analyzers {
                 }
                 cnt++;
             }
-            return accumulatedSpectrum == null
-                ? Maybe<ISpectrum>.Empty()
-                : Maybe<ISpectrum>.Of(new Spectrum(accumulatedSpectrum, cnt));
+            if (accumulatedSpectrum == null) {
+                return AccumulationResult.FromException(ProcessException.NoFlatPhaseIntervalFound,errorCnt);
+            } else {
+                var spectrum = new Spectrum(accumulatedSpectrum,cnt);
+                if (errorCnt==0) {
+                    return AccumulationResult.WithoutException(spectrum);
+                } else {
+                    return new AccumulationResult(spectrum,ProcessException.NoFlatPhaseIntervalFound, errorCnt);
+                }
+            }
         }
+    }
+
+    class NoPeakFoundException : Exception {
+        
+    }
+
+    class SliceFailedExceptin : Exception {
+        
+    }
+
+    class ExcessivePhaseLeapsException : Exception {
+        
     }
 }

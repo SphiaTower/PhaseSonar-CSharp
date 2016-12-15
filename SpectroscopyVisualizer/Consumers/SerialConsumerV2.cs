@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using PhaseSonar.Analyzers;
 
 namespace SpectroscopyVisualizer.Consumers {
     public class SerialConsumerV2<TProduct> : IConsumerV2 {
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private readonly Func<TProduct, bool> _processFunc;
+        private readonly Func<TProduct, IResult> _processFunc;
         private readonly BlockingCollection<TProduct> _queue;
         private readonly int _waitProducerTimeoutMs;
         private int _continuousFailCnt;
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
-        public SerialConsumerV2(Func<TProduct, bool> processFunc, BlockingCollection<TProduct> queue, int? targetCnt,
+        public SerialConsumerV2(Func<TProduct, IResult> processFunc, BlockingCollection<TProduct> queue, int? targetCnt,
             int waitProducerTimeoutMs) {
             _processFunc = processFunc;
             _waitProducerTimeoutMs = waitProducerTimeoutMs;
@@ -48,9 +51,10 @@ namespace SpectroscopyVisualizer.Consumers {
                         break;
                     }
                     if (_cancellationTokenSource.IsCancellationRequested) return;
-                    if (ConsumeElement(raw)) {
+                    var result = ConsumeElement(raw);
+                    Update?.Invoke(result);
+                    if (result.IsSuccessful) {
                         _continuousFailCnt = 0;
-                        ElementConsumedSuccessfully?.Invoke();
                     } else {
                         _continuousFailCnt++;
                         if (_continuousFailCnt >= 10) {
@@ -66,12 +70,15 @@ namespace SpectroscopyVisualizer.Consumers {
             }, _cancellationTokenSource.Token);
         }
 
+        public Dictionary<ProcessException, int> Exceptions { get; } = new Dictionary<ProcessException, int>();
+
         public event Action SourceInvalid;
-        public event Action ElementConsumedSuccessfully;
+        public event UpdateEventHandler Update;
         public event Action ProducerEmpty;
         public event Action TargetAmountReached;
 
-        private bool ConsumeElement(TProduct raw) {
+        [NotNull]
+        private IResult ConsumeElement(TProduct raw) {
             return _processFunc(raw);
         }
     }

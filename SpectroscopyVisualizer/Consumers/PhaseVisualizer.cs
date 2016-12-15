@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using PhaseSonar.Analyzers;
 using SpectroscopyVisualizer.Presenters;
@@ -50,10 +52,11 @@ namespace SpectroscopyVisualizer.Consumers {
             remove { _consumer.SourceInvalid -= value; }
         }
 
-        public event Action ElementConsumedSuccessfully {
-            add { _consumer.ElementConsumedSuccessfully += value; }
-            remove { _consumer.ElementConsumedSuccessfully -= value; }
+        public event UpdateEventHandler Update {
+            add { _consumer.Update += value; }
+            remove { _consumer.Update -= value; }
         }
+
 
         public event Action ProducerEmpty {
             add { _consumer.ProducerEmpty += value; }
@@ -65,13 +68,39 @@ namespace SpectroscopyVisualizer.Consumers {
             remove { _consumer.TargetAmountReached -= value; }
         }
 
-        public bool ProcessElement([NotNull] SampleRecord record) {
-            var maybe = _worker.Process(record.PulseSequence);
-            maybe.IfPresent(spectrum => {
-                Adapter.UpdateData(spectrum);
-                Writer?.Write(new TracedSpectrum(spectrum, record.Id.ToString()));
-            });
-            return maybe.IsPresent();
+        public IResult ProcessElement([NotNull] SampleRecord record) {
+            var result = _worker.Process(record.PulseSequence);
+            if (result.HasSpectrum) {
+                Adapter.UpdateData(result.Spectrum);
+                Writer?.Write(new TracedSpectrum(result.Spectrum, record.Id.ToString()));
+            }
+            return new PhaseResult(result);
+        }
+        private class PhaseResult:IResult {
+            private AccumulationResult _resultImplementation;
+
+            public PhaseResult(AccumulationResult resultImplementation) {
+                _resultImplementation = resultImplementation;
+            }
+
+            public bool IsSuccessful {
+                get { return _resultImplementation.HasSpectrum; }
+            }
+
+            public bool HasException {
+                get { return _resultImplementation.HasException; }
+            }
+
+            public ProcessException? Exception {
+                get { return _resultImplementation.Exception; }
+            }
+
+            public int ExceptionCnt {
+                get { return _resultImplementation.Cnt; }
+            }
+            public int ValidPeriodCnt => _resultImplementation.HasSpectrum ? _resultImplementation.Spectrum.PulseCount : 0;
+
         }
     }
+
 }

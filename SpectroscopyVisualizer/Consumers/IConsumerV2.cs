@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using PhaseSonar.Analyzers;
 
 namespace SpectroscopyVisualizer.Consumers {
     public interface IConsumerV2 {
@@ -21,10 +23,13 @@ namespace SpectroscopyVisualizer.Consumers {
 
         event Action SourceInvalid;
 
-        event Action ElementConsumedSuccessfully;
+        event UpdateEventHandler Update;
 
         event Action ProducerEmpty;
 
         event Action TargetAmountReached;
     }
+
+    public delegate void UpdateEventHandler(IResult result);
+
 }

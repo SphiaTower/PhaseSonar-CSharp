@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace PhaseSonar.Slicers {
     public interface IRuler {
-        int MeasureSliceLength([NotNull] IList<int> crestIndices);
+        int MeasureSliceLength([NotNull] IList<int> crestIndices, int fullLength);
     }
 
     public class FixLengtherRuler : IRuler {
@@ -14,13 +14,16 @@ namespace PhaseSonar.Slicers {
             _length = length;
         }
 
-        public int MeasureSliceLength(IList<int> crestIndices) {
+        public int MeasureSliceLength(IList<int> crestIndices, int fullLength) {
             return _length;
         }
     }
 
     public class AverageLengthRuler : IRuler {
-        public int MeasureSliceLength(IList<int> crestIndices) {
+        public int MeasureSliceLength(IList<int> crestIndices, int fullLength) {
+            if (crestIndices.Count==1) {
+                return fullLength;
+            }
             var average = 0;
             for (var i = 1; i < crestIndices.Count; i++) {
                 var diff = crestIndices[i] - crestIndices[i - 1];
@@ -31,7 +34,10 @@ namespace PhaseSonar.Slicers {
     }
 
     public class MinCommonLengthRuler : IRuler {
-        public int MeasureSliceLength(IList<int> crestIndices) {
+        public int MeasureSliceLength(IList<int> crestIndices, int fullLength) {
+            if (crestIndices.Count == 1) {
+                return fullLength;
+            }
             var min = int.MaxValue;
             for (var i = 1; i < crestIndices.Count; i++) {
                 var diff = crestIndices[i] - crestIndices[i - 1];

@@ -3,13 +3,18 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
+using PhaseSonar.Analyzers;
 using PhaseSonar.Utils;
 using SpectroscopyVisualizer.Producers;
 using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Consumers {
     public class TrueResult : IResult {
-        public bool Success => true;
+        public bool IsSuccessful { get; } = true;
+        public bool HasException { get; } = false;
+        public ProcessException? Exception { get; }
+        public int ExceptionCnt { get; }
+        public int ValidPeriodCnt { get; }
     }
 
     public class DataSerializer : IConsumerV2 {
@@ -51,15 +56,19 @@ namespace SpectroscopyVisualizer.Consumers {
             _consumer.Start();
         }
 
+        public Dictionary<ProcessException, int> Exceptions { get; } = new Dictionary<ProcessException, int>();
+
         public event Action SourceInvalid {
             add { _consumer.SourceInvalid += value; }
             remove { _consumer.SourceInvalid -= value; }
         }
 
-        public event Action ElementConsumedSuccessfully {
-            add { _consumer.ElementConsumedSuccessfully += value; }
-            remove { _consumer.ElementConsumedSuccessfully -= value; }
+
+        public event UpdateEventHandler Update {
+            add { _consumer.Update += value; }
+            remove { _consumer.Update -= value; }
         }
+
 
         public event Action ProducerEmpty {
             add { _consumer.ProducerEmpty += value; }

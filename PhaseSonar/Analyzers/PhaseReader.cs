@@ -33,14 +33,14 @@ namespace PhaseSonar.Analyzers {
         /// </summary>
         /// <param name="pulseSequence">The pulse sequence, often a sampled data record</param>
         /// <returns>The accumulated spectrum</returns>
-        public Maybe<ISpectrum> Process(double[] pulseSequence) {
+        public AccumulationResult Process(double[] pulseSequence) {
             var crestIndices = _finder.Find(pulseSequence);
             if (crestIndices.IsEmpty()) {
-                return Maybe<ISpectrum>.Empty();
+                return AccumulationResult.FromException(ProcessException.NoPeakFound);
             }
             var sliceInfos = _slicer.Slice(pulseSequence, crestIndices);
             if (sliceInfos.IsEmpty()) {
-                return Maybe<ISpectrum>.Empty();
+                return AccumulationResult.FromException(ProcessException.NoSliceValid);
             }
             var example = sliceInfos.First();
             var pulse = _preprocessor.RetrievePulse(pulseSequence, example.StartIndex, example.CrestOffset,
@@ -50,7 +50,7 @@ namespace PhaseSonar.Analyzers {
             try {
                 phase = _phaseExtractor.GetPhase(pulse, null);
             } catch (PhaseFitException) {
-                return Maybe<ISpectrum>.Empty();
+                return AccumulationResult.FromException(ProcessException.NoFlatPhaseIntervalFound);
             }
             //Toolbox.WriteData(@"D:\zbf\temp2\full_phase.txt", phase);
 
@@ -59,7 +59,7 @@ namespace PhaseSonar.Analyzers {
 
             //            var unwrap = phase;
             ISpectrum spectrum = new RealSpectrum(unwrap, 1);
-            return Maybe<ISpectrum>.Of(spectrum);
+            return AccumulationResult.WithoutException(spectrum);
         }
     }
 }

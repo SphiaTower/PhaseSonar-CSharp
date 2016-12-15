@@ -16,6 +16,17 @@ namespace SpectroscopyVisualizer {
         ///     Stop the system.
         /// </summary>
         void Stop();
+
+
+        /// <summary>
+        ///     The producerss
+        /// </summary>
+         IProducerV2<SampleRecord> Producer { get; }
+
+        /// <summary>
+        ///     The consumer
+        /// </summary>
+         IConsumerV2 Consumer { get; }
     }
 
     public sealed class EmptyScheduler : IScheduler {
@@ -36,6 +47,16 @@ namespace SpectroscopyVisualizer {
         /// </summary>
         public void Stop() {
         }
+
+        /// <summary>
+        ///     The producerss
+        /// </summary>
+        public IProducerV2<SampleRecord> Producer => null;
+
+        /// <summary>
+        ///     The consumer
+        /// </summary>
+        public IConsumerV2 Consumer => null;
     }
 
     /// <summary>

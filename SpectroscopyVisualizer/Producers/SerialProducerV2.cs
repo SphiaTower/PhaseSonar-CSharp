@@ -50,33 +50,51 @@ namespace SpectroscopyVisualizer.Producers {
         }
 
         public event Action HitTarget;
-        public event Action ProductionFailed;
+        public event Action<Exception> ProductionFailed;
         public event Action<T> NewProduct;
 
+        private Exception _allException;
         private void DoInBackground() {
             while (!_cts.IsCancellationRequested) {
                 T data;
-                if (_dataRetriever.TryRetrieveData(out data)) {
-                    NewProduct?.Invoke(data);
-                    _continuousFailCnt = 0;
-                    if (_cts.IsCancellationRequested) break;
-                    BlockingQueue.Add(data); // blocking method
-                    ProductCnt++;
-                    if (ProductCnt >= TargetCnt.GetValueOrDefault(int.MaxValue)) {
-                        HitTarget?.Invoke();
-                        break;
+
+                try {
+                    data = _dataRetriever.TryRetrieveData();
+                } catch (Exception e) {
+                    if (_allException==null) {
+                        _allException = e;
+                    } else {
+                        _allException = new  Exception(_allException.Message+"\n======================================\n"+e.Message);
+
                     }
-                } else {
                     _continuousFailCnt++;
                     if (_continuousFailCnt == 10) {
-                        ProductionFailed?.Invoke();
+                        ProductionFailed?.Invoke(_allException);
+                        break;
+                    } else {
+                        Thread.Sleep(1000);
+                        continue;
                     }
+                }
+                NewProduct?.Invoke(data);
+                _continuousFailCnt = 0;
+                if (_cts.IsCancellationRequested) break;
+                BlockingQueue.Add(data); // blocking method
+                ProductCnt++;
+                if (ProductCnt >= TargetCnt.GetValueOrDefault(int.MaxValue)) {
+                    HitTarget?.Invoke();
+                    break;
                 }
             }
         }
 
         public interface IDataRetriever {
-            bool TryRetrieveData(out T data);
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <exception cref="Exception"></exception>
+            /// <returns></returns>
+            T TryRetrieveData();
         }
     }
 }

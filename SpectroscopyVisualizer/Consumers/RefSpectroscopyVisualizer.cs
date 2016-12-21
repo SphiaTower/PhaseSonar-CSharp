@@ -22,7 +22,7 @@ namespace SpectroscopyVisualizer.Consumers {
         public SplitResult SplitResult { get; }
         public string Tag { get; }
         public bool IsSuccessful => SplitResult.HasSpectrum;
-        public bool HasException => !SplitResult.HasException;
+        public bool HasException => SplitResult.HasException;
         public ProcessException? Exception => SplitResult.Exception;
         public int ExceptionCnt => SplitResult.ExceptionCnt;
         public int ValidPeriodCnt => SplitResult.HasSpectrum ? SplitResult.Spectrum.Gas.PulseCount : 0;
@@ -142,7 +142,8 @@ namespace SpectroscopyVisualizer.Consumers {
                     Writer?.Write(new TracedSpectrum(split.Gas, refTaggedResult.Tag + "-GAS"));
                     Writer?.Write(new TracedSpectrum(split.Reference, refTaggedResult.Tag + "-REF"));
                 }
-                Adapter.UpdateData(Transmit(split.Gas, split.Reference), Transmit(GasSumSpectrum, RefSumSpectrum));
+                //Adapter.UpdateData(Transmit(split.Gas, split.Reference), Transmit(GasSumSpectrum, RefSumSpectrum));
+                Adapter.UpdateData(split.Gas, GasSumSpectrum);
             }
         }
 

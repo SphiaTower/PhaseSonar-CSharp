@@ -44,7 +44,7 @@ namespace PhaseSonar.Analyzers {
         /// <returns>The accumulated spectrum</returns>
         public SplitResult Process([NotNull] double[] pulseSequence) {
             var crestIndices = _finder.Find(pulseSequence);
-            if (crestIndices.IsEmpty()) {
+            if (crestIndices.Count<=1) {
                 return SplitResult.FromException(ProcessException.NoPeakFound);
             }
             Duo<List<SliceInfo>> sliceInfos;
@@ -92,7 +92,11 @@ namespace PhaseSonar.Analyzers {
             } else {
                 tuple = GasRefTuple.SourceAndRef(duo.Item1, duo.Item2);
             }
-            return new SplitResult(tuple, ProcessException.NoFlatPhaseIntervalFound, errorCnt);
+            if (errorCnt != 0) {
+                return new SplitResult(tuple, ProcessException.NoFlatPhaseIntervalFound, errorCnt);
+            } else {
+                return SplitResult.WithoutException(tuple);
+            }
         }
 
         private static double Sum(Complex[] array) {

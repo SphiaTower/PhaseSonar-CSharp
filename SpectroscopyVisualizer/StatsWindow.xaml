@@ -8,29 +8,31 @@
         
         Title="Stats Board" Height="600" Width="360" Background="Beige">
     <Grid>
-        <Label x:Name="label" Content="Total Records Processed" HorizontalAlignment="Left" Margin="30,83,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label1" Content="Total Data Processed/M" HorizontalAlignment="Left" Margin="30,122,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label1_Copy" Content="No Peak Found" HorizontalAlignment="Left" Margin="65,236,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label1_Copy1" Content="No Period Valid" HorizontalAlignment="Left" Margin="65,275,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label1_Copy2" Content="Excessive Phase Leaps" HorizontalAlignment="Left" Margin="65,315,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label1_Copy3" Content="Failure Count" HorizontalAlignment="Left" Margin="30,198,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label1_Copy4" Content="Time Elapsed/s" HorizontalAlignment="Left" Margin="30,429,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label1_Copy5" Content="Speed/(MSa/s)" HorizontalAlignment="Left" Margin="30,467,0,0" VerticalAlignment="Top"/>
-        <TextBlock x:Name="TbRecords" HorizontalAlignment="Left" Margin="241,88,0,0" Width="50" TextWrapping="Wrap" Text="{Binding TotalCnt, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"  VerticalAlignment="Top"/>
-        <TextBlock x:Name="TbData" HorizontalAlignment="Left" Margin="241,127,0,0" Width="50" TextWrapping="Wrap" Text="{Binding TotalDataAmount, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
-        <TextBlock x:Name="TbFailures" HorizontalAlignment="Left" Margin="241,203,0,0"  Width="50" TextWrapping="Wrap" Text="{Binding FailuresCnt, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
-        <TextBlock x:Name="TbNoPeak" HorizontalAlignment="Left" Margin="241,241,0,0"  Width="50" TextWrapping="Wrap" Text="{Binding NoPeaksFoundCnt, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
-        <TextBlock x:Name="TbNoPeriod" HorizontalAlignment="Left" Margin="241,281,0,0" Width="50"  TextWrapping="Wrap" Text="{Binding NoSliceValidCnt, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
-        <TextBlock x:Name="TbNoPhase" HorizontalAlignment="Left" Margin="241,321,0,0" Width="50"  TextWrapping="Wrap" Text="{Binding NoFlatPhaseCnt, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
-        <TextBlock x:Name="TbTime" HorizontalAlignment="Left" Margin="241,435,0,0" Width="50"  TextWrapping="Wrap" Text="{Binding Time, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}" VerticalAlignment="Top"/>
-        <TextBlock x:Name="TbSpeed" HorizontalAlignment="Left" Margin="241,472,0,0" Width="50"  TextWrapping="Wrap" Text="{Binding Speed, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}" VerticalAlignment="Top"/>
-        <Label x:Name="label1_Copy6" Content="Success Count" HorizontalAlignment="Left" Margin="30,162,0,0" VerticalAlignment="Top"/>
-        <TextBlock x:Name="TbSuccess" HorizontalAlignment="Left" Margin="241,168,0,0"  Width="50" TextWrapping="Wrap" Text="{Binding SuccessCnt, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
-        <Label x:Name="label1_Copy7" Content="Success Rate" HorizontalAlignment="Left" Margin="30,355,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.441,-1.352"/>
-        <TextBlock x:Name="TbSuccessRate" HorizontalAlignment="Left" Margin="241,360,0,0" Width="60"  TextTrimming="CharacterEllipsis" TextWrapping="Wrap" Text="{Binding SucessRate, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, StringFormat=P2}" VerticalAlignment="Top"/>
-        <Label x:Name="label2" Content="Statistics" HorizontalAlignment="Left" Margin="153,35,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label1_Copy8" Content="Valid Period Count" HorizontalAlignment="Left" Margin="30,392,0,0" VerticalAlignment="Top"/>
-        <TextBlock x:Name="TbValidPeriods" HorizontalAlignment="Left" Margin="241,396,0,0" Width="50"  TextWrapping="Wrap" Text="{Binding PeriodCnt, Mode=OneWay,  UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
+        <Label x:Name="label" Content="Total Records Processed" HorizontalAlignment="Left" Margin="30,60,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label1" Content="Total Data Processed/M" HorizontalAlignment="Left" Margin="30,99,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label1_Copy" Content="No Peak Found" HorizontalAlignment="Left" Margin="65,213,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label1_Copy1" Content="No Intact Period" HorizontalAlignment="Left" Margin="65,252,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label1_Copy2" Content="Excessive Phase Leaps" HorizontalAlignment="Left" Margin="65,292,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label1_Copy3" Content="Failure Count" HorizontalAlignment="Left" Margin="30,175,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label1_Copy4" Content="Time Elapsed/s" HorizontalAlignment="Left" Margin="30,406,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label1_Copy5" Content="Speed/(MSa/s)" HorizontalAlignment="Left" Margin="30,444,0,0" VerticalAlignment="Top"/>
+        <TextBlock x:Name="TbRecords" HorizontalAlignment="Left" Margin="241,65,0,0" Width="50" TextWrapping="Wrap" Text="{Binding TotalCnt, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"  VerticalAlignment="Top"/>
+        <TextBlock x:Name="TbData" HorizontalAlignment="Left" Margin="241,104,0,0" Width="50" TextWrapping="Wrap" Text="{Binding TotalDataAmount, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
+        <TextBlock x:Name="TbFailures" HorizontalAlignment="Left" Margin="241,180,0,0"  Width="50" TextWrapping="Wrap" Text="{Binding FailuresCnt, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
+        <TextBlock x:Name="TbNoPeak" HorizontalAlignment="Left" Margin="241,218,0,0"  Width="50" TextWrapping="Wrap" Text="{Binding NoPeaksFoundCnt, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
+        <TextBlock x:Name="TbNoPeriod" HorizontalAlignment="Left" Margin="241,258,0,0" Width="50"  TextWrapping="Wrap" Text="{Binding NoSliceValidCnt, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
+        <TextBlock x:Name="TbNoPhase" HorizontalAlignment="Left" Margin="241,298,0,0" Width="50"  TextWrapping="Wrap" Text="{Binding NoFlatPhaseCnt, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
+        <TextBlock x:Name="TbTime" HorizontalAlignment="Left" Margin="241,412,0,0" Width="50"  TextWrapping="Wrap" Text="{Binding Time, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}" VerticalAlignment="Top"/>
+        <TextBlock x:Name="TbSpeed" HorizontalAlignment="Left" Margin="241,449,0,0" Width="50"  TextWrapping="Wrap" Text="{Binding Speed, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}" VerticalAlignment="Top"/>
+        <Label x:Name="label1_Copy6" Content="Success Count" HorizontalAlignment="Left" Margin="30,139,0,0" VerticalAlignment="Top"/>
+        <TextBlock x:Name="TbSuccess" HorizontalAlignment="Left" Margin="241,145,0,0"  Width="50" TextWrapping="Wrap" Text="{Binding SuccessCnt, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
+        <Label x:Name="label1_Copy7" Content="Success Rate" HorizontalAlignment="Left" Margin="30,332,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.441,-1.352"/>
+        <TextBlock x:Name="TbSuccessRate" HorizontalAlignment="Left" Margin="241,337,0,0" Width="60"  TextTrimming="CharacterEllipsis" TextWrapping="Wrap" Text="{Binding SucessRate, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, StringFormat=P2}" VerticalAlignment="Top"/>
+        <Label x:Name="label2" Content="Statistics" HorizontalAlignment="Left" Margin="153,18,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label1_Copy8" Content="Valid Period Count" HorizontalAlignment="Left" Margin="30,369,0,0" VerticalAlignment="Top"/>
+        <TextBlock x:Name="TbValidPeriods" HorizontalAlignment="Left" Margin="241,373,0,0" Width="50"  TextWrapping="Wrap" Text="{Binding PeriodCnt, Mode=OneWay,  UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
+        <Label x:Name="label2_Copy" Content="Tips" HorizontalAlignment="Center"  VerticalAlignment="Top" Margin="0,480,0,0"/>
+        <TextBlock x:Name="TbTipsContent" TextWrapping="Wrap" Width="298" Text="SCV could goes sir" HorizontalAlignment="Center"  VerticalAlignment="Bottom"  Height="59"/>
 
 
     </Grid>

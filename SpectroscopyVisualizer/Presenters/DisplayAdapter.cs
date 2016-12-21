@@ -194,14 +194,16 @@ namespace SpectroscopyVisualizer.Presenters {
             if (_scaleX == null) _scaleX = GetXScaler(xAxis);
             if (_scaleY == null) _scaleY = GetYScaler(yAxis);
 
-//            var points = new PointCollection(yAxis.Length);
             if (points.IsEmpty())
                 for (var i = 0; i < yAxis.Length; i++) {
                     points.Add(CreateGraphPoint(xAxis[i], yAxis[i]));
                 }
             else
                 for (var i = 0; i < yAxis.Length; i++) {
-                    //                points.Add(CreateGraphPoint(xAxis[i], yAxis[i]));
+//                    // todo data overflow
+//                    if (yAxis[i].IsSpecialValue()) {
+//                        yAxis[i] = 0;
+//                    }
                     points[i] = CreateGraphPoint(xAxis[i], yAxis[i]);
                 }
             return points;

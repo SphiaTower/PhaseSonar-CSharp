@@ -59,17 +59,19 @@ namespace SpectroscopyVisualizer.Producers {
             remove { _producer.HitTarget -= value; }
         }
 
-        public event Action ProductionFailed {
+        public event Action<Exception> ProductionFailed {
             add { _producer.ProductionFailed += value; }
             remove { _producer.ProductionFailed -= value; }
         }
+
 
         public event Action<SampleRecord> NewProduct {
             add { _producer.NewProduct += value; }
             remove { _producer.NewProduct -= value; }
         }
 
-        public bool TryRetrieveData(out SampleRecord data) {
+        [NotNull]
+        public SampleRecord TryRetrieveData() {
             if (_enumerator.MoveNext()) {
                 var path = _enumerator.Current;
                 var match = _regex.Match(path);
@@ -80,11 +82,9 @@ namespace SpectroscopyVisualizer.Producers {
                 } else {
                     id = Path.GetFileNameWithoutExtension(path);
                 }
-                data = CreateRecord(path, id);
-                return true;
+                return CreateRecord(path, id);
             }
-            data = null;
-            return false;
+            throw new IndexOutOfRangeException();
         }
 
 

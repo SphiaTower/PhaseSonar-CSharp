@@ -13,6 +13,7 @@ using System.Windows.Threading;
 using JetBrains.Annotations;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using NationalInstruments.Examples.StreamToDiskConsole;
 using NationalInstruments.Restricted;
 using PhaseSonar.Analyzers;
 using PhaseSonar.Utils;
@@ -67,12 +68,12 @@ namespace SpectroscopyVisualizer {
                     targetCnt:100);
 
                 SliceConfigurations.Initialize(
-                    crestAmplitudeThreshold: 1,
+                    crestAmplitudeThreshold: 0.5,
                     pointsBeforeCrest: 1000,
                     crestAtCenter: true,
                     rulerType: RulerType.MinLength,
                     findAbs: true,
-                    autoAdjust: false,
+                    autoAdjust: true,
                     fixedLength: 232171,
                     reference: false
                     );
@@ -261,10 +262,10 @@ namespace SpectroscopyVisualizer {
                 MessageBox.Show("Sampler can't be initialized. Maybe another instance is running.");
                 return;
             }
-            producer.ProductionFailed += () => {
+            producer.ProductionFailed += (exception) => {
                 Dispatcher.InvokeAsync(() => {
                     SwitchButton.State = false;
-                    MessageBox.Show("Unable to sample data. Maybe out of Memory.");
+                    MessageBox.Show("Unable to sample data. Exceptions occured, please read carefully:\n\n"+exception.Message);
                 });
             };
             Adapter = NewAdapter();
@@ -371,7 +372,6 @@ namespace SpectroscopyVisualizer {
                             label.BorderBrush = _originalBrush;
                         }
                     }
-
                     cnt++;
                     if (cnt==15) {
                         dispatcherTimer.Stop();
@@ -522,7 +522,13 @@ namespace SpectroscopyVisualizer {
                 MessageBox.Show("Sampler can't be initialized");
                 return;
             }
-//            producer.HitTarget += () => { Dispatcher.InvokeAsync(() => { SwitchButton.State = false; }); };
+            producer.ProductionFailed += (exception) => {
+                Dispatcher.InvokeAsync(() => {
+                    SwitchButton.State = false;
+                    MessageBox.Show("Unable to sample data. Exception occured:\n\n" + exception.Message);
+                });
+            };
+            //            producer.HitTarget += () => { Dispatcher.InvokeAsync(() => { SwitchButton.State = false; }); };
             PbLoading.Maximum = total;
             Adapter = NewAdapter();
             var threadNum = GeneralConfigurations.Get().ThreadNum;
@@ -600,7 +606,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ContactAuthor_OnClick(object sender, RoutedEventArgs e) {
-        
+      
         }
 
         private void UltraFast_OnChecked(object sender, RoutedEventArgs e) {
@@ -638,6 +644,34 @@ namespace SpectroscopyVisualizer {
 
         private void BnOpenPath_OnClick(object sender, RoutedEventArgs e) {
             Process.Start(GeneralConfigurations.Get().Directory);
+        }
+
+        private void BnViewTemporal_OnClick(object sender, RoutedEventArgs e) {
+            if (IsProgramRunning()) {
+                return;
+            }
+            Task.Run(() => {
+                var factory = new ParallelInjector();
+                Sampler sampler;
+                if (factory.TryNewSampler(out sampler)) {
+                    var data = sampler.Retrieve(SamplingConfigurations.Get().Channel);
+                    var finder = factory.NewCrestFinder();
+                    var crestIndices = finder.Find(data);
+                    if (!Directory.Exists(@"C:\SpectroscopyVisualizer\temporal")) {
+                        try {
+                            Directory.CreateDirectory(@"C:\SpectroscopyVisualizer\temporal");
+                        } catch (Exception) {
+                            MessageBox.Show("Unable to create directory! Try run this program with administrator permission");
+                            return;
+                        }
+                    }
+                    Toolbox.WriteData(@"C:\SpectroscopyVisualizer\temporal\temporal.txt", data);
+                    Toolbox.WriteData(@"C:\SpectroscopyVisualizer\temporal\crests.txt", crestIndices.ToArray());
+                    Process.Start(@"C:\Anaconda3\python.exe", @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\TemporalViewer.py");
+                } else {
+                    MessageBox.Show("Sampler can't be initialized. Maybe another instance is running.");
+                }
+            });
         }
     }
 }

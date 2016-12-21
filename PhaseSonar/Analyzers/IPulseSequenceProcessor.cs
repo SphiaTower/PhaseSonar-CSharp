@@ -37,7 +37,9 @@ namespace PhaseSonar.Analyzers {
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
         public AccumulationResult(ISpectrum spectrum, ProcessException? exception, int cnt) {
             Spectrum = spectrum;
-            Exception = exception;
+            if (cnt!=0) {
+                Exception = exception;
+            }
             Cnt = cnt;
         }
 
@@ -64,7 +66,9 @@ namespace PhaseSonar.Analyzers {
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
         public SplitResult(GasRefTuple spectrum, ProcessException? exception, int exceptionCnt) {
             Spectrum = spectrum;
-            Exception = exception;
+            if (exceptionCnt != 0) {
+                Exception = exception;
+            }
             ExceptionCnt = exceptionCnt;
         }
 

@@ -47,7 +47,7 @@ namespace PhaseSonar.CrestFinders {
         /// <param name="pulseSequence">A pulse sequence containing multiple pulses</param>
         /// <returns>The indices of the crests</returns>
         public virtual IList<int> Find(double[] pulseSequence) {
-            var rightThreshold = SampleRate/(RepetitionRate + 300);
+            int rightThreshold = (int)(SampleRate/(RepetitionRate+300));
 
             var maxValue = .0;
             var maxIndex = 0;

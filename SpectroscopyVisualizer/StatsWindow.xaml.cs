@@ -14,6 +14,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using JetBrains.Annotations;
 using PhaseSonar.Analyzers;
 using SpectroscopyVisualizer.Configs;
@@ -50,7 +51,55 @@ namespace SpectroscopyVisualizer {
             TbSuccessRate.DataContext = this;
             TbValidPeriods.DataContext = this;
             this.SourceInitialized += Window1_SourceInitialized;
+
+            var tipsCnt = _tips.Length;
+            Random random = new Random();
+            TbTipsContent.Text = _tips[random.Next(tipsCnt)];
+            int tickCnt = 0;
+
+            var dispatcherTimer = new DispatcherTimer {Interval = TimeSpan.FromSeconds(10)};
+            dispatcherTimer.Tick += (sender, args) => {
+                var index = tickCnt % tipsCnt;
+                if (index==0) {
+                    Shuffle(_tips);
+                }
+                TbTipsContent.Text = _tips[index];
+                tickCnt++;
+            };
+            dispatcherTimer.Start();
         }
+
+        public static void Shuffle<T>(T[] array) {
+            Random random = new Random();
+
+            for (int index = 0; index < array.Length; index++) {
+                var x = array[index];
+                var swapIndex = random.Next(array.Length);
+                var t = array[swapIndex];
+                array[swapIndex] = x;
+                array[index] = t;
+            }
+        }
+
+        private readonly string[] _tips = {
+            "When no peaks are found, try check AUTO-ADJUST PEAK AMP.",
+            "Reducing the number of the POINTS DISPLAYED would smooth the graph update.",
+            "Set QUEUE CAPACITY with a small number to view instant spectra.",
+            "Setting QUEUE CAPACITY with a large number would reduce the waiting interval when the queue is full.",
+            "Setting QUEUE CAPACITY with an over-large number would probably result in running out of memory.",
+            "Increasing the THREADS would increase the number of process workers, thus accelerating the program.",
+            "Increasing the THREADS over the max number of threads of the CPU would not accelerate the program.",
+            "Click VIEW TEMPORAL to check the temporal sequence from a single time sampling.",
+            "Click HELP for more information about the program.",
+            "Click the RIGHT BUTTON on the graph could undo a recent operation.",
+            "Click the MIDDLE BUTTON on the graph could adjust the vertical scaling.",
+            "To store the current parameter configurations, go CONFIGS->SAVE CONFIG.",
+            "If most parts of the data are out of the current graphic scope, click MIDDLE BUTTON on the graph.",
+            "Try shorten the linear PHASE RANGE when the count of EXCESSIVE PHASE LEAPS is high.",
+            "Sampling would be unavailable if another program, or another instance of this program, is using the sampling device.",
+            "Accumulating over too much data could result in the overflow of primitive types like DOUBLE and INT, and then the disappearence of the WHITE LINE.",
+            "ADC might FAIL to sample data because of excessive temperature, or internal exceptions"
+        };
 
         private void Window1_SourceInitialized(object sender, EventArgs e) {
             WindowInteropHelper helper = new WindowInteropHelper(this);

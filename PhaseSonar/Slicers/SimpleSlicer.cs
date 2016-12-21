@@ -32,7 +32,12 @@ namespace PhaseSonar.Slicers {
         [NotNull]
         public List<SliceInfo> Slice(double[] pulseSequence, IList<int> crestIndices) {
             if (crestIndices.IsEmpty()) return new List<SliceInfo>(0);
+         
             var sliceLength = Ruler.MeasureSliceLength(crestIndices,pulseSequence.Length);
+            /*if (crestIndices.Count == 1) {
+                // todo should abandon?
+                return new List<SliceInfo>(1) { new SliceInfo(0, sliceLength, crestIndices[0]) };
+            }*/
             var crestOffset = Aligner.CrestIndex(_minPtsCntBeforeCrest, sliceLength);
 
             IList<int> startIndices;

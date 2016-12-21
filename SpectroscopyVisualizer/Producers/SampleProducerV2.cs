@@ -49,31 +49,19 @@ namespace SpectroscopyVisualizer.Producers {
             remove { _producer.HitTarget -= value; }
         }
 
-        public event Action ProductionFailed {
+        public event Action<Exception> ProductionFailed {
             add { _producer.ProductionFailed += value; }
             remove { _producer.ProductionFailed -= value; }
         }
+
 
         public event Action<SampleRecord> NewProduct {
             add { _producer.NewProduct += value; }
             remove { _producer.NewProduct -= value; }
         }
 
-        public bool TryRetrieveData(out SampleRecord data) {
-            double[] pulseSequence;
-            try {
-                pulseSequence = _sampler.Retrieve();
-            } catch (Exception) {
-                data = null;
-                return false;
-            }
-            data = new SampleRecord(pulseSequence, ProductCnt);
-            return true;
-        }
-
-
         [NotNull]
-        public SampleRecord RetrieveData() {
+        public SampleRecord TryRetrieveData() {
             var pulseSequence = _sampler.Retrieve();
             return new SampleRecord(pulseSequence, ProductCnt);
         }

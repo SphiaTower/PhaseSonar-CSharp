@@ -28,7 +28,7 @@ namespace SpectroscopyVisualizer.Producers {
         void Stop();
 
         event Action HitTarget;
-        event Action ProductionFailed;
+        event Action<Exception> ProductionFailed;
         event Action<T> NewProduct;
     }
 }

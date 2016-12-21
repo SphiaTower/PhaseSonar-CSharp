@@ -7,7 +7,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:types="clr-namespace:SpectroscopyVisualizer.Configs"
         mc:Ignorable="d"
-        Title="Spectroscopy Visualizer 2.5.0" Height="600" Width="1200"
+        Title="Spectroscopy Visualizer 2.5.5" Height="600" Width="1200"
         d:DataContext="{d:DesignData }">
 
     <Grid>
@@ -96,6 +96,9 @@
                                RenderTransformOrigin="0.41,-0.225" />
                         <Button x:Name="ToggleButton" Content="START" HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom" Width="67" Click="ToggleButton_OnClick" Margin="0,0,10,6"
+                                Height="22" RenderTransformOrigin="-4.984,-2.155" />  
+                        <Button x:Name="BnViewTemporal" Content="View Temporal" HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom" Width="107" Click="BnViewTemporal_OnClick" Background="FloralWhite" Margin="0,0,100,6"
                                 Height="22" RenderTransformOrigin="-4.984,-2.155" />
                        <TextBox x:Name="TbXCoordinate" HorizontalAlignment="Left" Height="21" Margin="263,13,0,0"
                                  MaxLines="1"
@@ -290,7 +293,7 @@
                                  TextWrapping="Wrap" Text="{Binding ThreadNum}" VerticalAlignment="Top" Width="67" />
                         <Label x:Name="label18" Content="Threads" HorizontalAlignment="Left" Margin="196,11,0,0"
                                VerticalAlignment="Top" />
-                        <Label x:Name="label17" Content="Resolution" HorizontalAlignment="Left"
+                        <Label x:Name="label17" Content="Points Displayed" HorizontalAlignment="Left"
                                VerticalAlignment="Top" Margin="0,10,0,0" />
                         <TextBox x:Name="TbDispPoints" HorizontalAlignment="Left" Height="23" Margin="112,11,0,0"
                                  TextWrapping="Wrap" Text="{Binding DispPoints}" VerticalAlignment="Top" Width="54"

@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Threading;
 using JetBrains.Annotations;
@@ -29,6 +27,13 @@ namespace SpectroscopyVisualizer {
     /// </summary>
     public partial class MainWindow : Window {
         private const int ProgressIndeterminable = 12345;
+        private readonly Brush _originalBrush;
+
+        private readonly Thickness _originalThickness;
+
+        private readonly Label[] _possibleWrongLabels;
+
+        private StatsWindow _statsWindow = new StatsWindow();
 
         //        private readonly CanvasView _canvasView;
 
@@ -38,7 +43,7 @@ namespace SpectroscopyVisualizer {
             // init system components
             InitializeComponent();
 
-            _possibleWrongLabels = new[] {LbPeakMinAmp, LbRangeStart, LbRangeEnd, LbRepRate,LbChannel};
+            _possibleWrongLabels = new[] {LbPeakMinAmp, LbRangeStart, LbRangeEnd, LbRepRate, LbChannel};
             _originalThickness = _possibleWrongLabels[0].BorderThickness;
             _originalBrush = _possibleWrongLabels[0].BorderBrush;
 
@@ -61,11 +66,11 @@ namespace SpectroscopyVisualizer {
                     viewPhase: false,
                     saveType: SaveType.Magnitude,
                     queueSize: 48,
-                    saveSample:false,
-                    saveSpec:false,
-                    saveAcc:false,
-                    operationMode:OperationMode.Manual,
-                    targetCnt:100);
+                    saveSample: false,
+                    saveSpec: false,
+                    saveAcc: false,
+                    operationMode: OperationMode.Manual,
+                    targetCnt: 100);
 
                 SliceConfigurations.Initialize(
                     crestAmplitudeThreshold: 0.5,
@@ -86,8 +91,13 @@ namespace SpectroscopyVisualizer {
                     phaseType: PhaseType.FullRange,
                     autoFlip: false,
                     realPhase: false,
-                    rangeStart: 18000,
-                    rangeEnd: 20000);
+                    rangeStart: 3,
+                    rangeEnd: 4);
+
+                MiscellaneousConfigurations.Initialize(
+                    waitEmptyProducerMsTimeout: 5000,
+                    minFlatPhasePtsNumCnt: 200,
+                    maxPhaseStd: 0.34);
             }
 
             CbPhaseType.SelectionChanged += (sender, args) => {
@@ -164,16 +174,21 @@ namespace SpectroscopyVisualizer {
             //            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\configuration.bin"));
             // bind configs to controls
             SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
-            GeneralConfigurations.Get().Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase, CbSaveType, TbQueueSize, CkCaptureSample, CkCaptureSpec, CkCaptureAcc, CbOperationMode, TbTargetCnt);
-            SliceConfigurations.Get().Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength, CkRef);
-            CorrectorConfigurations.Get().Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart, TbRangeEnd, CkAutoFlip, CkSpecReal);
+            GeneralConfigurations.Get()
+                .Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase, CbSaveType, TbQueueSize,
+                    CkCaptureSample, CkCaptureSpec, CkCaptureAcc, CbOperationMode, TbTargetCnt);
+            SliceConfigurations.Get()
+                .Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength, CkRef);
+            CorrectorConfigurations.Get()
+                .Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart,
+                    TbRangeEnd, CkAutoFlip, CkSpecReal);
             // init custom components
 //            _canvasView = new CanvasView(ScopeCanvas);
 //            HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
 //            VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
 
 
-            SwitchButton = new ToggleButtonV2(ToggleButton, false, "STOP", "START");
+            SwitchButton = new ToggleButtonV2(ToggleButton, false, "Stop", "Start");
             SwitchButton.TurnOn += TurnOn;
             SwitchButton.TurnOff += ClearFromRunningState;
             SizeChanged += (sender, args) => { Adapter?.OnWindowZoomed(); };
@@ -181,16 +196,14 @@ namespace SpectroscopyVisualizer {
 
             CkCaptureSpec.Checked += (sender, args) => { CkCaptureAcc.IsChecked = true; };
 
-            Closing += (sender, args) => {
-                _statsWindow?.Close();
-            };
+            Closing += (sender, args) => { _statsWindow?.Close(); };
         }
 
 
         private ToggleButtonV2 SwitchButton { get; }
 
         [CanBeNull]
-        public DisplayAdapter Adapter { get; set; }
+        public DisplayAdapterV2 Adapter { get; set; }
 
         [NotNull]
         public IScheduler Scheduler { get; private set; } = new EmptyScheduler();
@@ -239,13 +252,14 @@ namespace SpectroscopyVisualizer {
             SwitchButton.State = !SwitchButton.State;
         }
 
-        private  StatsWindow _statsWindow = new StatsWindow();
         private void TurnOn() {
             GC.Collect();
-           
+
             if (_ultraFastMode) {
                 var textBlock = new TextBlock {
-                    Text = "Happy 2016!", Foreground = new SolidColorBrush(Colors.Wheat), FontSize = 30
+                    Text = "Happy 2016!",
+                    Foreground = new SolidColorBrush(Colors.Wheat),
+                    FontSize = 30
                 };
                 var canvasView = new CanvasView(ScopeCanvas);
                 Canvas.SetTop(textBlock, canvasView.ScopeHeight/2);
@@ -262,10 +276,11 @@ namespace SpectroscopyVisualizer {
                 MessageBox.Show("Sampler can't be initialized. Maybe another instance is running.");
                 return;
             }
-            producer.ProductionFailed += (exception) => {
+            producer.ProductionFailed += exception => {
                 Dispatcher.InvokeAsync(() => {
                     SwitchButton.State = false;
-                    MessageBox.Show("Unable to sample data. Exceptions occured, please read carefully:\n\n"+exception.Message);
+                    MessageBox.Show("Unable to sample data. Exceptions occured, please read carefully:\n\n" +
+                                    exception.Message);
                 });
             };
             Adapter = NewAdapter();
@@ -301,9 +316,7 @@ namespace SpectroscopyVisualizer {
                     consumer.TargetAmountReached += () => {
                         OnConsumerStopped();
 
-                        Dispatcher.Invoke(() => {
-                            SwitchButton.State = true;
-                        });
+                        Dispatcher.Invoke(() => { SwitchButton.State = true; });
                     };
                     break;
                 default:
@@ -317,16 +330,14 @@ namespace SpectroscopyVisualizer {
         }
 
         private void PrepareStatsWinndow() {
-            if (_statsWindow==null) {
+            if (_statsWindow == null) {
                 _statsWindow = new StatsWindow();
             }
             if (!_statsWindow.IsVisible) {
-                _statsWindow.Left = this.Left + this.Width -15;
-                _statsWindow.Top = this.Top;
+                _statsWindow.Left = Left + Width - 15;
+                _statsWindow.Top = Top;
                 _statsWindow.Show();
-                _statsWindow.Closed += (sender, args) => {
-                    _statsWindow = null;
-                };
+                _statsWindow.Closed += (sender, args) => { _statsWindow = null; };
             }
             _statsWindow.Reset();
 
@@ -347,19 +358,22 @@ namespace SpectroscopyVisualizer {
         }
 
         [NotNull]
-        private DisplayAdapter NewAdapter() {
-            return FactoryHolder.Get().NewAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas), new VerticalAxisView(VerAxisCanvas), TbXCoordinate, TbDistance);
+        private DisplayAdapterV2 NewAdapter() {
+            if (GeneralConfigurations.Get().ViewPhase) {
+                return FactoryHolder.Get()
+                    .NewPhaseAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas),
+                        new VerticalAxisView(VerAxisCanvas), TbXCoordinate, TbDistance);
+            }
+            return FactoryHolder.Get()
+                .NewSpectrumAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas),
+                    new VerticalAxisView(VerAxisCanvas), TbXCoordinate, TbDistance);
         }
 
-        private Thickness _originalThickness;
-        private Brush _originalBrush;
-
-        private Label[] _possibleWrongLabels;
         private void ConsumerOnSourceInvalid() {
             Dispatcher.Invoke(() => {
                 SwitchButton.State = false;
                 var dispatcherTimer = new DispatcherTimer();
-                int cnt=0;
+                var cnt = 0;
                 dispatcherTimer.Tick += (sender, args) => {
                     if (cnt%2 == 0) {
                         foreach (var label in _possibleWrongLabels) {
@@ -373,7 +387,7 @@ namespace SpectroscopyVisualizer {
                         }
                     }
                     cnt++;
-                    if (cnt==15) {
+                    if (cnt == 15) {
                         dispatcherTimer.Stop();
                     }
                 };
@@ -381,7 +395,8 @@ namespace SpectroscopyVisualizer {
                 dispatcherTimer.Start();
             });
 
-            MessageBox.Show("Data analysis failed. Please check\n\n   the INPUT signal,\n   PEAK MIN AMP,\n   REP FREQ DIFF\n   or PHASE RANGE.\n\nDetailed information is listed on the stats board.");
+            MessageBox.Show(
+                "Data analysis failed. Please check\n\n   the INPUT signal,\n   PEAK MIN AMP,\n   REP FREQ DIFF\n   or PHASE RANGE.\n\nDetailed information is listed on the stats board.");
         }
 
         private void OnConsumerStopped() {
@@ -396,7 +411,6 @@ namespace SpectroscopyVisualizer {
             }
             PbLoading.Value = 0;
             PbLoading.Maximum = ProgressIndeterminable;
-
         }
 
 
@@ -431,7 +445,9 @@ namespace SpectroscopyVisualizer {
         private static string[] SelectFiles() {
             // Create OpenFileDialog 
             var dlg = new OpenFileDialog {
-                DefaultExt = ".txt", Filter = "Text documents (.txt)|*.txt", Multiselect = true
+                DefaultExt = ".txt",
+                Filter = "Text documents (.txt)|*.txt",
+                Multiselect = true
             };
 
             // Set filter for file extension and default file extension 
@@ -448,7 +464,9 @@ namespace SpectroscopyVisualizer {
         private static string SelectFile() {
             // Create OpenFileDialog 
             var dlg = new OpenFileDialog {
-                DefaultExt = ".txt", Filter = "Text documents (.txt)|*.txt", Multiselect = false
+                DefaultExt = ".txt",
+                Filter = "Text documents (.txt)|*.txt",
+                Multiselect = false
             };
 
             // Set filter for file extension and default file extension 
@@ -522,7 +540,7 @@ namespace SpectroscopyVisualizer {
                 MessageBox.Show("Sampler can't be initialized");
                 return;
             }
-            producer.ProductionFailed += (exception) => {
+            producer.ProductionFailed += exception => {
                 Dispatcher.InvokeAsync(() => {
                     SwitchButton.State = false;
                     MessageBox.Show("Unable to sample data. Exception occured:\n\n" + exception.Message);
@@ -572,7 +590,8 @@ namespace SpectroscopyVisualizer {
 
             var checkers = new List<PulseChecker>();
             for (var i = 0; i < 4; i++) {
-                checkers.Add(new PulseChecker(factory.NewCrestFinder(), factory.NewSlicer(), factory.NewPulsePreprocessor(), factory.NewCorrector()));
+                checkers.Add(new PulseChecker(factory.NewCrestFinder(), factory.NewSlicer(),
+                    factory.NewPulsePreprocessor(), factory.NewCorrector()));
             }
             var consumer = new PulseByPulseChecker(producer.BlockingQueue, checkers, fileNames.Length);
             consumer.Update += ConsumerOnUpdate;
@@ -597,7 +616,8 @@ namespace SpectroscopyVisualizer {
         }
 
         private void Donate_OnClick(object sender, RoutedEventArgs e) {
-            MessageBox.Show("If you think this app is valuable, plz pay $10 USD to the author. \n\nYour support is very important! Thanks!");
+            MessageBox.Show(
+                "If you think this app is valuable, plz pay $10 USD to the author. \n\nYour support is very important! Thanks!");
         }
 
         private void ReportBug_OnClick(object sender, RoutedEventArgs e) {
@@ -606,7 +626,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ContactAuthor_OnClick(object sender, RoutedEventArgs e) {
-      
+       
         }
 
         private void UltraFast_OnChecked(object sender, RoutedEventArgs e) {
@@ -620,7 +640,8 @@ namespace SpectroscopyVisualizer {
         private void GenerateWavelengthAxis_OnClick(object sender, RoutedEventArgs e) {
             var file = SelectFile();
             if (file != null) {
-                Process.Start(@"C:\Anaconda3\python.exe", @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Mapper.py " + file);
+                Process.Start(@"C:\Anaconda3\python.exe",
+                    @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Mapper.py " + file);
             }
         }
 
@@ -630,11 +651,14 @@ namespace SpectroscopyVisualizer {
                 return;
             }
             if (File.Exists(file.Replace(".txt", "[WavelengthAxis].txt"))) {
-                Process.Start(@"C:\Anaconda3\python.exe", @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Flatter.py " + file);
+                Process.Start(@"C:\Anaconda3\python.exe",
+                    @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Flatter.py " + file);
             } else {
-                Process.Start(@"C:\Anaconda3\python.exe", @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Mapper.py " + file);
+                Process.Start(@"C:\Anaconda3\python.exe",
+                    @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Mapper.py " + file);
                 MessageBox.Show("Generating wavelength axis, please click 'OK' AFTER completion.");
-                Process.Start(@"C:\Anaconda3\python.exe", @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Flatter.py " + file);
+                Process.Start(@"C:\Anaconda3\python.exe",
+                    @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Flatter.py " + file);
             }
         }
 
@@ -661,17 +685,28 @@ namespace SpectroscopyVisualizer {
                         try {
                             Directory.CreateDirectory(@"C:\SpectroscopyVisualizer\temporal");
                         } catch (Exception) {
-                            MessageBox.Show("Unable to create directory! Try run this program with administrator permission");
+                            MessageBox.Show(
+                                "Unable to create directory! Try run this program with administrator permission");
                             return;
                         }
                     }
                     Toolbox.WriteData(@"C:\SpectroscopyVisualizer\temporal\temporal.txt", data);
                     Toolbox.WriteData(@"C:\SpectroscopyVisualizer\temporal\crests.txt", crestIndices.ToArray());
-                    Process.Start(@"C:\Anaconda3\python.exe", @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\TemporalViewer.py");
+                    Process.Start(@"C:\Anaconda3\python.exe",
+                        @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\TemporalViewer.py");
                 } else {
                     MessageBox.Show("Sampler can't be initialized. Maybe another instance is running.");
                 }
             });
+        }
+
+        private void BnRestart_OnClick(object sender, RoutedEventArgs e) {
+            SwitchButton.State = false;
+            SwitchButton.State = true;
+        }
+
+        private void AdditionalOptions_OnClick(object sender, RoutedEventArgs e) {
+            new OptionsWindow().Show();
         }
     }
 }

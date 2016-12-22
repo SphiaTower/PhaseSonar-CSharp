@@ -7,6 +7,17 @@ namespace SpectroscopyVisualizer {
     public interface IScheduler {
         StopWatch Watch { get; }
 
+
+        /// <summary>
+        ///     The producerss
+        /// </summary>
+        IProducerV2<SampleRecord> Producer { get; }
+
+        /// <summary>
+        ///     The consumer
+        /// </summary>
+        IConsumerV2 Consumer { get; }
+
         /// <summary>
         ///     Start the system.
         /// </summary>
@@ -16,17 +27,6 @@ namespace SpectroscopyVisualizer {
         ///     Stop the system.
         /// </summary>
         void Stop();
-
-
-        /// <summary>
-        ///     The producerss
-        /// </summary>
-         IProducerV2<SampleRecord> Producer { get; }
-
-        /// <summary>
-        ///     The consumer
-        /// </summary>
-         IConsumerV2 Consumer { get; }
     }
 
     public sealed class EmptyScheduler : IScheduler {

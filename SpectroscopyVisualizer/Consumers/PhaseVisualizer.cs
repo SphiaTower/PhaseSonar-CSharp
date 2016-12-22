@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using PhaseSonar.Analyzers;
 using SpectroscopyVisualizer.Presenters;
@@ -11,20 +9,21 @@ using SpectroscopyVisualizer.Writers;
 namespace SpectroscopyVisualizer.Consumers {
     public class PhaseVisualizer : IConsumerV2 {
         private readonly SerialConsumerV2<SampleRecord> _consumer;
-        private readonly IPulseSequenceProcessor _worker;
+        private readonly IPhaseReader _worker;
 
         public PhaseVisualizer(BlockingCollection<SampleRecord> queue,
-            IPulseSequenceProcessor worker, DisplayAdapter adapter, [CanBeNull] IWriterV2<TracedSpectrum> writer,
+            IPhaseReader worker, PhaseDisplayAdapter adapter, [CanBeNull] IWriterV2<TracedSpectrum> writer,
+            int waitEmptyProducerMsTimeout,
             int? targetCnt) {
             _worker = worker;
-            _consumer = new SerialConsumerV2<SampleRecord>(ProcessElement, queue, targetCnt, 5000);
+            _consumer = new SerialConsumerV2<SampleRecord>(ProcessElement, queue, targetCnt, waitEmptyProducerMsTimeout);
             Adapter = adapter;
             Writer = writer;
         }
 
         public IWriterV2<TracedSpectrum> Writer { get; set; }
 
-        public DisplayAdapter Adapter { get; set; }
+        public PhaseDisplayAdapter Adapter { get; set; }
 
         /// <summary>
         ///     The number of elements have been consumed.
@@ -68,39 +67,31 @@ namespace SpectroscopyVisualizer.Consumers {
             remove { _consumer.TargetAmountReached -= value; }
         }
 
+        [NotNull]
         public IResult ProcessElement([NotNull] SampleRecord record) {
-            var result = _worker.Process(record.PulseSequence);
+            var result = _worker.GetPhase(record.PulseSequence);
             if (result.HasSpectrum) {
-                Adapter.UpdateData(result.Spectrum);
-                Writer?.Write(new TracedSpectrum(result.Spectrum, record.Id.ToString()));
+                Adapter.UpdatePhase(result.Data);
+//                Writer?.Write(new TracedSpectrum(result.Data, record.Id.ToString()));
             }
-            return new PhaseResult(result);
+            return new PhaseResultAdapter(result);
         }
-        private class PhaseResult:IResult {
-            private AccumulationResult _resultImplementation;
 
-            public PhaseResult(AccumulationResult resultImplementation) {
+        private class PhaseResultAdapter : IResult {
+            private readonly PhaseResult _resultImplementation;
+
+            public PhaseResultAdapter(PhaseResult resultImplementation) {
                 _resultImplementation = resultImplementation;
             }
 
-            public bool IsSuccessful {
-                get { return _resultImplementation.HasSpectrum; }
-            }
+            public bool IsSuccessful => _resultImplementation.HasSpectrum;
 
-            public bool HasException {
-                get { return _resultImplementation.HasException; }
-            }
+            public bool HasException => _resultImplementation.HasException;
 
-            public ProcessException? Exception {
-                get { return _resultImplementation.Exception; }
-            }
+            public ProcessException? Exception => _resultImplementation.Exception;
 
-            public int ExceptionCnt {
-                get { return _resultImplementation.Cnt; }
-            }
-            public int ValidPeriodCnt => _resultImplementation.HasSpectrum ? _resultImplementation.Spectrum.PulseCount : 0;
-
+            public int ExceptionCnt => _resultImplementation.ExceptionCnt;
+            public int ValidPeriodCnt => _resultImplementation.HasSpectrum ? 1 : 0;
         }
     }
-
 }

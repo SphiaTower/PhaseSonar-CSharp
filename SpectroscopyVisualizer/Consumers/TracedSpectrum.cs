@@ -28,12 +28,6 @@ namespace SpectroscopyVisualizer.Consumers {
             set { _spectrum.PulseCount = value; }
         }
 
-        /// <summary>
-        ///     Clear the container.
-        /// </summary>
-        public void Clear() {
-            _spectrum.Clear();
-        }
 
         /// <summary>
         ///     Copy the data inside into a new one.
@@ -84,15 +78,6 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <returns></returns>
         public bool HasImag() {
             return _spectrum.HasImag();
-        }
-
-        /// <summary>
-        ///     Get the average intensity of the data at a specified index.
-        /// </summary>
-        /// <param name="index">The index of the data</param>
-        /// <returns>The intensity at the input index</returns>
-        public double AverageIntensity(int index) {
-            return _spectrum.AverageIntensity(index);
         }
 
         /// <summary>

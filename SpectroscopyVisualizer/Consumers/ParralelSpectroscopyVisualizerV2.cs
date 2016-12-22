@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using PhaseSonar.Analyzers;
 using PhaseSonar.Correctors;
-using PhaseSonar.Utils;
 using SpectroscopyVisualizer.Presenters;
 using SpectroscopyVisualizer.Producers;
 using SpectroscopyVisualizer.Writers;
@@ -23,13 +22,13 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <param name="writer"></param>
         /// <param name="targetCnt"></param>
         public ParralelSpectroscopyVisualizerV2(BlockingCollection<SampleRecord> queue,
-            IEnumerable<IPulseSequenceProcessor> workers, DisplayAdapter adapter,
-            [CanBeNull] IWriterV2<TracedSpectrum> writer,
+            IEnumerable<IPulseSequenceProcessor> workers, SpectrumDisplayAdapter adapter,
+            [CanBeNull] IWriterV2<TracedSpectrum> writer, int waitEmptyProducerMsTimeOut,
             int? targetCnt, bool saveSpec, bool saveAcc) {
             _saveSpec = saveSpec;
             _saveAcc = saveAcc;
             _consumer = new ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, TaggedProcessResult>(
-                queue, workers, ProcessElement, HandleResultSync, 5000, targetCnt);
+                queue, workers, ProcessElement, HandleResultSync, waitEmptyProducerMsTimeOut, targetCnt);
             Adapter = adapter;
             Writer = writer;
             TargetAmountReached += OnTargetAmountReached;
@@ -48,9 +47,9 @@ namespace SpectroscopyVisualizer.Consumers {
         public IWriterV2<TracedSpectrum> Writer { get; }
 
         /// <summary>
-        ///     <see cref="DisplayAdapter" />
+        ///     <see cref="SpectrumDisplayAdapter" />
         /// </summary>
-        public DisplayAdapter Adapter { get; set; }
+        public SpectrumDisplayAdapter Adapter { get; set; }
 
         /// <summary>
         ///     The number of elements have been consumed.
@@ -117,7 +116,8 @@ namespace SpectroscopyVisualizer.Consumers {
         }
 
         [NotNull]
-        private TaggedProcessResult ProcessElement([NotNull] SampleRecord record, [NotNull] IPulseSequenceProcessor processor) {
+        private TaggedProcessResult ProcessElement([NotNull] SampleRecord record,
+            [NotNull] IPulseSequenceProcessor processor) {
             var processResult = processor.Process(record.PulseSequence);
             return new TaggedProcessResult(processResult, record.Id);
         }
@@ -131,13 +131,13 @@ namespace SpectroscopyVisualizer.Consumers {
                 Tag = tag;
             }
 
-            public ISpectrum Spectrum => _accumulationResult.Spectrum;
+            public ISpectrum Spectrum => _accumulationResult.Data;
             public string Tag { get; }
             public bool IsSuccessful => _accumulationResult.HasSpectrum;
             public bool HasException => _accumulationResult.HasException;
             public ProcessException? Exception => _accumulationResult.Exception;
-            public int ExceptionCnt => _accumulationResult.Cnt;
-            public int ValidPeriodCnt => _accumulationResult.HasSpectrum?_accumulationResult.Spectrum.PulseCount:0;
+            public int ExceptionCnt => _accumulationResult.ExceptionCnt;
+            public int ValidPeriodCnt => _accumulationResult.HasSpectrum ? _accumulationResult.Data.PulseCount : 0;
         }
     }
 }

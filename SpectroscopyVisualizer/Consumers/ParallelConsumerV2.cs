@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using PhaseSonar.Analyzers;
 
 namespace SpectroscopyVisualizer.Consumers {
-
     public class ParallelConsumerV2<TProduct, TWorker, TResult> : IConsumerV2 where TResult : IResult {
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly Func<TProduct, TWorker, TResult> _processFunc;
@@ -77,7 +75,7 @@ namespace SpectroscopyVisualizer.Consumers {
                                         return;
                                     }
                                 }
-                                
+
                                 if (ConsumedCnt >= TargetCnt.GetValueOrDefault(int.MaxValue)) {
                                     TargetAmountReached?.Invoke();
                                     return;

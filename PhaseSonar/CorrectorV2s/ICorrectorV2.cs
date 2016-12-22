@@ -3,6 +3,7 @@ using System.Numerics;
 using JetBrains.Annotations;
 using MathNet.Numerics.IntegralTransforms;
 using PhaseSonar.Maths;
+using PhaseSonar.PhaseExtractors;
 using PhaseSonar.Utils;
 
 namespace PhaseSonar.CorrectorV2s {
@@ -110,7 +111,7 @@ namespace PhaseSonar.CorrectorV2s {
 
             _synthesizer.Synthesize(_spectrumArray, phaseArray, _outputArray);
 
-          // Toolbox.WriteData(@"D:\zbf\temp2\6_output.txt", _outputArray);
+            // Toolbox.WriteData(@"D:\zbf\temp2\6_output.txt", _outputArray);
 
             return _outputArray;
         }

@@ -1,0 +1,32 @@
+﻿<Window x:Class="SpectroscopyVisualizer.OptionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SpectroscopyVisualizer"
+        mc:Ignorable="d"
+        Title="Options" Height="500" Width="500">
+    <Grid Background="#FFE5E5E5">
+        <Button x:Name="BnPositive" Click="BnPositive_OnClick" Content="OK" HorizontalAlignment="Left"
+                Margin="308,433,0,0" VerticalAlignment="Top" Width="75" />
+        <Button x:Name="BnNegative" Click="BnNegative_OnClick" Content="Cancel" HorizontalAlignment="Left"
+                Margin="401,433,0,0" VerticalAlignment="Top" Width="75" />
+        <Label x:Name="LbPeakPosition" Content="Peak Position" HorizontalAlignment="Left" Margin="43,67,0,0"
+               VerticalAlignment="Top" />
+        <ComboBox x:Name="CbPeakPosition" HorizontalAlignment="Left" Margin="263,71,0,0" VerticalAlignment="Top"
+                  Width="120" SelectedIndex="0" />
+        <Label x:Name="LbPeakPosition_Copy" Content="Empty Queue Timeout/ms" HorizontalAlignment="Left"
+               Margin="43,116,0,0" VerticalAlignment="Top" />
+        <Label x:Name="LbPeakPosition_Copy1" Content="Min Linear Phase Length/pts" HorizontalAlignment="Left"
+               Margin="43,161,0,0" VerticalAlignment="Top" />
+        <Label x:Name="LbPeakPosition_Copy2" Content="Max Linear Phase Std" HorizontalAlignment="Left"
+               Margin="43,207,0,0" VerticalAlignment="Top" />
+        <TextBox x:Name="TbProducerTimeout" HorizontalAlignment="Left" Height="23" Margin="263,116,0,0"
+                 TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120" />
+        <TextBox x:Name="TbMinPhaseLength" HorizontalAlignment="Left" Height="23" Margin="263,165,0,0"
+                 TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120" />
+        <TextBox x:Name="TbMaxPhaseStd" HorizontalAlignment="Left" Height="23" Margin="263,211,0,0" TextWrapping="Wrap"
+                 Text="TextBox" VerticalAlignment="Top" Width="120" />
+
+    </Grid>
+</Window>

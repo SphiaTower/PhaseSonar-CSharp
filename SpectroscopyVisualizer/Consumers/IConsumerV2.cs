@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using PhaseSonar.Analyzers;
 
 namespace SpectroscopyVisualizer.Consumers {
     public interface IConsumerV2 {
@@ -31,5 +29,4 @@ namespace SpectroscopyVisualizer.Consumers {
     }
 
     public delegate void UpdateEventHandler(IResult result);
-
 }

@@ -23,28 +23,57 @@ namespace PhaseSonar.Analyzers {
         SplitResult Process([NotNull] double[] pulseSequence);
     }
 
+    public interface IPhaseReader {
+        PhaseResult GetPhase([NotNull] double[] pulseSequence);
+    }
+
     public enum ProcessException {
         NoPeakFound,
         NoSliceValid,
         NoFlatPhaseIntervalFound
     }
 
-    public class AccumulationResult {
-        public readonly int Cnt;
+    public abstract class ProcessResult<T> {
+        public readonly T Data;
         public readonly ProcessException? Exception;
-        public readonly ISpectrum Spectrum;
+        public readonly int ExceptionCnt;
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
-        public AccumulationResult(ISpectrum spectrum, ProcessException? exception, int cnt) {
-            Spectrum = spectrum;
-            if (cnt!=0) {
+        protected ProcessResult(T data, ProcessException? exception, int exceptionCnt) {
+            ExceptionCnt = exceptionCnt;
+            if (exceptionCnt != 0) {
                 Exception = exception;
             }
-            Cnt = cnt;
+            Data = data;
         }
 
-        public bool HasSpectrum => Spectrum != null;
+        public bool HasSpectrum => Data != null;
         public bool HasException => Exception != null;
+    }
+
+    public class PhaseResult : ProcessResult<double[]> {
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
+        public PhaseResult(double[] data, ProcessException? exception, int exceptionCnt)
+            : base(data, exception, exceptionCnt) {
+        }
+
+        [NotNull]
+        public static PhaseResult FromException(ProcessException exception, int cnt = 1) {
+            return new PhaseResult(null, exception, cnt);
+        }
+
+        [NotNull]
+        public static PhaseResult WithoutException(double[] phase) {
+            return new PhaseResult(phase, null, 0);
+        }
+    }
+
+    public class AccumulationResult : ProcessResult<ISpectrum> {
+        /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
+        public AccumulationResult(ISpectrum data, ProcessException? exception, int exceptionCnt)
+            : base(data, exception, exceptionCnt) {
+        }
+
 
         [NotNull]
         public static AccumulationResult FromException(ProcessException exception, int cnt = 1) {
@@ -57,23 +86,12 @@ namespace PhaseSonar.Analyzers {
         }
     }
 
-    public class SplitResult {
-        public readonly ProcessException? Exception;
-
-        public readonly int ExceptionCnt;
-        public readonly GasRefTuple Spectrum;
-
+    public class SplitResult : ProcessResult<GasRefTuple> {
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
-        public SplitResult(GasRefTuple spectrum, ProcessException? exception, int exceptionCnt) {
-            Spectrum = spectrum;
-            if (exceptionCnt != 0) {
-                Exception = exception;
-            }
-            ExceptionCnt = exceptionCnt;
+        public SplitResult(GasRefTuple data, ProcessException? exception, int exceptionCnt)
+            : base(data, exception, exceptionCnt) {
         }
 
-        public bool HasSpectrum => Spectrum != null;
-        public bool HasException => Exception != null;
 
         [NotNull]
         public static SplitResult FromException(ProcessException exception, int cnt = 1) {

@@ -26,8 +26,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>28</ApplicationRevision>
-    <ApplicationVersion>2.5.5.%2a</ApplicationVersion>
+    <ApplicationRevision>30</ApplicationRevision>
+    <ApplicationVersion>2.5.6.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -140,6 +140,7 @@
     </ApplicationDefinition>
     <Compile Include="Configs\ConfigsHolder.cs" />
     <Compile Include="Configs\CorrectorConfigurations.cs" />
+    <Compile Include="Configs\MiscellaneousConfigurations.cs" />
     <Compile Include="Configs\SliceConfigurations.cs" />
     <Compile Include="Consumers\PhaseVisualizer.cs" />
     <Compile Include="Consumers\PulseByPulseChecker.cs" />
@@ -154,6 +155,10 @@
     <Compile Include="NumberDialog.xaml.cs">
       <DependentUpon>NumberDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OptionsWindow.xaml.cs">
+      <DependentUpon>OptionsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presenters\DisplayAdapterV2.cs" />
     <Compile Include="Presenters\EventLayer.cs" />
     <Compile Include="Presenters\ToggleButtonV2.cs" />
     <Compile Include="StatsWindow.xaml.cs">
@@ -197,6 +202,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="NumberDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OptionsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

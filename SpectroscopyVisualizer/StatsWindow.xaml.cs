@@ -1,19 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 using PhaseSonar.Analyzers;
@@ -22,20 +11,44 @@ using SpectroscopyVisualizer.Consumers;
 
 namespace SpectroscopyVisualizer {
     /// <summary>
-    /// Interaction logic for ProcessStatistics.xaml
+    ///     Interaction logic for ProcessStatistics.xaml
     /// </summary>
-    public partial class StatsWindow : Window,INotifyPropertyChanged {
+    public partial class StatsWindow : Window, INotifyPropertyChanged {
+        private const int WM_SYSCOMMAND = 0x0112;
+        private const int SC_MOVE = 0xF010;
+
+        private readonly string[] _tips = {
+            "When no peaks are found, try check AUTO-ADJUST PEAK AMP.",
+            "Reducing the number of the POINTS DISPLAYED would smooth the graph update.",
+            "Set QUEUE CAPACITY with a small number to view instant spectra.",
+            "Setting QUEUE CAPACITY with a large number would reduce the waiting interval when the queue is full.",
+            "Setting QUEUE CAPACITY with an over-large number would probably result in running out of memory.",
+            "Increasing the THREADS would increase the number of process workers, thus accelerating the program.",
+            "Increasing the THREADS over the max number of threads of the CPU would not accelerate the program.",
+            "Click VIEW PULSES to check the temporal sequence from a single sampling record.",
+            "Click HELP for more information about the program.",
+            "Click the RIGHT BUTTON on the graph could undo a recent operation.",
+            "Click the MIDDLE BUTTON on the graph could adjust the vertical scaling.",
+            "To store the current parameter configurations, go CONFIGS->SAVE CONFIG.",
+            "If most parts of the data are out of the current graphic scope, click MIDDLE BUTTON on the graph.",
+            "Try shorten the linear PHASE RANGE when the count of EXCESSIVE PHASE LEAPS is high.",
+            "Sampling would be unavailable if another program, or another instance of this program, is using the sampling device.",
+            "Accumulating over too much data could result in the overflow of primitive types like DOUBLE and INT, and then the disappearence of the WHITE LINE.",
+            "ADC might FAIL to sample data because of excessive temperature, or other internal exceptions",
+            "Go TOOLS->MISCELLANEOUS OPTIONS to adjust parameters not shown on the panel."
+        };
+
         private int _failuresCnt;
-        private int _totalCnt;
-        private int _totalDataAmount;
+        private int _noFlatPhaseCnt;
         private int _noPeaksFoundCnt;
         private int _noSliceValidCnt;
-        private int _noFlatPhaseCnt;
-        private double _time;
+        private int _periodCnt;
         private double _speed;
         private int _successCnt;
         private double _sucessRate;
-        private int _periodCnt;
+        private double _time;
+        private int _totalCnt;
+        private int _totalDataAmount;
 
         public StatsWindow() {
             InitializeComponent();
@@ -50,79 +63,23 @@ namespace SpectroscopyVisualizer {
             TbSuccess.DataContext = this;
             TbSuccessRate.DataContext = this;
             TbValidPeriods.DataContext = this;
-            this.SourceInitialized += Window1_SourceInitialized;
+            SourceInitialized += Window1_SourceInitialized;
 
             var tipsCnt = _tips.Length;
-            Random random = new Random();
+            var random = new Random();
             TbTipsContent.Text = _tips[random.Next(tipsCnt)];
-            int tickCnt = 0;
+            var tickCnt = 0;
 
             var dispatcherTimer = new DispatcherTimer {Interval = TimeSpan.FromSeconds(10)};
             dispatcherTimer.Tick += (sender, args) => {
-                var index = tickCnt % tipsCnt;
-                if (index==0) {
+                var index = tickCnt%tipsCnt;
+                if (index == 0) {
                     Shuffle(_tips);
                 }
                 TbTipsContent.Text = _tips[index];
                 tickCnt++;
             };
             dispatcherTimer.Start();
-        }
-
-        public static void Shuffle<T>(T[] array) {
-            Random random = new Random();
-
-            for (int index = 0; index < array.Length; index++) {
-                var x = array[index];
-                var swapIndex = random.Next(array.Length);
-                var t = array[swapIndex];
-                array[swapIndex] = x;
-                array[index] = t;
-            }
-        }
-
-        private readonly string[] _tips = {
-            "When no peaks are found, try check AUTO-ADJUST PEAK AMP.",
-            "Reducing the number of the POINTS DISPLAYED would smooth the graph update.",
-            "Set QUEUE CAPACITY with a small number to view instant spectra.",
-            "Setting QUEUE CAPACITY with a large number would reduce the waiting interval when the queue is full.",
-            "Setting QUEUE CAPACITY with an over-large number would probably result in running out of memory.",
-            "Increasing the THREADS would increase the number of process workers, thus accelerating the program.",
-            "Increasing the THREADS over the max number of threads of the CPU would not accelerate the program.",
-            "Click VIEW TEMPORAL to check the temporal sequence from a single time sampling.",
-            "Click HELP for more information about the program.",
-            "Click the RIGHT BUTTON on the graph could undo a recent operation.",
-            "Click the MIDDLE BUTTON on the graph could adjust the vertical scaling.",
-            "To store the current parameter configurations, go CONFIGS->SAVE CONFIG.",
-            "If most parts of the data are out of the current graphic scope, click MIDDLE BUTTON on the graph.",
-            "Try shorten the linear PHASE RANGE when the count of EXCESSIVE PHASE LEAPS is high.",
-            "Sampling would be unavailable if another program, or another instance of this program, is using the sampling device.",
-            "Accumulating over too much data could result in the overflow of primitive types like DOUBLE and INT, and then the disappearence of the WHITE LINE.",
-            "ADC might FAIL to sample data because of excessive temperature, or internal exceptions"
-        };
-
-        private void Window1_SourceInitialized(object sender, EventArgs e) {
-            WindowInteropHelper helper = new WindowInteropHelper(this);
-            HwndSource source = HwndSource.FromHwnd(helper.Handle);
-            source.AddHook(WndProc);
-        }
-
-        const int WM_SYSCOMMAND = 0x0112;
-        const int SC_MOVE = 0xF010;
-
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
-
-            switch (msg) {
-                case WM_SYSCOMMAND:
-                    int command = wParam.ToInt32() & 0xfff0;
-                    if (command == SC_MOVE) {
-                        handled = true;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return IntPtr.Zero;
         }
 
         public int TotalCnt {
@@ -226,23 +183,55 @@ namespace SpectroscopyVisualizer {
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public static void Shuffle<T>(T[] array) {
+            var random = new Random();
+
+            for (var index = 0; index < array.Length; index++) {
+                var x = array[index];
+                var swapIndex = random.Next(array.Length);
+                var t = array[swapIndex];
+                array[swapIndex] = x;
+                array[index] = t;
+            }
+        }
+
+        private void Window1_SourceInitialized(object sender, EventArgs e) {
+            var helper = new WindowInteropHelper(this);
+            var source = HwndSource.FromHwnd(helper.Handle);
+            source.AddHook(WndProc);
+        }
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
+            switch (msg) {
+                case WM_SYSCOMMAND:
+                    var command = wParam.ToInt32() & 0xfff0;
+                    if (command == SC_MOVE) {
+                        handled = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return IntPtr.Zero;
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public void Update(IResult result) {
-            int sizeInM = (int)(SamplingConfigurations.Get().RecordLength / 1e6);
+            var sizeInM = (int) (SamplingConfigurations.Get().RecordLength/1e6);
             TotalCnt += 1;
             TotalDataAmount += sizeInM;
-            Speed = TotalDataAmount / Time;
+            Speed = TotalDataAmount/Time;
             if (result.IsSuccessful) {
                 SuccessCnt += 1;
             } else {
                 FailuresCnt += 1;
             }
             PeriodCnt += result.ValidPeriodCnt;
-            SucessRate = SuccessCnt/ (double)TotalCnt;
+            SucessRate = SuccessCnt/(double) TotalCnt;
             if (result.HasException) {
                 switch (result.Exception) {
                     case ProcessException.NoPeakFound:

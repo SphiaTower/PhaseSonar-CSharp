@@ -8,7 +8,9 @@ namespace SpectroscopyVisualizer.Configs {
     public class GeneralConfigurations {
         private static GeneralConfigurations _singleton;
 
-        private GeneralConfigurations(double repetitionRate, int threadNum, int dispPoints, string directory, bool viewPhase, SaveType saveType, int queueSize, bool saveSample, bool saveSpec, bool saveAcc, OperationMode operationMode, int targetCnt) {
+        private GeneralConfigurations(double repetitionRate, int threadNum, int dispPoints, string directory,
+            bool viewPhase, SaveType saveType, int queueSize, bool saveSample, bool saveSpec, bool saveAcc,
+            OperationMode operationMode, int targetCnt) {
             RepetitionRate = repetitionRate;
             ThreadNum = threadNum;
             DispPoints = dispPoints;
@@ -53,7 +55,8 @@ namespace SpectroscopyVisualizer.Configs {
 
         public void Bind([NotNull] Control repetitionRate, [NotNull] Control threadNum, [NotNull] Control dispPoints,
             [NotNull] Control savePath, [NotNull] Control viewPhase, [NotNull] Control saveType,
-            [NotNull] Control queueSize,Control saveSample,Control saveSpec, Control saveAcc,Control operationType,Control targetCnt) {
+            [NotNull] Control queueSize, Control saveSample, Control saveSpec, Control saveAcc, Control operationType,
+            Control targetCnt) {
             repetitionRate.DataContext = this;
             threadNum.DataContext = this;
             dispPoints.DataContext = this;
@@ -69,12 +72,13 @@ namespace SpectroscopyVisualizer.Configs {
         }
 
         public static void Initialize(double repetitionRate, int threadNum, int dispPoints, string directory,
-            bool viewPhase, SaveType saveType, int queueSize, bool saveSample, bool saveSpec, bool saveAcc,OperationMode operationMode,int targetCnt) {
+            bool viewPhase, SaveType saveType, int queueSize, bool saveSample, bool saveSpec, bool saveAcc,
+            OperationMode operationMode, int targetCnt) {
             if (_singleton != null) {
                 throw new Exception("environment already init");
             }
             _singleton = new GeneralConfigurations(repetitionRate, threadNum, dispPoints, directory, viewPhase, saveType,
-                queueSize,  saveSample,  saveSpec,  saveAcc,operationMode,targetCnt);
+                queueSize, saveSample, saveSpec, saveAcc, operationMode, targetCnt);
         }
 
         public static GeneralConfigurations Get() {

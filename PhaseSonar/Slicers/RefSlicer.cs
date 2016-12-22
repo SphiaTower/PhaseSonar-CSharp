@@ -32,9 +32,9 @@ namespace PhaseSonar.Slicers {
         /// <returns>Start indices of pulses of different components, for example, gas and reference</returns>
         [NotNull]
         public Duo<List<SliceInfo>> Slice(double[] pulseSequence, IList<int> crestIndices) {
-            if (crestIndices.Count<=1) throw new SliceException();
+            if (crestIndices.Count <= 1) throw new SliceException();
             var tuple = Group(crestIndices);
-            var sliceLength = Ruler.MeasureSliceLength(crestIndices,pulseSequence.Length);
+            var sliceLength = Ruler.MeasureSliceLength(crestIndices, pulseSequence.Length);
             IList<int> startIndices1, startIndices2;
 
             var crestOffset = Aligner.CrestIndex(_minPtsCntBeforeCrest, sliceLength);

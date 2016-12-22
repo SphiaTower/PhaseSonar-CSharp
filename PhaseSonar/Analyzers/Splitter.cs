@@ -6,6 +6,7 @@ using PhaseSonar.Correctors;
 using PhaseSonar.CorrectorV2s;
 using PhaseSonar.CrestFinders;
 using PhaseSonar.Maths;
+using PhaseSonar.PhaseExtractors;
 using PhaseSonar.Slicers;
 using PhaseSonar.Utils;
 
@@ -44,7 +45,7 @@ namespace PhaseSonar.Analyzers {
         /// <returns>The accumulated spectrum</returns>
         public SplitResult Process([NotNull] double[] pulseSequence) {
             var crestIndices = _finder.Find(pulseSequence);
-            if (crestIndices.Count<=1) {
+            if (crestIndices.Count <= 1) {
                 return SplitResult.FromException(ProcessException.NoPeakFound);
             }
             Duo<List<SliceInfo>> sliceInfos;
@@ -94,9 +95,8 @@ namespace PhaseSonar.Analyzers {
             }
             if (errorCnt != 0) {
                 return new SplitResult(tuple, ProcessException.NoFlatPhaseIntervalFound, errorCnt);
-            } else {
-                return SplitResult.WithoutException(tuple);
             }
+            return SplitResult.WithoutException(tuple);
         }
 
         private static double Sum(Complex[] array) {
@@ -106,7 +106,5 @@ namespace PhaseSonar.Analyzers {
             }
             return sum;
         }
-
-      
     }
 }

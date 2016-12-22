@@ -35,6 +35,8 @@ namespace SpectroscopyVisualizer.Consumers {
                 result => { }, 2000, targetCnt);
         }
 
+        public Dictionary<ProcessException, int> Exceptions { get; } = new Dictionary<ProcessException, int>();
+
         /// <summary>
         ///     The number of elements have been consumed.
         /// </summary>
@@ -55,8 +57,6 @@ namespace SpectroscopyVisualizer.Consumers {
         public void Start() {
             _consumer.Start();
         }
-
-        public Dictionary<ProcessException, int> Exceptions { get; } = new Dictionary<ProcessException, int>();
 
         public event Action SourceInvalid {
             add { _consumer.SourceInvalid += value; }

@@ -1,60 +1,23 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using JetBrains.Annotations;
+using NationalInstruments.Restricted;
+using PhaseSonar.Correctors;
+using PhaseSonar.Maths;
 
 namespace SpectroscopyVisualizer.Presenters {
-    internal class ZoomCommand {
-        private readonly DisplayAdapterV2 _adapter;
-        private readonly CanvasView _canvasView;
-        private readonly double _endX;
-        private readonly double _startX;
-        private double _lastEndFreq;
-
-        private double _lastStartFreq;
-
-        public ZoomCommand(double startX, double endX, CanvasView canvasView, DisplayAdapterV2 adapter) {
-            _startX = startX;
-            _endX = endX;
-            _canvasView = canvasView;
-            _adapter = adapter;
-        }
-
-        public void Invoke() {
-            _lastStartFreq = _adapter.StartFreqInMHz;
-            _lastEndFreq = _adapter.EndFreqInMHz;
-            var width = _canvasView.Canvas.ActualWidth;
-            var factor = new Func<double, double>(x => x/width*(_lastEndFreq - _lastStartFreq) + _lastStartFreq);
-            var nextStart = factor.Invoke(_startX);
-            var nextEnd = factor.Invoke(_endX);
-            _adapter.StartFreqInMHz = nextStart;
-            _adapter.EndFreqInMHz = nextEnd;
-            _canvasView.InvokeAsync(_canvasView.ClearLine);
-        }
-
-        public void Undo() {
-            _adapter.StartFreqInMHz = _lastStartFreq;
-            _adapter.EndFreqInMHz = _lastEndFreq;
-        }
-    }
-
-    /* public class DisplayAdapter : INotifyPropertyChanged {
-        private readonly double[] _accDispValues;
-        private readonly PointCollection _accPts;
-
-
+    public class DisplayAdapterV2 : INotifyPropertyChanged {
         private readonly Stack<ZoomCommand> _cmdStack = new Stack<ZoomCommand>();
-        private readonly double[] _dummyAxis;
         private readonly HorizontalAxisView _horizontalAxisView;
-        private readonly double[] _instantDispValues;
 
-        private readonly PointCollection _instantPts;
-        private readonly double _sampleRateInMHz;
         private readonly VerticalAxisView _verticalAxisView;
 
-        [CanBeNull] private ISpectrum _accumulatedSpectrumCache;
-        [CanBeNull]
-        private ISpectrum _instantSpectrumCache;
-
         private double _endFreqInMHz;
-
 
         private double _max;
 
@@ -63,10 +26,9 @@ namespace SpectroscopyVisualizer.Presenters {
         private Func<double, double> _scaleX;
         private Func<double, double> _scaleY;
         private double _startFreqInMHz;
+        //        private UIElement _prevText;
 
-//        private UIElement _prevText;
-
-        public DisplayAdapter([NotNull] CanvasView wavefromView, HorizontalAxisView horizontalAxisView,
+        public DisplayAdapterV2([NotNull] CanvasView wavefromView, HorizontalAxisView horizontalAxisView,
             VerticalAxisView verticalAxisView, TextBox tbXCoordinate, TextBox tbDistance, int dispPointNum,
             double samplingRate, int startFreqInMHz,
             int endFreqInMHz) // todo hard coded 0 and 50
@@ -74,17 +36,12 @@ namespace SpectroscopyVisualizer.Presenters {
             WavefromView = wavefromView;
             WavefromView.Reload(); // todo move out, and use a event
             DispPointsCnt = dispPointNum;
-            _instantDispValues = new double[DispPointsCnt];
-            _accDispValues = new double[DispPointsCnt];
 
-            _instantPts = new PointCollection(DispPointsCnt);
-            _accPts = new PointCollection(DispPointsCnt);
             Axis = new AxisBuilder(WavefromView);
-            _dummyAxis = Axis.DummyAxis(_instantDispValues);
 
             _horizontalAxisView = horizontalAxisView;
             _verticalAxisView = verticalAxisView;
-            _sampleRateInMHz = samplingRate/1e6;
+            SampleRateInMHz = samplingRate/1e6;
             StartFreqInMHz = startFreqInMHz;
             EndFreqInMHz = endFreqInMHz;
 
@@ -139,7 +96,7 @@ namespace SpectroscopyVisualizer.Presenters {
             WavefromView.DrawGrid();
         }
 
-        private AxisBuilder Axis { get; }
+        protected AxisBuilder Axis { get; }
 
         public CanvasView WavefromView { get; }
 
@@ -166,7 +123,17 @@ namespace SpectroscopyVisualizer.Presenters {
             }
         }
 
+        public double SampleRateInMHz { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void SetStartFreq(double freqInMHz) {
+            _startFreqInMHz = freqInMHz;
+        }
+
+        protected void SetEndFreq(double freqInMHz) {
+            _endFreqInMHz = freqInMHz;
+        }
 
         private double GetXValueByPointPosition(double x) {
             return x/WavefromView.ScopeWidth*(EndFreqInMHz - StartFreqInMHz) + StartFreqInMHz;
@@ -191,54 +158,19 @@ namespace SpectroscopyVisualizer.Presenters {
                 }
             else
                 for (var i = 0; i < yAxis.Length; i++) {
-//                    // todo data overflow
-//                    if (yAxis[i].IsSpecialValue()) {
-//                        yAxis[i] = 0;
-//                    }
+                    //                    // todo data overflow
+                    //                    if (yAxis[i].IsSpecialValue()) {
+                    //                        yAxis[i] = 0;
+                    //                    }
                     points[i] = CreateGraphPoint(xAxis[i], yAxis[i]);
                 }
             return points;
         }
 
-        public void UpdateData([NotNull] ISpectrum instant, [NotNull] ISpectrum accumulated) {
-            // called in background
-            SampleAverageAndSquare(instant, _instantDispValues);
-            SampleAverageAndSquare(accumulated, _accDispValues);
-            WavefromView.Canvas.Dispatcher.InvokeAsync(
-                () => {
-                    var instantPts = CreateGraphPoints(_dummyAxis, _instantDispValues, _instantPts);
-                    var accPts = CreateGraphPoints(_dummyAxis, _accDispValues, _accPts);
-//                    WavefromView.ClearWaveform();
-                    WavefromView.DrawWaveform(instantPts, Colors.OrangeRed, 0);
-                    WavefromView.DrawWaveform(accPts, Colors.White, 1);
-                });
-            _instantSpectrumCache = instant;
-            _accumulatedSpectrumCache = accumulated;
-        }
 
-
-        public void UpdatePhase([NotNull] double[] instant) {
-            SampleAverage(instant, _instantDispValues);
-            WavefromView.Canvas.Dispatcher.InvokeAsync(
-                () => {
-                    var instantPts = CreateGraphPoints(_dummyAxis, _instantDispValues, _instantPts);
-                    WavefromView.DrawWaveform(instantPts, Colors.OrangeRed, 0);
-                });
-            _instantSpectrumCache = instant;
-        }
-
-
-        public void ResetYScale() {
+        public virtual void ResetYScale() {
             _scaleX = null;
             _scaleY = null;
-            if (_instantSpectrumCache == null) {
-                return;
-            }
-            if (_accumulatedSpectrumCache == null) {
-                UpdateData(_instantSpectrumCache);
-            } else {
-                UpdateData(_instantSpectrumCache, _accumulatedSpectrumCache);
-            }
         }
 
         [NotNull]
@@ -268,56 +200,6 @@ namespace SpectroscopyVisualizer.Presenters {
         }
 
 
-        public void SampleAverageAndSquare([NotNull] ISpectrum spec, double[] resultContainer) {
-            var indexOverFreq = (spec.Length() - 1)/(_sampleRateInMHz/2);
-            var lo = (int) (indexOverFreq*StartFreqInMHz);
-            var hi = (int) (indexOverFreq*EndFreqInMHz);
-
-            var interval = (hi - lo)/(DispPointsCnt - 1);
-            if (interval < 1) {
-                while (interval < 1) {
-                    var broader = (EndFreqInMHz - StartFreqInMHz)*0.05;
-                    _startFreqInMHz -= broader;
-                    _endFreqInMHz += broader;
-                    lo = (int) (indexOverFreq*StartFreqInMHz);
-                    hi = (int) (indexOverFreq*EndFreqInMHz);
-                    interval = (hi - lo)/(DispPointsCnt - 1);
-                }
-                StartFreqInMHz = _startFreqInMHz;
-                EndFreqInMHz = _endFreqInMHz;
-            }
-
-            var divider = spec.PulseCount*spec.PulseCount;
-            for (int i = 0, j = lo; i < DispPointsCnt; i++,j += interval) {
-                resultContainer[i] = spec.Intensity(j)/divider;
-            }
-        }
-
-        public void SampleAverage([NotNull] double[] phase, double[] resultContainer) {
-            var indexOverFreq = (phase.Length - 1)/(_sampleRateInMHz/2);
-            var lo = (int) (indexOverFreq*StartFreqInMHz);
-            var hi = (int) (indexOverFreq*EndFreqInMHz);
-
-            var interval = (hi - lo)/(DispPointsCnt - 1);
-            if (interval < 1) {
-                while (interval < 1) {
-                    var broader = (EndFreqInMHz - StartFreqInMHz)*0.05;
-                    _startFreqInMHz -= broader;
-                    _endFreqInMHz += broader;
-                    lo = (int) (indexOverFreq*StartFreqInMHz);
-                    hi = (int) (indexOverFreq*EndFreqInMHz);
-                    interval = (hi - lo)/(DispPointsCnt - 1);
-                }
-                StartFreqInMHz = _startFreqInMHz;
-                EndFreqInMHz = _endFreqInMHz;
-            }
-
-            for (int i = 0, j = lo; i < DispPointsCnt; i++,j += interval) {
-                resultContainer[i] = phase[j];
-            }
-        }
-
-
         public void RedrawAxis() {
             _horizontalAxisView.Canvas.Dispatcher.InvokeAsync(
                 () => { _horizontalAxisView.DrawRuler(StartFreqInMHz, EndFreqInMHz); });
@@ -330,5 +212,148 @@ namespace SpectroscopyVisualizer.Presenters {
             WavefromView.Reload();
             WavefromView.DrawGrid();
         }
-    }*/
+    }
+
+    public class PhaseDisplayAdapter : DisplayAdapterV2 {
+        private readonly double[] _dummyAxis;
+
+        private readonly double[] _instantDispValues;
+
+        [CanBeNull] private double[] _instantPhaseCache;
+
+        private readonly PointCollection _instantPts;
+
+        public PhaseDisplayAdapter([NotNull] CanvasView wavefromView, HorizontalAxisView horizontalAxisView,
+            VerticalAxisView verticalAxisView, TextBox tbXCoordinate, TextBox tbDistance, int dispPointNum,
+            double samplingRate, int startFreqInMHz, int endFreqInMHz)
+            : base(
+                wavefromView, horizontalAxisView, verticalAxisView, tbXCoordinate, tbDistance, dispPointNum,
+                samplingRate, startFreqInMHz, endFreqInMHz) {
+            _instantDispValues = new double[DispPointsCnt];
+
+            _instantPts = new PointCollection(DispPointsCnt);
+            _dummyAxis = Axis.DummyAxis(_instantDispValues);
+        }
+
+        public void UpdatePhase([NotNull] double[] instant) {
+            SampleAverage(instant, _instantDispValues);
+            WavefromView.Canvas.Dispatcher.InvokeAsync(
+                () => {
+                    var instantPts = CreateGraphPoints(_dummyAxis, _instantDispValues, _instantPts);
+                    WavefromView.DrawWaveform(instantPts, Colors.OrangeRed, 0);
+                });
+            _instantPhaseCache = instant;
+        }
+
+        public override void ResetYScale() {
+            base.ResetYScale();
+            if (_instantPhaseCache == null) {
+                return;
+            }
+            UpdatePhase(_instantPhaseCache);
+        }
+
+
+        public void SampleAverage([NotNull] double[] phase, double[] resultContainer) {
+            var indexOverFreq = (phase.Length - 1)/(SampleRateInMHz/2);
+            var lo = (int) (indexOverFreq*StartFreqInMHz);
+            var hi = (int) (indexOverFreq*EndFreqInMHz);
+
+            var interval = (hi - lo)/(DispPointsCnt - 1);
+            if (interval < 1) {
+                while (interval < 1) {
+                    var broader = (EndFreqInMHz - StartFreqInMHz)*0.05;
+                    SetStartFreq(StartFreqInMHz - broader);
+                    SetEndFreq(EndFreqInMHz + broader);
+                    lo = (int) (indexOverFreq*StartFreqInMHz);
+                    hi = (int) (indexOverFreq*EndFreqInMHz);
+                    interval = (hi - lo)/(DispPointsCnt - 1);
+                }
+                StartFreqInMHz = StartFreqInMHz;
+                EndFreqInMHz = EndFreqInMHz;
+            }
+
+            for (int i = 0, j = lo; i < DispPointsCnt; i++, j += interval) {
+                resultContainer[i] = phase[j];
+            }
+        }
+    }
+
+    public class SpectrumDisplayAdapter : DisplayAdapterV2 {
+        private readonly double[] _accDispValues;
+        private readonly PointCollection _accPts;
+
+        private readonly double[] _dummyAxis;
+
+        private readonly double[] _instantDispValues;
+        private readonly PointCollection _instantPts;
+
+        [CanBeNull] private ISpectrum _accumulatedSpectrumCache;
+
+        [CanBeNull] private ISpectrum _instantSpectrumCache;
+
+        public SpectrumDisplayAdapter([NotNull] CanvasView wavefromView, HorizontalAxisView horizontalAxisView,
+            VerticalAxisView verticalAxisView, TextBox tbXCoordinate, TextBox tbDistance, int dispPointNum,
+            double samplingRate, int startFreqInMHz, int endFreqInMHz)
+            : base(
+                wavefromView, horizontalAxisView, verticalAxisView, tbXCoordinate, tbDistance, dispPointNum,
+                samplingRate, startFreqInMHz, endFreqInMHz) {
+            _instantDispValues = new double[DispPointsCnt];
+            _accDispValues = new double[DispPointsCnt];
+
+            _instantPts = new PointCollection(DispPointsCnt);
+            _accPts = new PointCollection(DispPointsCnt);
+            _dummyAxis = Axis.DummyAxis(_instantDispValues);
+        }
+
+
+        public void UpdateData([NotNull] ISpectrum instant, [NotNull] ISpectrum accumulated) {
+            // called in background
+            SampleAverageAndSquare(instant, _instantDispValues);
+            SampleAverageAndSquare(accumulated, _accDispValues);
+            WavefromView.Canvas.Dispatcher.InvokeAsync(
+                () => {
+                    var instantPts = CreateGraphPoints(_dummyAxis, _instantDispValues, _instantPts);
+                    var accPts = CreateGraphPoints(_dummyAxis, _accDispValues, _accPts);
+                    //                    WavefromView.ClearWaveform();
+                    WavefromView.DrawWaveform(instantPts, Colors.OrangeRed, 0);
+                    WavefromView.DrawWaveform(accPts, Colors.White, 1);
+                });
+            _instantSpectrumCache = instant;
+            _accumulatedSpectrumCache = accumulated;
+        }
+
+        public void SampleAverageAndSquare([NotNull] ISpectrum spec, double[] resultContainer) {
+            var indexOverFreq = (spec.Length() - 1)/(SampleRateInMHz/2);
+            var lo = (int) (indexOverFreq*StartFreqInMHz);
+            var hi = (int) (indexOverFreq*EndFreqInMHz);
+
+            var interval = (hi - lo)/(DispPointsCnt - 1);
+            if (interval < 1) {
+                while (interval < 1) {
+                    var broader = (EndFreqInMHz - StartFreqInMHz)*0.05;
+                    SetStartFreq(StartFreqInMHz - broader);
+                    SetEndFreq(EndFreqInMHz + broader);
+                    lo = (int) (indexOverFreq*StartFreqInMHz);
+                    hi = (int) (indexOverFreq*EndFreqInMHz);
+                    interval = (hi - lo)/(DispPointsCnt - 1);
+                }
+                StartFreqInMHz = StartFreqInMHz;
+                EndFreqInMHz = EndFreqInMHz;
+            }
+
+            var divider = spec.PulseCount*spec.PulseCount;
+            for (int i = 0, j = lo; i < DispPointsCnt; i++, j += interval) {
+                resultContainer[i] = spec.Intensity(j)/divider;
+            }
+        }
+
+        public override void ResetYScale() {
+            base.ResetYScale();
+            if (_instantSpectrumCache == null) {
+                return;
+            }
+            UpdateData(_instantSpectrumCache, _accumulatedSpectrumCache);
+        }
+    }
 }

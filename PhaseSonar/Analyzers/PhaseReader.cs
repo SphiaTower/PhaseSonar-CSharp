@@ -1,14 +1,14 @@
 ﻿using System.Linq;
 using JetBrains.Annotations;
-using PhaseSonar.Correctors;
 using PhaseSonar.CorrectorV2s;
 using PhaseSonar.CrestFinders;
 using PhaseSonar.Maths;
+using PhaseSonar.PhaseExtractors;
 using PhaseSonar.Slicers;
 using PhaseSonar.Utils;
 
 namespace PhaseSonar.Analyzers {
-    public class PhaseReader : IPulseSequenceProcessor {
+    public class PhaseReader : IPhaseReader {
         [NotNull] private readonly ICrestFinder _finder;
 
         [NotNull] private readonly IPhaseExtractor _phaseExtractor;
@@ -28,19 +28,15 @@ namespace PhaseSonar.Analyzers {
             _phaseExtractor = phaseExtractor;
         }
 
-        /// <summary>
-        ///     Process the pulse sequence and accumulate results of all pulses
-        /// </summary>
-        /// <param name="pulseSequence">The pulse sequence, often a sampled data record</param>
-        /// <returns>The accumulated spectrum</returns>
-        public AccumulationResult Process(double[] pulseSequence) {
+        [NotNull]
+        public PhaseResult GetPhase(double[] pulseSequence) {
             var crestIndices = _finder.Find(pulseSequence);
             if (crestIndices.IsEmpty()) {
-                return AccumulationResult.FromException(ProcessException.NoPeakFound);
+                return PhaseResult.FromException(ProcessException.NoPeakFound);
             }
             var sliceInfos = _slicer.Slice(pulseSequence, crestIndices);
             if (sliceInfos.IsEmpty()) {
-                return AccumulationResult.FromException(ProcessException.NoSliceValid);
+                return PhaseResult.FromException(ProcessException.NoSliceValid);
             }
             var example = sliceInfos.First();
             var pulse = _preprocessor.RetrievePulse(pulseSequence, example.StartIndex, example.CrestOffset,
@@ -50,7 +46,7 @@ namespace PhaseSonar.Analyzers {
             try {
                 phase = _phaseExtractor.GetPhase(pulse, null);
             } catch (PhaseFitException) {
-                return AccumulationResult.FromException(ProcessException.NoFlatPhaseIntervalFound);
+                return PhaseResult.FromException(ProcessException.NoFlatPhaseIntervalFound);
             }
             //Toolbox.WriteData(@"D:\zbf\temp2\full_phase.txt", phase);
 
@@ -58,8 +54,7 @@ namespace PhaseSonar.Analyzers {
             //Toolbox.WriteData(@"D:\zbf\temp2\full_phase_unwrap.txt", unwrap);
 
             //            var unwrap = phase;
-            ISpectrum spectrum = new RealSpectrum(unwrap, 1);
-            return AccumulationResult.WithoutException(spectrum);
+            return PhaseResult.WithoutException(unwrap);
         }
     }
 }

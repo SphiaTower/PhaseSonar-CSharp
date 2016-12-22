@@ -11,6 +11,7 @@ namespace SpectroscopyVisualizer.Configs {
     public class ConfigsHolder {
         private readonly CorrectorConfigurations _corrector = CorrectorConfigurations.Get();
         private readonly GeneralConfigurations _general = GeneralConfigurations.Get();
+        private readonly MiscellaneousConfigurations _miscellaneous = MiscellaneousConfigurations.Get();
         private readonly SamplingConfigurations _sampling = SamplingConfigurations.Get();
         private readonly SliceConfigurations _slice = SliceConfigurations.Get();
 
@@ -43,6 +44,7 @@ namespace SpectroscopyVisualizer.Configs {
             GeneralConfigurations.Register(_general);
             SamplingConfigurations.Register(_sampling);
             SliceConfigurations.Register(_slice);
+            MiscellaneousConfigurations.Register(_miscellaneous);
         }
 
         public void Dump() {

@@ -1,4 +1,3 @@
-using System;
 using System.Numerics;
 using JetBrains.Annotations;
 using MathNet.Numerics;
@@ -16,11 +15,6 @@ namespace PhaseSonar.Correctors {
         int PulseCount { get; set; }
 
         Complex[] Array { get; }
-
-        /// <summary>
-        ///     Clear the container.
-        /// </summary>
-        void Clear();
 
         /// <summary>
         ///     Copy the data inside into a new one.
@@ -62,13 +56,6 @@ namespace PhaseSonar.Correctors {
         bool HasImag();
 
         /// <summary>
-        ///     Get the average intensity of the data at a specified index.
-        /// </summary>
-        /// <param name="index">The index of the data</param>
-        /// <returns>The intensity at the input index</returns>
-        double AverageIntensity(int index);
-
-        /// <summary>
         ///     Get the size of the data container
         /// </summary>
         /// <returns>The size of the data container</returns>
@@ -90,14 +77,6 @@ namespace PhaseSonar.Correctors {
         /// </summary>
         public int PulseCount { get; set; }
 
-        /// <summary>
-        ///     Clear the container.
-        /// </summary>
-        public void Clear() {
-            for (var i = 0; i < Array.Length; i++) {
-                Array[i] = Complex.Zero;
-            }
-        }
 
         /// <summary>
         ///     Copy the data inside into a new one.
@@ -114,6 +93,9 @@ namespace PhaseSonar.Correctors {
         /// <param name="another"></param>
         public bool TryAbsorb(ISpectrum another) {
             var spectrum = another as Spectrum;
+            if (spectrum == null) {
+                return false;
+            }
             Array.Increase(spectrum.Array);
             PulseCount += another.PulseCount;
             return true;
@@ -165,15 +147,6 @@ namespace PhaseSonar.Correctors {
         }
 
         /// <summary>
-        ///     Get the average intensity of the data at a specified index.
-        /// </summary>
-        /// <param name="index">The index of the data</param>
-        /// <returns>The intensity at the input index</returns>
-        public double AverageIntensity(int index) {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         ///     Get the size of the data container
         /// </summary>
         /// <returns>The size of the data container</returns>
@@ -185,8 +158,8 @@ namespace PhaseSonar.Correctors {
     public class RealSpectrum : ISpectrum {
         private readonly double[] _data;
 
-        public RealSpectrum(double[] _data, int pulseCount) {
-            this._data = _data;
+        public RealSpectrum(double[] data, int pulseCount) {
+            _data = data;
             PulseCount = pulseCount;
         }
 
@@ -194,13 +167,6 @@ namespace PhaseSonar.Correctors {
         ///     The number of pulses that are accumulated in this container.
         /// </summary>
         public int PulseCount { get; set; }
-
-        /// <summary>
-        ///     Clear the container.
-        /// </summary>
-        public void Clear() {
-            Functions.Clear(_data);
-        }
 
         /// <summary>
         ///     Copy the data inside into a new one.
@@ -272,20 +238,18 @@ namespace PhaseSonar.Correctors {
         }
 
         /// <summary>
-        ///     Get the average intensity of the data at a specified index.
-        /// </summary>
-        /// <param name="index">The index of the data</param>
-        /// <returns>The intensity at the input index</returns>
-        public double AverageIntensity(int index) {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         ///     Get the size of the data container
         /// </summary>
         /// <returns>The size of the data container</returns>
         public int Length() {
             return _data.Length;
+        }
+
+        /// <summary>
+        ///     Clear the container.
+        /// </summary>
+        public void Clear() {
+            Functions.Clear(_data);
         }
     }
 }

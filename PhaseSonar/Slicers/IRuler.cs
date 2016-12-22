@@ -21,7 +21,7 @@ namespace PhaseSonar.Slicers {
 
     public class AverageLengthRuler : IRuler {
         public int MeasureSliceLength(IList<int> crestIndices, int fullLength) {
-            if (crestIndices.Count==1) {
+            if (crestIndices.Count == 1) {
                 return fullLength;
             }
             var average = 0;

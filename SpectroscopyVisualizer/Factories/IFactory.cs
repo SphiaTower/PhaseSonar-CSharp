@@ -5,6 +5,7 @@ using NationalInstruments.Examples.StreamToDiskConsole;
 using PhaseSonar.Analyzers;
 using PhaseSonar.CorrectorV2s;
 using PhaseSonar.CrestFinders;
+using PhaseSonar.PhaseExtractors;
 using PhaseSonar.Slicers;
 using SpectroscopyVisualizer.Consumers;
 using SpectroscopyVisualizer.Presenters;
@@ -21,7 +22,11 @@ namespace SpectroscopyVisualizer.Factories {
         IPulseSequenceProcessor NewPulseSequenceProcessor();
 
         [NotNull]
-        DisplayAdapter NewAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,
+        SpectrumDisplayAdapter NewSpectrumAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,
+            VerticalAxisView verticalAxisView, TextBox tbX, TextBox tbDelta);
+
+        [NotNull]
+        PhaseDisplayAdapter NewPhaseAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,
             VerticalAxisView verticalAxisView, TextBox tbX, TextBox tbDelta);
 
         bool TryNewSampler(out Sampler newSampler);
@@ -32,7 +37,7 @@ namespace SpectroscopyVisualizer.Factories {
         IWriterV2<TracedSpectrum> NewSpectrumWriter();
         IWriterV2<SampleRecord> NewSampleWriter();
 
-        IConsumerV2 NewConsumer([NotNull] IProducerV2<SampleRecord> producer, [NotNull] DisplayAdapter adapter,
+        IConsumerV2 NewConsumer([NotNull] IProducerV2<SampleRecord> producer, [NotNull] DisplayAdapterV2 adapter,
             int? targetCnt);
     }
 }

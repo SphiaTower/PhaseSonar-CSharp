@@ -8,6 +8,8 @@ namespace SpectroscopyVisualizer.Producers {
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly IDataRetriever _dataRetriever;
 
+        private Exception _allException;
+
         private int _continuousFailCnt;
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
@@ -53,7 +55,6 @@ namespace SpectroscopyVisualizer.Producers {
         public event Action<Exception> ProductionFailed;
         public event Action<T> NewProduct;
 
-        private Exception _allException;
         private void DoInBackground() {
             while (!_cts.IsCancellationRequested) {
                 T data;
@@ -61,20 +62,20 @@ namespace SpectroscopyVisualizer.Producers {
                 try {
                     data = _dataRetriever.TryRetrieveData();
                 } catch (Exception e) {
-                    if (_allException==null) {
+                    if (_allException == null) {
                         _allException = e;
                     } else {
-                        _allException = new  Exception(_allException.Message+"\n======================================\n"+e.Message);
-
+                        _allException =
+                            new Exception(_allException.Message + "\n======================================\n" +
+                                          e.Message);
                     }
                     _continuousFailCnt++;
                     if (_continuousFailCnt == 10) {
                         ProductionFailed?.Invoke(_allException);
                         break;
-                    } else {
-                        Thread.Sleep(1000);
-                        continue;
                     }
+                    Thread.Sleep(1000);
+                    continue;
                 }
                 NewProduct?.Invoke(data);
                 _continuousFailCnt = 0;
@@ -90,7 +91,6 @@ namespace SpectroscopyVisualizer.Producers {
 
         public interface IDataRetriever {
             /// <summary>
-            /// 
             /// </summary>
             /// <exception cref="Exception"></exception>
             /// <returns></returns>

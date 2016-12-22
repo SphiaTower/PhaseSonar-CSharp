@@ -5,6 +5,7 @@ using PhaseSonar.Correctors;
 using PhaseSonar.CorrectorV2s;
 using PhaseSonar.CrestFinders;
 using PhaseSonar.Maths;
+using PhaseSonar.PhaseExtractors;
 using PhaseSonar.Slicers;
 using PhaseSonar.Utils;
 
@@ -57,7 +58,7 @@ namespace PhaseSonar.Analyzers {
 
             var cnt = 0;
             Complex[] accumulatedSpectrum = null;
-            int errorCnt = 0;
+            var errorCnt = 0;
             foreach (var sliceInfo in sliceInfos) {
                 var pulse = _preprocessor.RetrievePulse(pulseSequence, sliceInfo.StartIndex,
                     sliceInfo.CrestOffset,
@@ -80,27 +81,22 @@ namespace PhaseSonar.Analyzers {
                 cnt++;
             }
             if (accumulatedSpectrum == null) {
-                return AccumulationResult.FromException(ProcessException.NoFlatPhaseIntervalFound,errorCnt);
-            } else {
-                var spectrum = new Spectrum(accumulatedSpectrum,cnt);
-                if (errorCnt==0) {
-                    return AccumulationResult.WithoutException(spectrum);
-                } else {
-                    return new AccumulationResult(spectrum,ProcessException.NoFlatPhaseIntervalFound, errorCnt);
-                }
+                return AccumulationResult.FromException(ProcessException.NoFlatPhaseIntervalFound, errorCnt);
             }
+            var spectrum = new Spectrum(accumulatedSpectrum, cnt);
+            if (errorCnt == 0) {
+                return AccumulationResult.WithoutException(spectrum);
+            }
+            return new AccumulationResult(spectrum, ProcessException.NoFlatPhaseIntervalFound, errorCnt);
         }
     }
 
-    class NoPeakFoundException : Exception {
-        
+    internal class NoPeakFoundException : Exception {
     }
 
-    class SliceFailedExceptin : Exception {
-        
+    internal class SliceFailedExceptin : Exception {
     }
 
-    class ExcessivePhaseLeapsException : Exception {
-        
+    internal class ExcessivePhaseLeapsException : Exception {
     }
 }

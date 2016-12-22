@@ -46,7 +46,7 @@ namespace SpectroscopyVisualizer.Configs {
     }
 
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
-    public enum OperationMode { 
+    public enum OperationMode {
         [Description("Manual")] Manual,
         [Description("Single")] Single,
         [Description("Loop")] Loop

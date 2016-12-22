@@ -19,7 +19,7 @@ namespace SpectroscopyVisualizer.Writers {
             var dateTime = DateTime.Now;
             var timeStamp = dateTime.ToString("HHmmssfff");
             var timeStr = timeStamp.Enclose("TS");
-            var path = Path.Combine(directory, timeStr+ prefix);
+            var path = Path.Combine(directory, timeStr + prefix);
 
             if (saveType == SaveType.UnwrappedPhase) {
                 _writerV2Implementation.ElementDequeued += spectrum => {
@@ -37,7 +37,7 @@ namespace SpectroscopyVisualizer.Writers {
                 _writerV2Implementation.ElementDequeued += spectrum => {
                     Toolbox.WriteStringArray(
                         path + saveType.ToString().Enclose() + spectrum.Tag.Enclose() +
-                        spectrum.PulseCount.Enclose("Cnt")  + Suffix,
+                        spectrum.PulseCount.Enclose("Cnt") + Suffix,
                         spectrum.ToStringArray(toStringFunc));
                 };
             }

@@ -86,7 +86,6 @@ namespace SpectroscopyVisualizer.Consumers {
                 return 0;
             });*/
             var strings = _specInfos.Select(info => info.FileId + " " + info.Number + " " + info.First).ToArray();
-            Toolbox.WriteStringArray(@"D:\zbf\temp\pp.txt", strings);
             var aggregate = strings.Aggregate((s1, s2) => s1 + s2);
             Application.Current.MainWindow.Dispatcher.InvokeAsync(() => { Console.Write(aggregate); });
         }

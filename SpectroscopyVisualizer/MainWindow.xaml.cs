@@ -97,7 +97,8 @@ namespace SpectroscopyVisualizer {
                 MiscellaneousConfigurations.Initialize(
                     waitEmptyProducerMsTimeout: 5000,
                     minFlatPhasePtsNumCnt: 200,
-                    maxPhaseStd: 0.34);
+                    maxPhaseStd: 0.34,
+                    pythonPath:@"C:\Anaconda3\python.exe");
             }
 
             CbPhaseType.SelectionChanged += (sender, args) => {
@@ -152,9 +153,11 @@ namespace SpectroscopyVisualizer {
                     Show(LbApodize);
                     Show(CkAutoFlip);
                     Show(CkSpecReal);
-                    Show(CbPhaseType);
-                    Show(LbPhaseType);
-                    HandleAdditionalPhaseOptions((PhaseType?) CbPhaseType.SelectedItem ?? PhaseType.FullRange);
+                    if ((CorrectorType) CbCorrector.SelectedItem != CorrectorType.Fake) {
+                        Show(CbPhaseType);
+                        Show(LbPhaseType);
+                        HandleAdditionalPhaseOptions((PhaseType?) CbPhaseType.SelectedItem ?? PhaseType.FullRange);
+                    }
                 } else {
                     Hide(CbCorrector);
                     Hide(LbCorrector);
@@ -626,7 +629,8 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ContactAuthor_OnClick(object sender, RoutedEventArgs e) {
-       
+            var address = @"";
+            Process.Start(address);
         }
 
         private void UltraFast_OnChecked(object sender, RoutedEventArgs e) {
@@ -640,9 +644,14 @@ namespace SpectroscopyVisualizer {
         private void GenerateWavelengthAxis_OnClick(object sender, RoutedEventArgs e) {
             var file = SelectFile();
             if (file != null) {
-                Process.Start(@"C:\Anaconda3\python.exe",
-                    @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Mapper.py " + file);
+                var command = Quote(System.AppDomain.CurrentDomain.BaseDirectory+@"Pythons\Mapper.py")+" " + file;
+                Process.Start(MiscellaneousConfigurations.Get().PythonPath, command);
             }
+        }
+
+        [NotNull]
+        private static string Quote(string str) {
+            return "\"" + str + "\"";
         }
 
         private void FlattenCurves_OnClick(object sender, RoutedEventArgs e) {
@@ -650,15 +659,15 @@ namespace SpectroscopyVisualizer {
             if (file == null) {
                 return;
             }
+            var pythonPath = MiscellaneousConfigurations.Get().PythonPath;
+            var cmd = Quote(System.AppDomain.CurrentDomain.BaseDirectory + @"Pythons\Flatter.py") + " " + file;
             if (File.Exists(file.Replace(".txt", "[WavelengthAxis].txt"))) {
-                Process.Start(@"C:\Anaconda3\python.exe",
-                    @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Flatter.py " + file);
+                Process.Start(pythonPath, cmd);
             } else {
-                Process.Start(@"C:\Anaconda3\python.exe",
-                    @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Mapper.py " + file);
+                var command = Quote(System.AppDomain.CurrentDomain.BaseDirectory + @"Pythons\Mapper.py") + " " + file;
+                Process.Start(pythonPath, command);
                 MessageBox.Show("Generating wavelength axis, please click 'OK' AFTER completion.");
-                Process.Start(@"C:\Anaconda3\python.exe",
-                    @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\Flatter.py " + file);
+                Process.Start(pythonPath, cmd);
             }
         }
 
@@ -681,19 +690,20 @@ namespace SpectroscopyVisualizer {
                     var data = sampler.Retrieve(SamplingConfigurations.Get().Channel);
                     var finder = factory.NewCrestFinder();
                     var crestIndices = finder.Find(data);
-                    if (!Directory.Exists(@"C:\SpectroscopyVisualizer\temporal")) {
+                    var path = System.AppDomain.CurrentDomain.BaseDirectory+@"temporal\";
+                    if (!Directory.Exists(path)) {
                         try {
-                            Directory.CreateDirectory(@"C:\SpectroscopyVisualizer\temporal");
+                            Directory.CreateDirectory(path);
                         } catch (Exception) {
                             MessageBox.Show(
                                 "Unable to create directory! Try run this program with administrator permission");
                             return;
                         }
                     }
-                    Toolbox.WriteData(@"C:\SpectroscopyVisualizer\temporal\temporal.txt", data);
-                    Toolbox.WriteData(@"C:\SpectroscopyVisualizer\temporal\crests.txt", crestIndices.ToArray());
-                    Process.Start(@"C:\Anaconda3\python.exe",
-                        @"C:\Users\admin\PycharmProjects\PhaseSonar2\Tools\TemporalViewer.py");
+                    Toolbox.WriteData(path+"temporal.txt", data);
+                    Toolbox.WriteData(path + "crests.txt", crestIndices.ToArray());
+                    Process.Start(MiscellaneousConfigurations.Get().PythonPath,
+                         Quote(System.AppDomain.CurrentDomain.BaseDirectory + @"Pythons\TemporalViewer.py"));
                 } else {
                     MessageBox.Show("Sampler can't be initialized. Maybe another instance is running.");
                 }
@@ -708,5 +718,6 @@ namespace SpectroscopyVisualizer {
         private void AdditionalOptions_OnClick(object sender, RoutedEventArgs e) {
             new OptionsWindow().Show();
         }
+
     }
 }

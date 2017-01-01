@@ -63,7 +63,6 @@ namespace PhaseSonar.Analyzers {
                 var pulse = _preprocessor.RetrievePulse(pulseSequence, sliceInfo.StartIndex,
                     sliceInfo.CrestOffset,
                     sliceInfo.Length);
-//                Toolbox.WriteData(@"D:\zbf\temp\0_zero_filled.txt", pulse);
                 _rotator.TrySymmetrize(pulse, sliceInfo.CrestOffset); // todo do it at preproposs
                 Complex[] correctedSpectrum;
                 try {
@@ -72,7 +71,6 @@ namespace PhaseSonar.Analyzers {
                     errorCnt++;
                     continue;
                 }
-//                Toolbox.WriteData(@"D:\zbf\temp\sp.txt", correctedSpectrum);
                 if (accumulatedSpectrum == null) {
                     accumulatedSpectrum = correctedSpectrum.Clone() as Complex[];
                 } else {

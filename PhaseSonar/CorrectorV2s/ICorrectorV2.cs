@@ -66,13 +66,7 @@ namespace PhaseSonar.CorrectorV2s {
             _apodizer = apodizer;
             _synthesizer = synthesizer;
             _phaseExtractor = phaseExtractor;
-//            _phaseExtractor.RawSpectrumReady +=
-//                spectrum => Toolbox.WriteData(@"D:\zbf\temp\p_spectrum.txt", spectrum);
-//            _phaseExtractor.RawPhaseReady += phase => {
-//                Toolbox.WriteData(@"D:\zbf\temp\p_phase.txt", phase);
-//                Functions.Unwrap(phase);
-//                Toolbox.WriteData(@"D:\zbf\temp\p_phase_unwrap.txt", phase);
-//            };
+
         }
 
         [NotNull]
@@ -81,26 +75,13 @@ namespace PhaseSonar.CorrectorV2s {
                 _spectrumArray = new Complex[symmetryPulse.Length];
                 _outputArray = new Complex[symmetryPulse.Length/2];
             }
-//            Toolbox.WriteData(@"D:\zbf\temp\0_zero_filled.txt",zeroFilledPulse);
-            // -mean, and zero fill
-            // try symmetrize
-//            Toolbox.WriteData(@"D:\zbf\temp\1_symmetrized.txt", symmetryPulse);
 
             _apodizer.Apodize(symmetryPulse);
-//            Toolbox.WriteData(@"D:\zbf\temp\3_apodized.txt", symmetryPulse);
-
-            // get phase
-//            Toolbox.WriteData(@"D:\zbf\temp\2_phase.txt", phaseArray);
-
-//            _apodizer.Apodize(symmetryPulse);
-//            Toolbox.WriteData(@"D:\zbf\temp\3_apodized.txt", symmetryPulse);
 
             _rotator.Rotate(symmetryPulse);
-//            Toolbox.WriteData(@"D:\zbf\temp\4_rotated.txt", symmetryPulse);
 
             symmetryPulse.ToComplex(_spectrumArray);
             Fourier.Forward(_spectrumArray, FourierOptions.Matlab);
-            //            Toolbox.WriteData(@"D:\zbf\temp\5_fft.txt", _spectrumArray);
 
             double[] phaseArray;
             try {
@@ -111,7 +92,6 @@ namespace PhaseSonar.CorrectorV2s {
 
             _synthesizer.Synthesize(_spectrumArray, phaseArray, _outputArray);
 
-            // Toolbox.WriteData(@"D:\zbf\temp2\6_output.txt", _outputArray);
 
             return _outputArray;
         }

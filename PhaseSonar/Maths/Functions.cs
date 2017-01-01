@@ -278,6 +278,8 @@ namespace PhaseSonar.Maths {
             Array.Clear(array, 0, array.Length);
         }
 
+     
+
         public static void FindMinMax([NotNull] double[] nums, out double min, out double max) {
             /*min = double.MaxValue;
             max = double.MinValue;

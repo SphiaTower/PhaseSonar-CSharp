@@ -48,12 +48,9 @@ namespace PhaseSonar.Analyzers {
             } catch (PhaseFitException) {
                 return PhaseResult.FromException(ProcessException.NoFlatPhaseIntervalFound);
             }
-            //Toolbox.WriteData(@"D:\zbf\temp2\full_phase.txt", phase);
 
             var unwrap = Functions.Unwrap(phase);
-            //Toolbox.WriteData(@"D:\zbf\temp2\full_phase_unwrap.txt", unwrap);
 
-            //            var unwrap = phase;
             return PhaseResult.WithoutException(unwrap);
         }
     }

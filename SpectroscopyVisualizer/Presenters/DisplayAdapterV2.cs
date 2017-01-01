@@ -11,17 +11,11 @@ using PhaseSonar.Correctors;
 using PhaseSonar.Maths;
 
 namespace SpectroscopyVisualizer.Presenters {
-    public class DisplayAdapterV2 : INotifyPropertyChanged {
+    public abstract class DisplayAdapterV2 : INotifyPropertyChanged {
         private readonly Stack<ZoomCommand> _cmdStack = new Stack<ZoomCommand>();
         private readonly HorizontalAxisView _horizontalAxisView;
 
-        private readonly VerticalAxisView _verticalAxisView;
-
         private double _endFreqInMHz;
-
-        private double _max;
-
-        private double _min;
 
         private Func<double, double> _scaleX;
         private Func<double, double> _scaleY;
@@ -40,7 +34,7 @@ namespace SpectroscopyVisualizer.Presenters {
             Axis = new AxisBuilder(WavefromView);
 
             _horizontalAxisView = horizontalAxisView;
-            _verticalAxisView = verticalAxisView;
+            VerticalAxisView = verticalAxisView;
             SampleRateInMHz = samplingRate/1e6;
             StartFreqInMHz = startFreqInMHz;
             EndFreqInMHz = endFreqInMHz;
@@ -51,7 +45,7 @@ namespace SpectroscopyVisualizer.Presenters {
                     var zoomCommand = new ZoomCommand(start, end, WavefromView, this);
                     _cmdStack.Push(zoomCommand);
                     zoomCommand.Invoke();
-                    ResetYScale();
+                    ResetXYScales();
                 } else {
                     WavefromView.ClearLine();
                 }
@@ -59,7 +53,7 @@ namespace SpectroscopyVisualizer.Presenters {
             TextBlock pop = null;
             eventLayer.FollowTraceEvent += (last, curr, mouseDown) => {
                 var xOnAxis = GetXValueByPointPosition(curr.X);
-                tbXCoordinate.Text = xOnAxis.ToString("F8");
+                tbXCoordinate.Text = xOnAxis.ToString("F5");
                 if (pop == null) {
                     pop = WavefromView.DrawText(curr.X + 4, curr.Y - 12, xOnAxis.ToString("F3"));
                 } else {
@@ -70,7 +64,7 @@ namespace SpectroscopyVisualizer.Presenters {
                 if (mouseDown) {
                     var xStart = GetXValueByPointPosition(eventLayer.MouseDownStart);
                     var xDelta = xOnAxis - xStart;
-                    tbDistance.Text = xDelta.ToString("F8");
+                    tbDistance.Text = xDelta.ToString("F5");
                 }
 
                 if (mouseDown) {
@@ -80,7 +74,7 @@ namespace SpectroscopyVisualizer.Presenters {
                     });
                 }
             };
-            eventLayer.AdjustYAxisEvent += ResetYScale;
+            eventLayer.AdjustYAxisEvent += ResetXYScales;
             eventLayer.UndoEvent += () => {
                 if (_cmdStack.IsEmpty()) {
                     StartFreqInMHz = startFreqInMHz;
@@ -89,12 +83,16 @@ namespace SpectroscopyVisualizer.Presenters {
                     var zoomCommand = _cmdStack.Pop();
                     zoomCommand.Undo();
                 }
-                ResetYScale();
+                ResetXYScales();
             };
 
 
             WavefromView.DrawGrid();
         }
+
+        protected double Max { get; set; }
+
+        protected double Min { get; set; }
 
         protected AxisBuilder Axis { get; }
 
@@ -124,6 +122,8 @@ namespace SpectroscopyVisualizer.Presenters {
         }
 
         public double SampleRateInMHz { get; set; }
+
+        public VerticalAxisView VerticalAxisView { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -168,8 +168,19 @@ namespace SpectroscopyVisualizer.Presenters {
         }
 
 
-        public virtual void ResetYScale() {
+        public  void ResetXYScales() {
             _scaleX = null;
+            _scaleY = null;
+            InflateCache();
+        }
+
+        public abstract void InflateCache();
+
+        public  void ResetXScales() {
+            _scaleY = null;
+        }
+
+        public  void ResetYScales() {
             _scaleY = null;
         }
 
@@ -178,21 +189,7 @@ namespace SpectroscopyVisualizer.Presenters {
             return x => ScreenWidth/(xAxis.Last() - xAxis.First())*x;
         }
 
-        [NotNull]
-        private Func<double, double> GetYScaler([NotNull] double[] yAxis) {
-            Functions.FindMinMax(yAxis, out _min, out _max);
-            var min = _min;
-            var max = _max;
-            _verticalAxisView.Canvas.Dispatcher.InvokeAsync(() => { _verticalAxisView.DrawRuler(min, max); });
-            // todo: store height as const or invoke getter to adapt
-            //            const int margin = 10;
-            const int margin = 0;
-            var dispAreaHeight = ScreenHeight - 2*margin;
-            return y => dispAreaHeight - dispAreaHeight/(max - min)*(y - min) + margin;
-            //     const int margin = 0;
-            //            var dispAreaHeight = ScreenHeight - 2*margin;
-            //            return y => dispAreaHeight - dispAreaHeight/(max - min)*(y - min) + margin;
-        }
+        protected abstract Func<double, double> GetYScaler([NotNull] double[] yAxis);
 
 
         private Point CreateGraphPoint(double x, double y) {
@@ -206,9 +203,9 @@ namespace SpectroscopyVisualizer.Presenters {
         }
 
         public void OnWindowZoomed() {
-            ResetYScale();
+            ResetXYScales();
             _horizontalAxisView.DrawRuler(StartFreqInMHz, EndFreqInMHz);
-            _verticalAxisView.DrawRuler(_min, _max);
+            VerticalAxisView.DrawRuler(Min, Max);
             WavefromView.Reload();
             WavefromView.DrawGrid();
         }
@@ -219,9 +216,9 @@ namespace SpectroscopyVisualizer.Presenters {
 
         private readonly double[] _instantDispValues;
 
-        [CanBeNull] private double[] _instantPhaseCache;
-
         private readonly PointCollection _instantPts;
+
+        [CanBeNull] private double[] _instantPhaseCache;
 
         public PhaseDisplayAdapter([NotNull] CanvasView wavefromView, HorizontalAxisView horizontalAxisView,
             VerticalAxisView verticalAxisView, TextBox tbXCoordinate, TextBox tbDistance, int dispPointNum,
@@ -236,6 +233,7 @@ namespace SpectroscopyVisualizer.Presenters {
         }
 
         public void UpdatePhase([NotNull] double[] instant) {
+            ResetYScales();
             SampleAverage(instant, _instantDispValues);
             WavefromView.Canvas.Dispatcher.InvokeAsync(
                 () => {
@@ -245,14 +243,30 @@ namespace SpectroscopyVisualizer.Presenters {
             _instantPhaseCache = instant;
         }
 
-        public override void ResetYScale() {
-            base.ResetYScale();
+
+        public override void InflateCache() {
             if (_instantPhaseCache == null) {
                 return;
             }
             UpdatePhase(_instantPhaseCache);
         }
 
+        [NotNull]
+        protected override Func<double, double> GetYScaler([NotNull] double[] yAxis) {
+            double min, max;
+            Functions.FindMinMax(yAxis, out min, out max);
+            Min = min;
+            Max = max;
+            VerticalAxisView.Canvas.Dispatcher.InvokeAsync(() => { VerticalAxisView.DrawRuler(min, max); });
+            // todo: store height as const or invoke getter to adapt
+            //            const int margin = 10;
+            const int margin = 0;
+            var dispAreaHeight = ScreenHeight - 2*margin;
+            return y => dispAreaHeight - dispAreaHeight/(max - min)*(y - min) + margin;
+            //     const int margin = 0;
+            //            var dispAreaHeight = ScreenHeight - 2*margin;
+            //            return y => dispAreaHeight - dispAreaHeight/(max - min)*(y - min) + margin;
+        }
 
         public void SampleAverage([NotNull] double[] phase, double[] resultContainer) {
             var indexOverFreq = (phase.Length - 1)/(SampleRateInMHz/2);
@@ -304,8 +318,22 @@ namespace SpectroscopyVisualizer.Presenters {
             _instantPts = new PointCollection(DispPointsCnt);
             _accPts = new PointCollection(DispPointsCnt);
             _dummyAxis = Axis.DummyAxis(_instantDispValues);
+            Min = 0;
         }
 
+        [NotNull]
+        protected override Func<double, double> GetYScaler([NotNull] double[] yAxis) {
+            Max = yAxis.Max();
+            VerticalAxisView.Canvas.Dispatcher.InvokeAsync(() => { VerticalAxisView.DrawRuler(Min, Max); });
+            // todo: store height as const or invoke getter to adapt
+            //            const int margin = 10;
+            const int margin = 0;
+            var dispAreaHeight = ScreenHeight - 2*margin;
+            return y => dispAreaHeight - dispAreaHeight/Max*y + margin;
+            //     const int margin = 0;
+            //            var dispAreaHeight = ScreenHeight - 2*margin;
+            //            return y => dispAreaHeight - dispAreaHeight/(max - min)*(y - min) + margin;
+        }
 
         public void UpdateData([NotNull] ISpectrum instant, [NotNull] ISpectrum accumulated) {
             // called in background
@@ -348,8 +376,7 @@ namespace SpectroscopyVisualizer.Presenters {
             }
         }
 
-        public override void ResetYScale() {
-            base.ResetYScale();
+        public override void InflateCache() {
             if (_instantSpectrumCache == null) {
                 return;
             }

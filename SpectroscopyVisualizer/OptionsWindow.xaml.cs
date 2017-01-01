@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using Microsoft.Win32;
 using SpectroscopyVisualizer.Configs;
 
 namespace SpectroscopyVisualizer {
@@ -14,6 +15,7 @@ namespace SpectroscopyVisualizer {
             TbMaxPhaseStd.Text = "" + config.MaxPhaseStd;
             TbMinPhaseLength.Text = "" + config.MinFlatPhasePtsNumCnt;
             TbProducerTimeout.Text = "" + config.WaitEmptyProducerMsTimeout;
+            TbPythonPath.Text = config.PythonPath;
         }
 
 
@@ -23,11 +25,39 @@ namespace SpectroscopyVisualizer {
             config.MaxPhaseStd = double.Parse(TbMaxPhaseStd.Text);
             config.MinFlatPhasePtsNumCnt = int.Parse(TbMinPhaseLength.Text);
             config.WaitEmptyProducerMsTimeout = int.Parse(TbProducerTimeout.Text);
+            config.PythonPath = TbPythonPath.Text;
+
             Close();
         }
 
         private void BnNegative_OnClick(object sender, RoutedEventArgs e) {
             Close();
+        }
+
+        private void BnPythonPath_OnClick(object sender, RoutedEventArgs e) {
+            var selectFile = SelectFile();
+            if (selectFile!=null) {
+                TbPythonPath.Text = selectFile;
+            }
+        }
+
+        public static string SelectFile() {
+            // Create OpenFileDialog 
+            var dlg = new OpenFileDialog {
+                DefaultExt = ".exe",
+                Filter = "Executable (.exe)|*.exe",
+                Multiselect = false
+            };
+
+            // Set filter for file extension and default file extension 
+
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            var result = dlg.ShowDialog();
+            if (result == true) {
+                return dlg.FileNames[0];
+            }
+            return null;
         }
     }
 }

@@ -30,8 +30,8 @@ namespace SpectroscopyVisualizer.Configs {
         [Description("Full Range")] FullRange,
         [Description("Center Interpolation")] CenterInterpolation,
         [Description("Classic Method")] OldCenterInterpolation,
-        [Description("Specified Range")] SpecifiedRange,
-        [Description("Specified Freq Range")] SpecifiedFreqRange
+        [Description("Specific Pts Range")] SpecifiedRange,
+        [Description("Specific Freq Range")] SpecifiedFreqRange
     }
 
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]

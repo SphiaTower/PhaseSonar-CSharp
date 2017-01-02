@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using PhaseSonar.Analyzers;
+using PhaseSonar.Analyzers.WithoutReference;
 
 namespace SpectroscopyVisualizer.Consumers {
     public class SerialConsumerV2<TProduct> : IConsumerV2 {

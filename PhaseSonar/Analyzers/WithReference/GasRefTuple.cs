@@ -1,6 +1,6 @@
 ﻿using PhaseSonar.Correctors;
 
-namespace PhaseSonar.Analyzers {
+namespace PhaseSonar.Analyzers.WithReference {
     /// <summary>
     ///     A container for gas and reference spectra
     /// </summary>

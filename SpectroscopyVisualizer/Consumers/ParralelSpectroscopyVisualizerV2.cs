@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using PhaseSonar.Analyzers;
+using PhaseSonar.Analyzers.WithoutReference;
 using PhaseSonar.Correctors;
 using SpectroscopyVisualizer.Presenters;
 using SpectroscopyVisualizer.Producers;

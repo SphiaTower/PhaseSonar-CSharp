@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using JetBrains.Annotations;
-using PhaseSonar.Analyzers;
+using PhaseSonar.Analyzers.PhaseAnalyzers;
+using PhaseSonar.Analyzers.WithoutReference;
 using SpectroscopyVisualizer.Presenters;
 using SpectroscopyVisualizer.Producers;
 using SpectroscopyVisualizer.Writers;

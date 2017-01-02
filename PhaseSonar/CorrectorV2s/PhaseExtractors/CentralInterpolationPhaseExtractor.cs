@@ -3,6 +3,7 @@ using System.Numerics;
 using JetBrains.Annotations;
 using MathNet.Numerics.IntegralTransforms;
 using PhaseSonar.Maths;
+using PhaseSonar.Maths.Apodizers;
 using PhaseSonar.Utils;
 
 namespace PhaseSonar.PhaseExtractors {

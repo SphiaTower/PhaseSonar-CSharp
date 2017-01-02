@@ -26,8 +26,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>36</ApplicationRevision>
-    <ApplicationVersion>2.7.0.%2a</ApplicationVersion>
+    <ApplicationRevision>37</ApplicationRevision>
+    <ApplicationVersion>2.7.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -168,12 +168,10 @@
     <Compile Include="Producers\IProducerV2.cs" />
     <Compile Include="Producers\SampleProducerV2.cs" />
     <Compile Include="Producers\SerialProducerV2.cs" />
-    <Compile Include="Utilities\ConsoleManager.cs" />
     <Compile Include="Consumers\DataSerializer.cs" />
     <Compile Include="Consumers\TracedSpectrum.cs" />
     <Compile Include="Producers\SampleRecord.cs" />
     <Compile Include="Scheduler.cs" />
-    <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Writers\IWriterV2.cs" />
     <Compile Include="Writers\SampleWriterV2.cs" />
     <Compile Include="Writers\SerialWriterV2.cs" />
@@ -266,9 +264,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Easters\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <PublishFile Include="Ivi.ConfigServer.Interop">
       <Visible>False</Visible>

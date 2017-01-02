@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using JetBrains.Annotations;
-using PhaseSonar.Analyzers;
+using PhaseSonar.Analyzers.WithoutReference;
 using SpectroscopyVisualizer.Configs;
 using SpectroscopyVisualizer.Consumers;
 

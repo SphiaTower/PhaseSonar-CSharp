@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using JetBrains.Annotations;
 using PhaseSonar.CorrectorV2s;
+using PhaseSonar.CorrectorV2s.PulsePreprocessors;
 using PhaseSonar.CrestFinders;
 using PhaseSonar.Maths;
 using PhaseSonar.Slicers;

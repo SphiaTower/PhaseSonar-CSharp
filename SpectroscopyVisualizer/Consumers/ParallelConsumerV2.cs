@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using PhaseSonar.Analyzers;
+using PhaseSonar.Analyzers.WithoutReference;
 
 namespace SpectroscopyVisualizer.Consumers {
     public class ParallelConsumerV2<TProduct, TWorker, TResult> : IConsumerV2 where TResult : IResult {

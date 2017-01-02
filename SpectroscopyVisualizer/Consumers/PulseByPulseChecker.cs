@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Windows;
 using JetBrains.Annotations;
 using PhaseSonar.Analyzers;
-using PhaseSonar.Utils;
+using PhaseSonar.Analyzers.WithoutReference;
 using SpectroscopyVisualizer.Producers;
 
 namespace SpectroscopyVisualizer.Consumers {

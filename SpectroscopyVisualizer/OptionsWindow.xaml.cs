@@ -36,7 +36,7 @@ namespace SpectroscopyVisualizer {
 
         private void BnPythonPath_OnClick(object sender, RoutedEventArgs e) {
             var selectFile = SelectFile();
-            if (selectFile!=null) {
+            if (selectFile != null) {
                 TbPythonPath.Text = selectFile;
             }
         }

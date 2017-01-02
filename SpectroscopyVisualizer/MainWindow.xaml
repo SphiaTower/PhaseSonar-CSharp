@@ -7,7 +7,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:types="clr-namespace:SpectroscopyVisualizer.Configs"
         mc:Ignorable="d"
-        Title="Spectroscopy Visualizer 2.7.0" Height="600" Width="1200"
+        Title="Spectroscopy Visualizer 2.7.1" Height="600" Width="1200"
         d:DataContext="{d:DesignData }">
 
     <Grid>
@@ -99,16 +99,16 @@
                         <Button x:Name="ToggleButton" Content="Start" HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom" Width="67" Click="ToggleButton_OnClick" Margin="0,0,5,6"
                                 Height="22" RenderTransformOrigin="-4.984,-2.155" />
-                             <Button x:Name="BnRestart" Content="Restart" HorizontalAlignment="Right"
+                        <Button x:Name="BnRestart" Content="Restart" HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom" Width="67" Click="BnRestart_OnClick"
                                 Background="FloralWhite" Margin="0,0,70,6"
                                 Height="22" RenderTransformOrigin="-4.984,-2.155" />
-                     
-                    <Button x:Name="BnViewTemporal" Content="View Pulses" HorizontalAlignment="Right"
+
+                        <Button x:Name="BnViewTemporal" Content="View Pulses" HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom" Width="97" Click="BnViewTemporal_OnClick"
                                 Background="FloralWhite" Margin="0,0,135,6"
                                 Height="22" RenderTransformOrigin="-4.984,-2.155" />
-                     
+
                         <Button x:Name="BnSampleOnly" Content="Sample Data" HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom" Width="97" Click="StartSample_OnClick"
                                 Background="FloralWhite" Margin="0,0,230,6"

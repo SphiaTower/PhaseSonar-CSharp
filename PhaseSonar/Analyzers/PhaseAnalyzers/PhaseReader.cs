@@ -1,13 +1,14 @@
 ﻿using System.Linq;
 using JetBrains.Annotations;
-using PhaseSonar.CorrectorV2s;
+using PhaseSonar.Analyzers.WithoutReference;
+using PhaseSonar.CorrectorV2s.PulsePreprocessors;
 using PhaseSonar.CrestFinders;
 using PhaseSonar.Maths;
 using PhaseSonar.PhaseExtractors;
 using PhaseSonar.Slicers;
 using PhaseSonar.Utils;
 
-namespace PhaseSonar.Analyzers {
+namespace PhaseSonar.Analyzers.PhaseAnalyzers {
     public class PhaseReader : IPhaseReader {
         [NotNull] private readonly ICrestFinder _finder;
 

@@ -1,7 +1,6 @@
 using System.Numerics;
 using JetBrains.Annotations;
 using MathNet.Numerics;
-using PhaseSonar.Maths;
 using PhaseSonar.Utils;
 
 namespace PhaseSonar.Correctors {
@@ -154,5 +153,4 @@ namespace PhaseSonar.Correctors {
             return Array.Length;
         }
     }
-
 }

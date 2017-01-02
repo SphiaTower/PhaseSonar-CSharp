@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Numerics;
 using JetBrains.Annotations;
+using PhaseSonar.Analyzers.WithoutReference;
 using PhaseSonar.Correctors;
 using PhaseSonar.CorrectorV2s;
+using PhaseSonar.CorrectorV2s.PulsePreprocessors;
 using PhaseSonar.CrestFinders;
 using PhaseSonar.Maths;
 using PhaseSonar.PhaseExtractors;
 using PhaseSonar.Slicers;
+using PhaseSonar.Slicers.RefSlicers;
 using PhaseSonar.Utils;
 
-namespace PhaseSonar.Analyzers {
+namespace PhaseSonar.Analyzers.WithReference {
     public class Splitter : IRefPulseSequenceProcessor {
         [NotNull] private readonly ICorrectorV2 _corrector;
 

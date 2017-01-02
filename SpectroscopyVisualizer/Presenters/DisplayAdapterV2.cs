@@ -168,7 +168,7 @@ namespace SpectroscopyVisualizer.Presenters {
         }
 
 
-        public  void ResetXYScales() {
+        public void ResetXYScales() {
             _scaleX = null;
             _scaleY = null;
             InflateCache();
@@ -176,11 +176,11 @@ namespace SpectroscopyVisualizer.Presenters {
 
         public abstract void InflateCache();
 
-        public  void ResetXScales() {
+        public void ResetXScales() {
             _scaleY = null;
         }
 
-        public  void ResetYScales() {
+        public void ResetYScales() {
             _scaleY = null;
         }
 

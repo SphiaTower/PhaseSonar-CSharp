@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using PhaseSonar.Slicers.Aligners;
+using PhaseSonar.Slicers.RefSlicers;
+using PhaseSonar.Slicers.Rulers;
 using PhaseSonar.Utils;
 
 namespace PhaseSonar.Slicers {

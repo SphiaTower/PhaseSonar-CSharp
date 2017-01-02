@@ -28,10 +28,11 @@
         <TextBox x:Name="TbMaxPhaseStd" HorizontalAlignment="Left" Height="23" Margin="263,211,0,0" TextWrapping="Wrap"
                  Text="TextBox" VerticalAlignment="Top" Width="120" />
         <Label x:Name="LbPeakPosition_Copy3" Content="Python Path" HorizontalAlignment="Left"
-            Margin="43,261,0,0" VerticalAlignment="Top" />
+               Margin="43,261,0,0" VerticalAlignment="Top" />
         <TextBox x:Name="TbPythonPath" HorizontalAlignment="Left" Height="23" Margin="263,263,0,0" TextWrapping="Wrap"
-            Text="TextBox" VerticalAlignment="Top" Width="213" />
-        <Button x:Name="BnPythonPath" Content="Browse..." HorizontalAlignment="Left" Margin="142,263,0,0" Click="BnPythonPath_OnClick" VerticalAlignment="Top" Width="75"/>
+                 Text="TextBox" VerticalAlignment="Top" Width="213" />
+        <Button x:Name="BnPythonPath" Content="Browse..." HorizontalAlignment="Left" Margin="142,263,0,0"
+                Click="BnPythonPath_OnClick" VerticalAlignment="Top" Width="75" />
 
     </Grid>
 </Window>

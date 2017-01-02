@@ -98,7 +98,7 @@ namespace SpectroscopyVisualizer {
                     waitEmptyProducerMsTimeout: 5000,
                     minFlatPhasePtsNumCnt: 200,
                     maxPhaseStd: 0.34,
-                    pythonPath:@"C:\Anaconda3\python.exe");
+                    pythonPath: @"C:\Anaconda3\python.exe");
             }
 
             CbPhaseType.SelectionChanged += (sender, args) => {
@@ -174,7 +174,6 @@ namespace SpectroscopyVisualizer {
             CkPhase.Unchecked += ckPhaseOnChecked;
 
 
-            //            CorrectorConfigs.Register(Toolbox.DeserializeData<CorrectorConfigs>(@"D:\\configuration.bin"));
             // bind configs to controls
             SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
             GeneralConfigurations.Get()
@@ -186,10 +185,6 @@ namespace SpectroscopyVisualizer {
                 .Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart,
                     TbRangeEnd, CkAutoFlip, CkSpecReal);
             // init custom components
-//            _canvasView = new CanvasView(ScopeCanvas);
-//            HorizontalAxisView = new HorizontalAxisView(HorAxisCanvas);
-//            VerticalAxisView = new VerticalAxisView(VerAxisCanvas);
-
 
             SwitchButton = new ToggleButtonV2(ToggleButton, false, "Stop", "Start");
             SwitchButton.TurnOn += TurnOn;
@@ -644,7 +639,7 @@ namespace SpectroscopyVisualizer {
         private void GenerateWavelengthAxis_OnClick(object sender, RoutedEventArgs e) {
             var file = SelectFile();
             if (file != null) {
-                var command = Quote(System.AppDomain.CurrentDomain.BaseDirectory+@"Pythons\Mapper.py")+" " + file;
+                var command = Quote(AppDomain.CurrentDomain.BaseDirectory + @"Pythons\Mapper.py") + " " + file;
                 Process.Start(MiscellaneousConfigurations.Get().PythonPath, command);
             }
         }
@@ -660,11 +655,11 @@ namespace SpectroscopyVisualizer {
                 return;
             }
             var pythonPath = MiscellaneousConfigurations.Get().PythonPath;
-            var cmd = Quote(System.AppDomain.CurrentDomain.BaseDirectory + @"Pythons\Flatter.py") + " " + file;
+            var cmd = Quote(AppDomain.CurrentDomain.BaseDirectory + @"Pythons\Flatter.py") + " " + file;
             if (File.Exists(file.Replace(".txt", "[WavelengthAxis].txt"))) {
                 Process.Start(pythonPath, cmd);
             } else {
-                var command = Quote(System.AppDomain.CurrentDomain.BaseDirectory + @"Pythons\Mapper.py") + " " + file;
+                var command = Quote(AppDomain.CurrentDomain.BaseDirectory + @"Pythons\Mapper.py") + " " + file;
                 Process.Start(pythonPath, command);
                 MessageBox.Show("Generating wavelength axis, please click 'OK' AFTER completion.");
                 Process.Start(pythonPath, cmd);
@@ -690,7 +685,7 @@ namespace SpectroscopyVisualizer {
                     var data = sampler.Retrieve(SamplingConfigurations.Get().Channel);
                     var finder = factory.NewCrestFinder();
                     var crestIndices = finder.Find(data);
-                    var path = System.AppDomain.CurrentDomain.BaseDirectory+@"temporal\";
+                    var path = AppDomain.CurrentDomain.BaseDirectory + @"temporal\";
                     if (!Directory.Exists(path)) {
                         try {
                             Directory.CreateDirectory(path);
@@ -700,10 +695,10 @@ namespace SpectroscopyVisualizer {
                             return;
                         }
                     }
-                    Toolbox.WriteData(path+"temporal.txt", data);
+                    Toolbox.WriteData(path + "temporal.txt", data);
                     Toolbox.WriteData(path + "crests.txt", crestIndices.ToArray());
                     Process.Start(MiscellaneousConfigurations.Get().PythonPath,
-                         Quote(System.AppDomain.CurrentDomain.BaseDirectory + @"Pythons\TemporalViewer.py"));
+                        Quote(AppDomain.CurrentDomain.BaseDirectory + @"Pythons\TemporalViewer.py"));
                 } else {
                     MessageBox.Show("Sampler can't be initialized. Maybe another instance is running.");
                 }
@@ -718,6 +713,5 @@ namespace SpectroscopyVisualizer {
         private void AdditionalOptions_OnClick(object sender, RoutedEventArgs e) {
             new OptionsWindow().Show();
         }
-
     }
 }

@@ -1,5 +1,5 @@
 using System.Numerics;
-using PhaseSonar.Maths;
+using PhaseSonar.Maths.Apodizers;
 
 namespace PhaseSonar.PhaseExtractors {
     public class CorrectCenterPhaseExtractor : IPhaseExtractor {

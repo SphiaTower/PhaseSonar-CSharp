@@ -102,23 +102,6 @@ namespace PhaseSonar.Maths {
             return sum/count;
         }
 
-        public static double Phase(double real, double imag) {
-            if (Math.Abs(real) > 0.0000001) {
-                return Math.Atan(imag/real);
-            }
-            if (imag > 0) {
-                return Math.PI/2;
-            }
-            if (imag < 0) {
-                return -Math.PI/2;
-            }
-            return 0;
-        }
-
-        public static double Phase(Complex complex) {
-            return Phase(complex.Real, complex.Imaginary);
-//            return Math.Atan2(complex.Imaginary,complex.Real);
-        }
 
         /// <summary>
         ///     Shallow clone array.
@@ -278,7 +261,6 @@ namespace PhaseSonar.Maths {
             Array.Clear(array, 0, array.Length);
         }
 
-     
 
         public static void FindMinMax([NotNull] double[] nums, out double min, out double max) {
             /*min = double.MaxValue;

@@ -3,13 +3,14 @@ using System.Numerics;
 using JetBrains.Annotations;
 using PhaseSonar.Correctors;
 using PhaseSonar.CorrectorV2s;
+using PhaseSonar.CorrectorV2s.PulsePreprocessors;
 using PhaseSonar.CrestFinders;
 using PhaseSonar.Maths;
 using PhaseSonar.PhaseExtractors;
 using PhaseSonar.Slicers;
 using PhaseSonar.Utils;
 
-namespace PhaseSonar.Analyzers {
+namespace PhaseSonar.Analyzers.WithoutReference {
     /// <summary>
     ///     An analyzer which adds up all results in a pulse sequence.
     ///     This class is targeted for the data with 1 component only.

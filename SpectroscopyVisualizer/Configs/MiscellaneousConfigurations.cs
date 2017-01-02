@@ -26,8 +26,10 @@ namespace SpectroscopyVisualizer.Configs {
             return _singleton;
         }
 
-        public static void Initialize(int waitEmptyProducerMsTimeout, int minFlatPhasePtsNumCnt, double maxPhaseStd, string pythonPath) {
-            _singleton = new MiscellaneousConfigurations(waitEmptyProducerMsTimeout, minFlatPhasePtsNumCnt, maxPhaseStd,pythonPath);
+        public static void Initialize(int waitEmptyProducerMsTimeout, int minFlatPhasePtsNumCnt, double maxPhaseStd,
+            string pythonPath) {
+            _singleton = new MiscellaneousConfigurations(waitEmptyProducerMsTimeout, minFlatPhasePtsNumCnt, maxPhaseStd,
+                pythonPath);
         }
 
         public static void Register(MiscellaneousConfigurations miscellaneous) {

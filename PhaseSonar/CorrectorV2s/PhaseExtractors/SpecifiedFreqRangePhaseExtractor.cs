@@ -26,15 +26,6 @@ namespace PhaseSonar.PhaseExtractors {
             return _extractor.GetPhase(symmetryPulse, correspondSpectrum);
         }
 
-        public event SpectrumReadyEventHandler RawSpectrumReady {
-            add { _extractor.RawSpectrumReady += value; }
-            remove { _extractor.RawSpectrumReady -= value; }
-        }
-
-        public event PhaseReadyEventHandler RawPhaseReady {
-            add { _extractor.RawPhaseReady += value; }
-            remove { _extractor.RawPhaseReady -= value; }
-        }
 
         [NotNull]
         private SpecifiedRangePhaseExtractor Init(int wholeFreqLength) {

@@ -33,7 +33,7 @@ namespace SpectroscopyVisualizer {
 
         private readonly Label[] _possibleWrongLabels;
 
-        private StatsWindow _statsWindow = new StatsWindow();
+        [CanBeNull] private StatsWindow _statsWindow = new StatsWindow();
 
         //        private readonly CanvasView _canvasView;
 
@@ -74,7 +74,7 @@ namespace SpectroscopyVisualizer {
 
                 SliceConfigurations.Initialize(
                     crestAmplitudeThreshold: 0.5,
-                    pointsBeforeCrest: 1000,
+                    peakMinLength: 2000,
                     crestAtCenter: true,
                     rulerType: RulerType.MinLength,
                     findAbs: true,
@@ -195,6 +195,15 @@ namespace SpectroscopyVisualizer {
             CkCaptureSpec.Checked += (sender, args) => { CkCaptureAcc.IsChecked = true; };
 
             Closing += (sender, args) => { _statsWindow?.Close(); };
+
+            LocationChanged += (sender, args) => {
+                if (_statsWindow==null) {
+                    return;
+                }
+                _statsWindow.Left = this.Left + this.Width - 15;
+                _statsWindow.Top = this.Top;
+            };
+          
         }
 
 
@@ -619,7 +628,7 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ReportBug_OnClick(object sender, RoutedEventArgs e) {
-            var issue = @"https://github.com/SphiaTower/PhaseSonar-CSharp/issues";
+            var issue = @"";
             Process.Start(issue);
         }
 
@@ -637,11 +646,27 @@ namespace SpectroscopyVisualizer {
         }
 
         private void GenerateWavelengthAxis_OnClick(object sender, RoutedEventArgs e) {
+            if (!CheckPythonAndWarn()) {
+                return;
+            }
             var file = SelectFile();
             if (file != null) {
-                var command = Quote(AppDomain.CurrentDomain.BaseDirectory + @"Pythons\Mapper.py") + " " + file;
+                var command = Quote(AppDomain.CurrentDomain.BaseDirectory + @"Pythons\Mapper.py") + " " + file+" "+SamplingConfigurations.Get().SamplingRate;
                 Process.Start(MiscellaneousConfigurations.Get().PythonPath, command);
             }
+        }
+
+        public static bool CheckPython() {
+            var pythonPath = MiscellaneousConfigurations.Get().PythonPath;
+            return File.Exists(pythonPath);
+        }
+
+        public static bool CheckPythonAndWarn() {
+            var checkPython = CheckPython();
+            if (!checkPython) {
+                MessageBox.Show("Unable to execute Python scripts, please set the path of Python interpreter in Tools->Miscellaneous Options.");
+            }
+            return checkPython;
         }
 
         [NotNull]
@@ -650,6 +675,9 @@ namespace SpectroscopyVisualizer {
         }
 
         private void FlattenCurves_OnClick(object sender, RoutedEventArgs e) {
+            if (!CheckPythonAndWarn()) {
+                return;
+            }
             var file = SelectFile();
             if (file == null) {
                 return;
@@ -659,7 +687,7 @@ namespace SpectroscopyVisualizer {
             if (File.Exists(file.Replace(".txt", "[WavelengthAxis].txt"))) {
                 Process.Start(pythonPath, cmd);
             } else {
-                var command = Quote(AppDomain.CurrentDomain.BaseDirectory + @"Pythons\Mapper.py") + " " + file;
+                var command = Quote(AppDomain.CurrentDomain.BaseDirectory + @"Pythons\Mapper.py") + " " + file + " " + SamplingConfigurations.Get().SamplingRate;
                 Process.Start(pythonPath, command);
                 MessageBox.Show("Generating wavelength axis, please click 'OK' AFTER completion.");
                 Process.Start(pythonPath, cmd);
@@ -676,6 +704,9 @@ namespace SpectroscopyVisualizer {
 
         private void BnViewTemporal_OnClick(object sender, RoutedEventArgs e) {
             if (IsProgramRunning()) {
+                return;
+            }
+            if (!CheckPythonAndWarn()) {
                 return;
             }
             Task.Run(() => {
@@ -698,7 +729,7 @@ namespace SpectroscopyVisualizer {
                     Toolbox.WriteData(path + "temporal.txt", data);
                     Toolbox.WriteData(path + "crests.txt", crestIndices.ToArray());
                     Process.Start(MiscellaneousConfigurations.Get().PythonPath,
-                        Quote(AppDomain.CurrentDomain.BaseDirectory + @"Pythons\TemporalViewer.py"));
+                        Quote(AppDomain.CurrentDomain.BaseDirectory + @"Pythons\TemporalViewer.py")+" "+ AppDomain.CurrentDomain.BaseDirectory);
                 } else {
                     MessageBox.Show("Sampler can't be initialized. Maybe another instance is running.");
                 }
@@ -712,6 +743,41 @@ namespace SpectroscopyVisualizer {
 
         private void AdditionalOptions_OnClick(object sender, RoutedEventArgs e) {
             new OptionsWindow().Show();
+        }
+
+        private void CheckUpdate_OnClick(object sender, RoutedEventArgs e) {
+            MessageBox.Show("No update available, never.");
+        }
+
+        private void Credits_OnClick(object sender, RoutedEventArgs e) {
+            DispatcherTimer dispatcherTimer = new DispatcherTimer();
+            dispatcherTimer.Interval = TimeSpan.FromSeconds(1);
+            var textBlock = new TextBlock();
+            textBlock.Foreground = Brushes.White;
+            textBlock.FontSize = 30;
+            ScopeCanvas.Children.Add(textBlock);
+            Canvas.SetTop(textBlock,ScopeCanvas.ActualHeight/2);
+            Canvas.SetLeft(textBlock,ScopeCanvas.ActualWidth / 3);
+            string[] credits= {
+            };
+            int i = 0;
+            bool show = true;
+            dispatcherTimer.Tick += (o, args) => {
+                if (i >= credits.Length) {
+                    ScopeCanvas.Children.Remove(textBlock);
+                    dispatcherTimer.Stop();
+                } else {
+                    if (show) {
+                        textBlock.Text = credits[i++];
+                        textBlock.Visibility = Visibility.Visible;
+                    } else {
+                        textBlock.Visibility = Visibility.Hidden;
+                    }
+                    show = !show;
+                }
+
+            };
+            dispatcherTimer.Start();
         }
     }
 }

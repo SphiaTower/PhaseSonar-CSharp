@@ -14,7 +14,7 @@ using PhaseSonar.Slicers.RefSlicers;
 using PhaseSonar.Utils;
 
 namespace PhaseSonar.Analyzers.WithReference {
-    public class Splitter : IRefPulseSequenceProcessor {
+    public class Splitter : ISplitter {
         [NotNull] private readonly ICorrectorV2 _corrector;
 
         [NotNull] private readonly ICrestFinder _finder;
@@ -40,12 +40,12 @@ namespace PhaseSonar.Analyzers.WithReference {
             _slicer = slicer;
         }
 
-
         /// <summary>
-        ///     Process the pulse sequence and accumulate results of all pulses
+        ///     Process the pulse sequence with reference signals and accumulate results of all pulses of gas and reference respectively
         /// </summary>
-        /// <param name="pulseSequence">The pulse sequence, often a sampled data record</param>
-        /// <returns>The accumulated spectrum</returns>
+        /// <param name="pulseSequence">A pulse sequence, containing reference pulses</param>
+        /// <returns>The result</returns>
+        [NotNull]
         public SplitResult Process([NotNull] double[] pulseSequence) {
             var crestIndices = _finder.Find(pulseSequence);
             if (crestIndices.Count <= 1) {
@@ -102,7 +102,7 @@ namespace PhaseSonar.Analyzers.WithReference {
             return SplitResult.WithoutException(tuple);
         }
 
-        private static double Sum(Complex[] array) {
+        private static double Sum([NotNull] Complex[] array) {
             double sum = 0;
             for (var i = 0; i < array.Length/2; i++) {
                 sum += array[i].Magnitude;

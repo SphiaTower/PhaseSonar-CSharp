@@ -50,19 +50,14 @@ namespace PhaseSonar.PhaseExtractors {
             // fft
             _centerRealContainer.ToComplex(_centerComplexContainer);
             Fourier.Forward(_centerComplexContainer, FourierOptions.Matlab);
-            RawSpectrumReady?.Invoke(_centerComplexContainer);
             // get phase from spectrum
             var complexSpectrum = _centerComplexContainer;
             for (var i = 0; i < _centerRealContainer.Length; i++) {
                 _centerRealContainer[i] = _complexToPhaseFunc(complexSpectrum[i]);
             }
-            RawPhaseReady?.Invoke(_centerRealContainer);
             // interpolate into full length
             _interpolator.Interpolate(_centerRealContainer, _phaseArray);
             return _phaseArray;
         }
-
-        public event SpectrumReadyEventHandler RawSpectrumReady;
-        public event PhaseReadyEventHandler RawPhaseReady;
     }
 }

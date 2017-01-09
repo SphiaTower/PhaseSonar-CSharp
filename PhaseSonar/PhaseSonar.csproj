@@ -82,11 +82,11 @@
     <Compile Include="Analyzers\WithReference\Splitter.cs" />
     <Compile Include="Analyzers\WithoutReference\AccumulationResult.cs" />
     <Compile Include="Analyzers\PhaseAnalyzers\IPhaseReader.cs" />
-    <Compile Include="Analyzers\WithoutReference\IPulseSequenceProcessor.cs" />
+    <Compile Include="Analyzers\WithoutReference\IAccumulator.cs" />
     <Compile Include="Analyzers\PhaseAnalyzers\PhaseResult.cs" />
     <Compile Include="Analyzers\WithoutReference\ProcessException.cs" />
     <Compile Include="Analyzers\WithoutReference\ProcessResult.cs" />
-    <Compile Include="Analyzers\WithReference\IRefPulseSequenceProcessor.cs" />
+    <Compile Include="Analyzers\WithReference\ISplitter.cs" />
     <Compile Include="Analyzers\WithReference\SplitResult.cs" />
     <Compile Include="CorrectorV2s\AutoFlipCorrectorV2.cs" />
     <Compile Include="CorrectorV2s\FakeCorrectorV2.cs" />
@@ -119,10 +119,8 @@
     <Compile Include="CorrectorV2s\PhaseExtractors\FourierOnlyPhaseExtractor.cs" />
     <Compile Include="CorrectorV2s\PhaseExtractors\IPhaseExtractor.cs" />
     <Compile Include="CorrectorV2s\PhaseExtractors\PhaseFitException.cs" />
-    <Compile Include="CorrectorV2s\PhaseExtractors\PhaseReadyEventHandler.cs" />
     <Compile Include="CorrectorV2s\PhaseExtractors\SpecifiedFreqRangePhaseExtractor.cs" />
     <Compile Include="CorrectorV2s\PhaseExtractors\SpecifiedRangePhaseExtractor.cs" />
-    <Compile Include="CorrectorV2s\PhaseExtractors\SpectrumReadyEventHandler.cs" />
     <Compile Include="Slicers\Aligners\CenterAligner.cs" />
     <Compile Include="Slicers\Aligners\IAligner.cs" />
     <Compile Include="Slicers\Aligners\LeftAligner.cs" />

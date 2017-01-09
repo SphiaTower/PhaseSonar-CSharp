@@ -30,7 +30,7 @@ namespace SpectroscopyVisualizer.Consumers {
     }
 
     internal class RefSpectroscopyVisualizer : IConsumerV2 {
-        private readonly ParallelConsumerV2<SampleRecord, IRefPulseSequenceProcessor, RefTaggedResult>
+        private readonly ParallelConsumerV2<SampleRecord, ISplitter, RefTaggedResult>
             _consumerV2Implementation;
 
         private readonly bool _saveAcc;
@@ -38,13 +38,13 @@ namespace SpectroscopyVisualizer.Consumers {
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
         public RefSpectroscopyVisualizer(BlockingCollection<SampleRecord> queue,
-            IEnumerable<IRefPulseSequenceProcessor> workers, SpectrumDisplayAdapter adapter,
+            IEnumerable<ISplitter> workers, SpectrumDisplayAdapter adapter,
             [CanBeNull] IWriterV2<TracedSpectrum> writer, int waitEmptyProducerMsTimeOut,
             int? targetCnt, bool saveSpec, bool saveAcc) {
             _saveSpec = saveSpec;
             _saveAcc = saveAcc;
             _consumerV2Implementation = new ParallelConsumerV2
-                <SampleRecord, IRefPulseSequenceProcessor, RefTaggedResult>(
+                <SampleRecord, ISplitter, RefTaggedResult>(
                 queue, workers, ProcessElement, HandleResultSync, waitEmptyProducerMsTimeOut, targetCnt);
             Adapter = adapter;
             Writer = writer;
@@ -157,7 +157,7 @@ namespace SpectroscopyVisualizer.Consumers {
 
         [NotNull]
         private RefTaggedResult ProcessElement([NotNull] SampleRecord record,
-            [NotNull] IRefPulseSequenceProcessor processor) {
+            [NotNull] ISplitter processor) {
             var splitResult = processor.Process(record.PulseSequence);
             return new RefTaggedResult(splitResult, record.Id);
         }

@@ -26,21 +26,14 @@ namespace PhaseSonar.PhaseExtractors {
                 complexSpectrum = correspondSpectrum;
             }
 
-            RawSpectrumReady?.Invoke(complexSpectrum);
-
-            //            symmetryPulse.ToComplex(_complexContainer);
-            //            _rotator.Rotate(_complexContainer);
 
             // rotate & to complex
 
             for (var i = 0; i < _phaseArray.Length; i++) {
                 _phaseArray[i] = complexSpectrum[i].Phase;
             }
-            RawPhaseReady?.Invoke(_phaseArray);
             return _phaseArray;
         }
 
-        public event SpectrumReadyEventHandler RawSpectrumReady;
-        public event PhaseReadyEventHandler RawPhaseReady;
     }
 }

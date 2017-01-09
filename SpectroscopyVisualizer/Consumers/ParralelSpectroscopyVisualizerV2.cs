@@ -10,7 +10,7 @@ using SpectroscopyVisualizer.Writers;
 
 namespace SpectroscopyVisualizer.Consumers {
     public class ParralelSpectroscopyVisualizerV2 : IConsumerV2 {
-        private readonly ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, TaggedProcessResult> _consumer;
+        private readonly ParallelConsumerV2<SampleRecord, IAccumulator, TaggedProcessResult> _consumer;
         private readonly bool _saveAcc;
         private readonly bool _saveSpec;
 
@@ -22,12 +22,12 @@ namespace SpectroscopyVisualizer.Consumers {
         /// <param name="writer"></param>
         /// <param name="targetCnt"></param>
         public ParralelSpectroscopyVisualizerV2(BlockingCollection<SampleRecord> queue,
-            IEnumerable<IPulseSequenceProcessor> workers, SpectrumDisplayAdapter adapter,
+            IEnumerable<IAccumulator> workers, SpectrumDisplayAdapter adapter,
             [CanBeNull] IWriterV2<TracedSpectrum> writer, int waitEmptyProducerMsTimeOut,
             int? targetCnt, bool saveSpec, bool saveAcc) {
             _saveSpec = saveSpec;
             _saveAcc = saveAcc;
-            _consumer = new ParallelConsumerV2<SampleRecord, IPulseSequenceProcessor, TaggedProcessResult>(
+            _consumer = new ParallelConsumerV2<SampleRecord, IAccumulator, TaggedProcessResult>(
                 queue, workers, ProcessElement, HandleResultSync, waitEmptyProducerMsTimeOut, targetCnt);
             Adapter = adapter;
             Writer = writer;
@@ -117,7 +117,7 @@ namespace SpectroscopyVisualizer.Consumers {
 
         [NotNull]
         private TaggedProcessResult ProcessElement([NotNull] SampleRecord record,
-            [NotNull] IPulseSequenceProcessor processor) {
+            [NotNull] IAccumulator processor) {
             var processResult = processor.Process(record.PulseSequence);
             return new TaggedProcessResult(processResult, record.Id);
         }

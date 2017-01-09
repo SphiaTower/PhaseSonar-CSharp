@@ -6,9 +6,9 @@ namespace SpectroscopyVisualizer.Configs {
     public class SliceConfigurations {
         private static SliceConfigurations _singleton;
 
-        private SliceConfigurations(int pointsBeforeCrest, bool crestAtCenter, double crestAmplitudeThreshold,
+        private SliceConfigurations(int peakMinLength, bool crestAtCenter, double crestAmplitudeThreshold,
             RulerType rulerType, bool autoAdjust, bool findAbs, int fixedLength, bool reference) {
-            PointsBeforeCrest = pointsBeforeCrest;
+            PeakMinLength = peakMinLength;
             CrestAtCenter = crestAtCenter;
             CrestAmplitudeThreshold = crestAmplitudeThreshold;
             RulerType = rulerType;
@@ -18,7 +18,7 @@ namespace SpectroscopyVisualizer.Configs {
             Reference = reference;
         }
 
-        public int PointsBeforeCrest { get; set; }
+        public int PeakMinLength { get; set; }
         public bool CrestAtCenter { get; set; }
         public double CrestAmplitudeThreshold { get; set; }
         public RulerType RulerType { get; set; }
@@ -27,9 +27,9 @@ namespace SpectroscopyVisualizer.Configs {
         public int FixedLength { get; set; }
         public bool Reference { get; set; }
 
-        public static void Initialize(int pointsBeforeCrest, bool crestAtCenter, double crestAmplitudeThreshold,
+        public static void Initialize(int peakMinLength, bool crestAtCenter, double crestAmplitudeThreshold,
             RulerType rulerType, bool autoAdjust, bool findAbs, int fixedLength, bool reference) {
-            _singleton = new SliceConfigurations(pointsBeforeCrest, crestAtCenter, crestAmplitudeThreshold, rulerType,
+            _singleton = new SliceConfigurations(peakMinLength, crestAtCenter, crestAmplitudeThreshold, rulerType,
                 autoAdjust, findAbs, fixedLength, reference);
         }
 

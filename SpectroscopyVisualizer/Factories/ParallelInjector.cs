@@ -29,7 +29,7 @@ namespace SpectroscopyVisualizer.Factories {
         [NotNull]
         public virtual ISlicer NewSlicer() {
             return new SimpleSlicer(
-                SliceConfigurations.Get().PointsBeforeCrest,
+                SliceConfigurations.Get().PeakMinLength/2,
                 NewRuler(),
                 NewAligner());
         }
@@ -64,11 +64,11 @@ namespace SpectroscopyVisualizer.Factories {
             if (sliceConfig.FindAbsoluteValue) {
                 finder = new AbsoluteCrestFinder(
                     config.RepetitionRate, SamplingConfigurations.Get().SamplingRate,
-                    sliceConfig.PointsBeforeCrest, sliceConfig.CrestAmplitudeThreshold);
+                    sliceConfig.PeakMinLength/2, sliceConfig.CrestAmplitudeThreshold);
             } else {
                 finder = new SimpleCrestFinder(
                     config.RepetitionRate, SamplingConfigurations.Get().SamplingRate,
-                    sliceConfig.PointsBeforeCrest, sliceConfig.CrestAmplitudeThreshold);
+                    sliceConfig.PeakMinLength/2, sliceConfig.CrestAmplitudeThreshold);
             }
             return sliceConfig.AutoAdjust ? new AutoAdjustCrestFinder(finder) : finder;
         }
@@ -79,7 +79,7 @@ namespace SpectroscopyVisualizer.Factories {
         }
 
         [NotNull]
-        public IPulseSequenceProcessor NewPulseSequenceProcessor() {
+        public IAccumulator NewPulseSequenceProcessor() {
             return new Accumulator(NewCrestFinder(), NewSlicer(), NewPulsePreprocessor(), NewCorrector());
         }
 
@@ -187,7 +187,7 @@ namespace SpectroscopyVisualizer.Factories {
             }
             var threadNum = configurations.ThreadNum;
             if (SliceConfigurations.Get().Reference) {
-                var splitters = new List<IRefPulseSequenceProcessor>(threadNum);
+                var splitters = new List<ISplitter>(threadNum);
                 for (var i = 0; i < threadNum; i++) {
                     splitters.Add(NewRefProcessor());
                 }
@@ -195,7 +195,7 @@ namespace SpectroscopyVisualizer.Factories {
                     adapter as SpectrumDisplayAdapter, NewSpectrumWriter(), timeout, targetCnt, configurations.SaveSpec,
                     configurations.SaveAcc);
             }
-            var accumulators = new List<IPulseSequenceProcessor>(threadNum);
+            var accumulators = new List<IAccumulator>(threadNum);
             for (var i = 0; i < threadNum; i++) {
                 accumulators.Add(NewPulseSequenceProcessor());
             }
@@ -212,7 +212,7 @@ namespace SpectroscopyVisualizer.Factories {
         [NotNull]
         private Splitter NewRefProcessor() {
             return new Splitter(NewCrestFinder(),
-                new RefSlicer(SliceConfigurations.Get().PointsBeforeCrest, NewRuler(), NewAligner()),
+                new RefSlicer(SliceConfigurations.Get().PeakMinLength/2, NewRuler(), NewAligner()),
                 NewPulsePreprocessor(), NewCorrector());
         }
 

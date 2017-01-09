@@ -1,4 +1,8 @@
 namespace PhaseSonar.Analyzers.WithoutReference {
+    /// <summary>
+    /// A wrapper containing process results and exceptions
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class ProcessResult<T> {
         public readonly T Data;
         public readonly ProcessException? Exception;

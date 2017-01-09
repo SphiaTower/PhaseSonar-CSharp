@@ -40,6 +40,15 @@ namespace PhaseSonar.PhaseExtractors {
             _rangePhaseContainer = new double[_rangeLength];
         }
 
+        /// <summary>
+        ///     Get the phase spectrum of the input pulse
+        /// </summary>
+        /// <param name="symmetryPulse">An input pulse with its peak located at the center</param>
+        /// <param name="correspondSpectrum">The complex spectrum of the input pulse, could be null</param>
+        /// <throws>
+        ///     <exception cref="PhaseFitException">thrown when having problems getting the phase</exception>
+        /// </throws>
+        /// <returns></returns>
         public double[] GetPhase(double[] symmetryPulse, Complex[] correspondSpectrum) {
             if (_halfDoubleContainer == null || _fullComplexContainer == null) {
                 _halfDoubleContainer = new double[symmetryPulse.Length/2];
@@ -60,15 +69,16 @@ namespace PhaseSonar.PhaseExtractors {
             // todo including problem
             Array.Copy(spectrum, _start, _rangeSpecContainer, 0, _rangeLength);
 
-            RawSpectrumReady?.Invoke(_rangeSpecContainer);
 
             _rangeSpecContainer.Phase(_rangePhaseContainer);
 
             Functions.UnwrapInPlace(_rangePhaseContainer);
 
-            RawPhaseReady?.Invoke(_rangePhaseContainer);
+            // tuple of a fit result, Item1: intersect, Item2: slope
             Tuple<double, double> tuple;
+            // tuple of a spectrum interval, Item1: std, Item2: start index, Item3: end index
             Tuple<double, int, int> bestZone;
+            // get the smoothest interval within the whole range
             var result = TryGetSmoothestInterval(_rangePhaseContainer, out bestZone);
             switch (result) {
                 case DivisionResult.BestIntervalFound:
@@ -102,10 +112,6 @@ namespace PhaseSonar.PhaseExtractors {
 
             return _halfDoubleContainer;
         }
-
-
-        public event SpectrumReadyEventHandler RawSpectrumReady;
-        public event PhaseReadyEventHandler RawPhaseReady;
 
         private static void ThrowIfStdTooLarge(double std, double threshold) {
             if (std > threshold) {

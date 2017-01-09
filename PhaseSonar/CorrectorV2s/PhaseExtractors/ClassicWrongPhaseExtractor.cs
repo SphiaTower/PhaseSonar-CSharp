@@ -14,16 +14,6 @@ namespace PhaseSonar.PhaseExtractors {
             return _phaseExtractor.GetPhase(symmetryPulse, correspondSpectrum);
         }
 
-        public event SpectrumReadyEventHandler RawSpectrumReady {
-            add { _phaseExtractor.RawSpectrumReady += value; }
-            remove { _phaseExtractor.RawSpectrumReady -= value; }
-        }
-
-        public event PhaseReadyEventHandler RawPhaseReady {
-            add { _phaseExtractor.RawPhaseReady += value; }
-            remove { _phaseExtractor.RawPhaseReady -= value; }
-        }
-
         private static double Phase(double real, double imag) {
             if (Math.Abs(real) > 0.0000001) {
                 return Math.Atan(imag/real);

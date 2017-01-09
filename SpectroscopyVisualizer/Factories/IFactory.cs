@@ -22,7 +22,7 @@ namespace SpectroscopyVisualizer.Factories {
         IAligner NewAligner();
         ICrestFinder NewCrestFinder();
         IPulsePreprocessor NewPulsePreprocessor();
-        IPulseSequenceProcessor NewPulseSequenceProcessor();
+        IAccumulator NewPulseSequenceProcessor();
 
         [NotNull]
         SpectrumDisplayAdapter NewSpectrumAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,

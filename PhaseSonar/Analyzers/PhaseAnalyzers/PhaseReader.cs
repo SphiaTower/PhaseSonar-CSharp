@@ -29,6 +29,11 @@ namespace PhaseSonar.Analyzers.PhaseAnalyzers {
             _phaseExtractor = phaseExtractor;
         }
 
+        /// <summary>
+        /// Get the phase spectrum of the input pulse sequence
+        /// </summary>
+        /// <param name="pulseSequence">A temporal pulse sequence</param>
+        /// <returns>The result of the calculation</returns>
         [NotNull]
         public PhaseResult GetPhase(double[] pulseSequence) {
             var crestIndices = _finder.Find(pulseSequence);

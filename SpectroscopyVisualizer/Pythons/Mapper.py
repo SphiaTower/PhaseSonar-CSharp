@@ -123,12 +123,13 @@ import sys
 
 
 def main():
-    if len(sys.argv) > 1:
-        address = sys.argv[1]
-    else:
-        address = strip_margin(input('plz input the address of folder/file:\n\t'))
+    if len(sys.argv) <= 1:
+        print('arguments not enought')
+        return
+    address = sys.argv[1]
+    sample_rate = float(sys.argv[2])
     data = read_all(address)
-    axis = build_axis(data, 100e6)
+    axis = build_axis(data, sample_rate)
     times, ceo = convert(axis, data)
     print("rf coefficients: ", times)
     print("ceo :", ceo)

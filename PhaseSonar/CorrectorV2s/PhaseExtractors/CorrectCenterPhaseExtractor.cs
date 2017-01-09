@@ -13,14 +13,6 @@ namespace PhaseSonar.PhaseExtractors {
             return _phaseExtractor.GetPhase(symmetryPulse, correspondSpectrum);
         }
 
-        public event SpectrumReadyEventHandler RawSpectrumReady {
-            add { _phaseExtractor.RawSpectrumReady += value; }
-            remove { _phaseExtractor.RawSpectrumReady -= value; }
-        }
 
-        public event PhaseReadyEventHandler RawPhaseReady {
-            add { _phaseExtractor.RawPhaseReady += value; }
-            remove { _phaseExtractor.RawPhaseReady -= value; }
-        }
     }
 }

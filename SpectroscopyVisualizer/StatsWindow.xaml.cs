@@ -63,7 +63,7 @@ namespace SpectroscopyVisualizer {
             TbSuccess.DataContext = this;
             TbSuccessRate.DataContext = this;
             TbValidPeriods.DataContext = this;
-            SourceInitialized += Window1_SourceInitialized;
+//            SourceInitialized += Window1_SourceInitialized;
 
             var tipsCnt = _tips.Length;
             var random = new Random();
@@ -194,6 +194,7 @@ namespace SpectroscopyVisualizer {
                 array[index] = t;
             }
         }
+/*
 
         private void Window1_SourceInitialized(object sender, EventArgs e) {
             var helper = new WindowInteropHelper(this);
@@ -214,6 +215,7 @@ namespace SpectroscopyVisualizer {
             }
             return IntPtr.Zero;
         }
+*/
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) {

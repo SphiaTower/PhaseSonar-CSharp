@@ -1,4 +1,5 @@
-﻿using PhaseSonar.Correctors;
+﻿using JetBrains.Annotations;
+using PhaseSonar.Correctors;
 
 namespace PhaseSonar.Analyzers.WithReference {
     /// <summary>
@@ -26,6 +27,7 @@ namespace PhaseSonar.Analyzers.WithReference {
         /// <param name="source">The source spectrum</param>
         /// <param name="reference">The reference spectrum</param>
         /// <returns></returns>
+        [NotNull]
         public static GasRefTuple SourceAndRef(ISpectrum source, ISpectrum reference) {
             return new GasRefTuple(source, reference);
         }
@@ -36,7 +38,8 @@ namespace PhaseSonar.Analyzers.WithReference {
         /// <param name="either">A spectrum</param>
         /// <param name="other">Another spectrum</param>
         /// <returns></returns>
-        public static GasRefTuple EitherAndOther(ISpectrum either, ISpectrum other) {
+        [NotNull]
+        public static GasRefTuple EitherAndOther([NotNull] ISpectrum either, ISpectrum other) {
             double eitherSum = 0, otherSum = 0;
             for (var i = 0; i < either.Length(); i++) {
                 eitherSum += either.Intensity(i);

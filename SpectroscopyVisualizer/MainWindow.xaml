@@ -7,7 +7,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:types="clr-namespace:SpectroscopyVisualizer.Configs"
         mc:Ignorable="d"
-        Title="Spectroscopy Visualizer 2.7.1" Height="600" Width="1200"
+        Title="Spectroscopy Visualizer 2.7.3" Height="600" Width="1200"
         d:DataContext="{d:DesignData }">
 
     <Grid>
@@ -28,7 +28,6 @@
                 <MenuItem Header="_Tools">
                     <MenuItem Name="CkUltraFast" Header="_Ultra Fast Mode" IsCheckable="True" IsChecked="False"
                               Checked="UltraFast_OnChecked" Unchecked="CkUltraFast_OnUnchecked" />
-                    <MenuItem Header="_Debug Command" Click="DebugCmd_OnClick" />
                     <Separator />
                     <MenuItem Header="_Start Sample..." Click="StartSample_OnClick" />
                     <MenuItem Header="_Generate Wavelength Axis..." Click="GenerateWavelengthAxis_OnClick" />
@@ -38,7 +37,8 @@
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="View Help" />
-                    <MenuItem Header="Check for Update" />
+                    <MenuItem Header="Check for Update" Click="CheckUpdate_OnClick"/>
+                    <MenuItem Header="Credits" Click="Credits_OnClick"/>
                     <Separator />
                     <MenuItem Header="Tech Support" Click="ContactAuthor_OnClick" />
                     <MenuItem Header="Report a Bug" Click="ReportBug_OnClick" />
@@ -184,14 +184,14 @@
                         </Grid.Resources>
                         <Rectangle Stroke="DarkGray" StrokeThickness="0.5" />
 
-                        <Label x:Name="label9" Content="Peak Min FMHW" HorizontalAlignment="Left"
+                        <Label x:Name="label9" Content="Peak Min Length" HorizontalAlignment="Left"
                                VerticalAlignment="Top"
                                Margin="0,34,0,0" />
                         <Label x:Name="LbPeakMinAmp" Content="Peak Min Amp/V" HorizontalAlignment="Left"
                                Margin="0,6,0,0"
                                VerticalAlignment="Top" RenderTransformOrigin="0.903,0.34" />
                         <TextBox x:Name="TbPtsBeforeCrest" HorizontalAlignment="Left" Height="23" Margin="117,37,0,0"
-                                 TextWrapping="Wrap" Text="{Binding PointsBeforeCrest}" VerticalAlignment="Top"
+                                 TextWrapping="Wrap" Text="{Binding PeakMinLength}" VerticalAlignment="Top"
                                  Width="47" RenderTransformOrigin="0.59,0.412" />
                         <TextBox x:Name="TbCrestMinAmp" HorizontalAlignment="Left" Height="23" Margin="116,6,0,0"
                                  TextWrapping="Wrap" Text="{Binding CrestAmplitudeThreshold}" VerticalAlignment="Top"

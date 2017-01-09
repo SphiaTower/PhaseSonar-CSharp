@@ -15,7 +15,7 @@ namespace PhaseSonar.Analyzers.WithoutReference {
     ///     An analyzer which adds up all results in a pulse sequence.
     ///     This class is targeted for the data with 1 component only.
     /// </summary>
-    public class Accumulator : IPulseSequenceProcessor {
+    public class Accumulator : IAccumulator {
         [NotNull] private readonly ICorrectorV2 _corrector;
 
         [NotNull] private readonly ICrestFinder _finder;
@@ -44,7 +44,7 @@ namespace PhaseSonar.Analyzers.WithoutReference {
         /// <summary>
         ///     Process the pulse sequence and accumulate results of all pulses
         /// </summary>
-        /// <param name="pulseSequence">The pulse sequence, often a sampled data record</param>
+        /// <param name="pulseSequence">The pulse sequence, without reference signals</param>
         /// <returns>The accumulated spectrum</returns>
         [NotNull]
         public AccumulationResult Process([NotNull] double[] pulseSequence) {
@@ -68,7 +68,7 @@ namespace PhaseSonar.Analyzers.WithoutReference {
                 Complex[] correctedSpectrum;
                 try {
                     correctedSpectrum = _corrector.Correct(pulse);
-                } catch (CorrectFailException e) {
+                } catch (CorrectFailException) {
                     errorCnt++;
                     continue;
                 }
@@ -88,14 +88,5 @@ namespace PhaseSonar.Analyzers.WithoutReference {
             }
             return new AccumulationResult(spectrum, ProcessException.NoFlatPhaseIntervalFound, errorCnt);
         }
-    }
-
-    internal class NoPeakFoundException : Exception {
-    }
-
-    internal class SliceFailedExceptin : Exception {
-    }
-
-    internal class ExcessivePhaseLeapsException : Exception {
     }
 }

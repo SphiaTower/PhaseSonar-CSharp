@@ -6,12 +6,12 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("SpectroscopyVisualizer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Spectroscopy Visualizer")]
+[assembly: AssemblyDescription("A spectroscopy measurement tool.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SpectroscopyVisualizer")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyCompany("SphiaTower")]
+[assembly: AssemblyProduct("Spectroscopy Visualizer")]
+[assembly: AssemblyCopyright("Copyright ©  2016-2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -1,0 +1,19 @@
+Spectroscopy Visualizer EULA for Spectroscopy Visualizer 2.x
+
+This End-user License Agreement (EULA) is a binding legal agreement between you (either an individual or an entity) and SphiaTower.  This EULA relates to Spectroscopy Visualization 2.x(the "Software"), including any update or replacement version.
+
+BY DOWNLOADING, INSTALLING, COPYING, OR USING THE LICENSED PRODUCT, YOU ACCEPT AND AGREE TO BE BOUND BY THE TERMS OF THIS EULA.  If you do not agree to the terms of this EULA, do not download, install or use the Software.
+
+Any person accepting this EULA on behalf of a legal entity warrants that he or she has the authority to bind such entity. 
+
+Subject to the terms and conditions of this EULA and in exchange for your payment of applicable fees, including applicable taxes, SphiaTower grants you a non-exclusive license to use the Software in accordance with the following terms.  The license, and this EULA, are limited by any limitations stated in this EULA, the SphiaTower or other license purchase website terms or emails sent to in connection with your licensing of the Software, including additional usage and time limitations.  You will agree not to circumvent or defeat any Software mechanisms that control, limit, or restrict Software installation or use in any way. Except as otherwise stated herein, all Software license rights are for your internal use only. 
+
+If you are developing and distributing applications for use with the Software, you may use the Software under this license for internal development only. You may not distribute or sublicense any Software to any third party under this EULA. Developers should direct each client to contact SphiaTower to obtain the client's own license or licenses to the Software. You also agree not to use the SphiaTower name, logo, or trademarks to market or promote your application without first receiving written permission from SphiaTower.
+
+If you develop applications for use with the Software, you further agree to indemnify, hold harmless, and defend SphiaTower and its suppliers from and against any claims or lawsuits asserted against SphiaTower or its employees, officers or directors that arise or result or are alleged to arise or result from any distribution or use of such an application and from any fees, damages, costs or losses arising from such claims or lawsuits.
+
+Any reproduction or redistribution of the Software not in accordance with the License Agreement is expressly prohibited by law, and may result in severe civil and criminal penalties. Violators will be prosecuted to the maximum extent possible.
+
+WITHOUT LIMITING THE FOREGOING, COPYING OR REPRODUCTION OF THE SOFTWARE TO ANY OTHER SERVER OR LOCATION FOR FURTHER REPRODUCTION OR REDISTRIBUTION IS EXPRESSLY PROHIBITED, UNLESS SUCH REPRODUCTION OR REDISTRIBUTION IS EXPRESSLY PERMITTED BY THE LICENSE AGREEMENT ACCOMPANYING SUCH SOFTWARE.
+THE SOFTWARE IS WARRANTED, IF AT ALL, ONLY ACCORDING TO THE TERMS OF THE LICENSE AGREEMENT. EXCEPT AS WARRANTED IN THE LICENSE AGREEMENT, SPHIATOWER CORPORATION HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS WITH REGARD TO THE SOFTWARE, INCLUDING ALL WARRANTIES AND CONDITIONS OF MERCHANTABILITY, WHETHER EXPRESS, IMPLIED OR STATUTORY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. FOR YOUR CONVENIENCE, SPHIATOWER MAY MAKE AVAILABLE AS PART OF THE SERVICES OR IN ITS SOFTWARE PRODUCTS, TOOLS AND UTILITIES FOR USE AND/OR DOWNLOAD. SPHIATOWER DOES NOT MAKE ANY ASSURANCES WITH REGARD TO THE ACCURACY OF THE RESULTS OR OUTPUT THAT DERIVES FROM SUCH USE OF ANY SUCH TOOLS AND UTILITIES. PLEASE RESPECT THE INTELLECTUAL PROPERTY RIGHTS OF OTHERS WHEN USING THE TOOLS AND UTILITIES MADE AVAILABLE ON THE SERVICES OR IN SPHIATOWER SOFTWARE PRODUCTS.
+RESTRICTED RIGHTS LEGEND. 

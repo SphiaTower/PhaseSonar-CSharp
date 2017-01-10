@@ -648,7 +648,7 @@ namespace SpectroscopyVisualizer {
 
         private void ContactAuthor_OnClick(object sender, RoutedEventArgs e) {
             MessageBox.Show("Q&A is free. Additional coding or document supports are only available to paying customers.");
-            var address = @"";
+            var address = @"mailto:traspip@126.com";
             Process.Start(address);
         }
 
@@ -775,6 +775,7 @@ namespace SpectroscopyVisualizer {
             Canvas.SetTop(textBlock,ScopeCanvas.ActualHeight/2);
             Canvas.SetLeft(textBlock,ScopeCanvas.ActualWidth / 3);
             string[] credits= {
+                "Coding\n   ZBF","Algorithms Design\n   ZBF","UI Design\n   ZBF","UX Design\n   ZBF","Framework\n   ZBF","Testing\n   ZBF","Optimization\n   ZBF","All rights reserved by\n   ZBF"
             };
             int i = 0;
             bool show = true;
@@ -798,6 +799,10 @@ namespace SpectroscopyVisualizer {
 
         private void ViewHelp_OnClick(object sender, RoutedEventArgs e) {
             Process.Start(AppDomain.CurrentDomain.BaseDirectory + @"UserGuide.pdf");
+        }
+
+        private void UserAgreement_OnClick(object sender, RoutedEventArgs e) {
+            Process.Start(AppDomain.CurrentDomain.BaseDirectory + @"LicenseAgreement.txt");
         }
     }
 }

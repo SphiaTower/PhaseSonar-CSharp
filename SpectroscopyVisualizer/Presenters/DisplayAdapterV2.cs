@@ -20,12 +20,11 @@ namespace SpectroscopyVisualizer.Presenters {
         private Func<double, double> _scaleX;
         private Func<double, double> _scaleY;
         private double _startFreqInMHz;
-        //        private UIElement _prevText;
 
         public DisplayAdapterV2([NotNull] CanvasView wavefromView, HorizontalAxisView horizontalAxisView,
             VerticalAxisView verticalAxisView, TextBox tbXCoordinate, TextBox tbDistance, int dispPointNum,
             double samplingRate, int startFreqInMHz,
-            int endFreqInMHz) // todo hard coded 0 and 50
+            int endFreqInMHz)
         {
             WavefromView = wavefromView;
             WavefromView.Reload(); // todo move out, and use a event

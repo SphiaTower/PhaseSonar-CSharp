@@ -39,6 +39,7 @@
                     <MenuItem Header="View Help" Click="ViewHelp_OnClick" />
                     <MenuItem Header="Check for Update" Click="CheckUpdate_OnClick"/>
                     <MenuItem Header="Credits" Click="Credits_OnClick"/>
+                    <MenuItem Header="License Agreement" Click="UserAgreement_OnClick"/>
                     <Separator />
                     <MenuItem Header="Tech Support" Click="ContactAuthor_OnClick" />
                     <MenuItem Header="Report a Bug" Click="ReportBug_OnClick" />

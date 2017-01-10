@@ -92,7 +92,7 @@ class EventHandler:
 
 
 def convert(axis, data):
-    print('plz identify 2 peaks')
+    print('Plz identify 2 peaks. Click MIDDLE button around the peak.')
     fig = plt.figure()
     canvas = fig.canvas
     dispatcher = CanvasEventDispatcher(canvas)

@@ -175,7 +175,15 @@ def main():
     start = binary_search(axis, 1520)
     end = binary_search(axis, 1565)
 
+    print("Click the MIDDLE button to set the start or stop index for divisions,\n"
+          "Click the RIGHT button to finish dividing and start fitting,\n"
+          "CLOSE the window to finish fitting,\n"
+          "Click the RIGHT button again to restart dividing.")
     fig = plt.figure()
+    plt.title("Click the MIDDLE button to set the start or stop index for divisions,\n"
+              "Click the RIGHT button to finish dividing and start fitting.")
+    plt.xlabel("CLOSE the window to finish fitting,\n"
+               "Click the RIGHT button again to restart dividing.")
     dispatcher = CanvasEventDispatcher(fig.canvas)
     axis = axis[start:end]
     data = data[start:end]

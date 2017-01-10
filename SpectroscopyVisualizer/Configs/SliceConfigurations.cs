@@ -45,15 +45,5 @@ namespace SpectroscopyVisualizer.Configs {
             return _singleton;
         }
 
-        public void Bind(Control pointsBeforeCrest, Control crestAmpThreshold, Control rulerType, Control autoAdjust,
-            Control findAbs, Control fixedLength, Control reference) {
-            pointsBeforeCrest.DataContext = this;
-            crestAmpThreshold.DataContext = this;
-            rulerType.DataContext = this;
-            autoAdjust.DataContext = this;
-            findAbs.DataContext = this;
-            fixedLength.DataContext = this;
-            reference.DataContext = this;
-        }
     }
 }

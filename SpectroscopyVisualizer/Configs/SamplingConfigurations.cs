@@ -38,15 +38,7 @@ namespace SpectroscopyVisualizer.Configs {
             }
         }
 
-        public void Bind(Control deviceName, Control channel, Control samplingRateInMHz, Control recordLengthInM,
-            Control range) {
-            deviceName.DataContext = this;
-            channel.DataContext = this;
-            samplingRateInMHz.DataContext = this;
-            recordLengthInM.DataContext = this;
-            range.DataContext = this;
-        }
-
+  
         public static void Initialize(string deviceName, int channel, double samplingRateInMHz, long recordLengthInM,
             double range) {
             if (_singleton != null) {

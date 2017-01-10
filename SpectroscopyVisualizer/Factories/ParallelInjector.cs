@@ -120,14 +120,14 @@ namespace SpectroscopyVisualizer.Factories {
                 case PhaseType.CenterInterpolation:
                     return new CorrectCenterPhaseExtractor(NewApodizer(),
                         config.CenterSpanLength/2);
-                case PhaseType.SpecifiedRange:
-                    return new SpecifiedRangePhaseExtractor((int) config.RangeStart, (int) config.RangeEnd,
+                case PhaseType.SpecificRange:
+                    return new SpecificRangePhaseExtractor((int) config.RangeStart, (int) config.RangeEnd,
                         misConfig.MinFlatPhasePtsNumCnt, misConfig.MaxPhaseStd);
                 case PhaseType.OldCenterInterpolation:
                     return new ClassicWrongPhaseExtractor(NewApodizer(),
                         config.CenterSpanLength/2);
-                case PhaseType.SpecifiedFreqRange:
-                    return new SpecifiedFreqRangePhaseExtractor(config.RangeStart, config.RangeEnd,
+                case PhaseType.SpecificFreqRange:
+                    return new SpecificFreqRangePhaseExtractor(config.RangeStart, config.RangeEnd,
                         SamplingConfigurations.Get().SamplingRateInMHz, misConfig.MinFlatPhasePtsNumCnt,
                         misConfig.MaxPhaseStd);
                 default:

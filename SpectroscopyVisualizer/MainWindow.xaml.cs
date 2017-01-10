@@ -39,11 +39,19 @@ namespace SpectroscopyVisualizer {
 
         private bool _ultraFastMode;
 
+        public SliceConfigurations SliceConfigs { get; set; }
+
+        public GeneralConfigurations GeneralConfigs { get; set; }
+
+        public SamplingConfigurations SampleConfigs { get; set; }
+
+        public CorrectorConfigurations CorrectorConfigs { get; set; }
+
         public MainWindow() {
             // init system components
             InitializeComponent();
 
-            _possibleWrongLabels = new[] {LbPeakMinAmp, LbRangeStart, LbRangeEnd, LbRepRate, LbChannel};
+            _possibleWrongLabels = new[] {LbPeakMinAmp, LbRangeStart, LbRangeEnd, LbRepRate};
             _originalThickness = _possibleWrongLabels[0].BorderThickness;
             _originalBrush = _possibleWrongLabels[0].BorderBrush;
 
@@ -100,6 +108,12 @@ namespace SpectroscopyVisualizer {
                     maxPhaseStd: 0.34,
                     pythonPath: @"C:\Anaconda3\python.exe");
             }
+
+
+            SliceConfigs = SliceConfigurations.Get();
+            CorrectorConfigs = CorrectorConfigurations.Get();
+            SampleConfigs = SamplingConfigurations.Get();
+            GeneralConfigs = GeneralConfigurations.Get();
 
             CbPhaseType.SelectionChanged += (sender, args) => {
                 HideAllPhaseOptions();
@@ -173,17 +187,18 @@ namespace SpectroscopyVisualizer {
             CkPhase.Checked += ckPhaseOnChecked;
             CkPhase.Unchecked += ckPhaseOnChecked;
 
-
             // bind configs to controls
-            SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
-            GeneralConfigurations.Get()
-                .Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase, CbSaveType, TbQueueSize,
-                    CkCaptureSample, CkCaptureSpec, CkCaptureAcc, CbOperationMode, TbTargetCnt);
-            SliceConfigurations.Get()
-                .Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength, CkRef);
-            CorrectorConfigurations.Get()
-                .Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart,
-                    TbRangeEnd, CkAutoFlip, CkSpecReal);
+            DataContext = this;
+
+//            SamplingConfigurations.Get().Bind(TbDeviceName, TbChannel, TbSamplingRate, TbRecordLength, TbRange);
+//            GeneralConfigurations.Get()
+//                .Bind(TbRepRate, TbThreadNum, TbDispPoints, TbSavePath, CkPhase, CbSaveType, TbQueueSize,
+//                    CkCaptureSample, CkCaptureSpec, CkCaptureAcc, CbOperationMode, TbTargetCnt);
+//            SliceConfigurations.Get()
+//                .Bind(TbPtsBeforeCrest, TbCrestMinAmp, CbSliceLength, CkAutoAdjust, CkFindAbs, TbFixedLength, CkRef);
+//            CorrectorConfigurations.Get()
+//                .Bind(TbZeroFillFactor, TbCenterSpanLength, CbCorrector, CbApodizationType, CbPhaseType, TbRangeStart,
+//                    TbRangeEnd, CkAutoFlip, CkSpecReal);
             // init custom components
 
             SwitchButton = new ToggleButtonV2(ToggleButton, false, "Stop", "Start");
@@ -224,8 +239,8 @@ namespace SpectroscopyVisualizer {
                     Show(TbCenterSpanLength);
                     Show(LbCentralSpan);
                     break;
-                case PhaseType.SpecifiedRange:
-                case PhaseType.SpecifiedFreqRange:
+                case PhaseType.SpecificRange:
+                case PhaseType.SpecificFreqRange:
                     Show(LbRangeStart);
                     Show(LbRangeEnd);
                     Show(TbRangeStart);
@@ -628,11 +643,11 @@ namespace SpectroscopyVisualizer {
         }
 
         private void ReportBug_OnClick(object sender, RoutedEventArgs e) {
-            var issue = @"";
-            Process.Start(issue);
+            MessageBox.Show("Sorry for encountering a bug, but I won't fix it unless payed for.");
         }
 
         private void ContactAuthor_OnClick(object sender, RoutedEventArgs e) {
+            MessageBox.Show("Q&A is free. Additional coding or document supports are only available to paying customers.");
             var address = @"";
             Process.Start(address);
         }
@@ -752,9 +767,10 @@ namespace SpectroscopyVisualizer {
         private void Credits_OnClick(object sender, RoutedEventArgs e) {
             DispatcherTimer dispatcherTimer = new DispatcherTimer();
             dispatcherTimer.Interval = TimeSpan.FromSeconds(1);
-            var textBlock = new TextBlock();
-            textBlock.Foreground = Brushes.White;
-            textBlock.FontSize = 30;
+            var textBlock = new TextBlock {
+                Foreground = Brushes.White,
+                FontSize = 30
+            };
             ScopeCanvas.Children.Add(textBlock);
             Canvas.SetTop(textBlock,ScopeCanvas.ActualHeight/2);
             Canvas.SetLeft(textBlock,ScopeCanvas.ActualWidth / 3);
@@ -778,6 +794,10 @@ namespace SpectroscopyVisualizer {
 
             };
             dispatcherTimer.Start();
+        }
+
+        private void ViewHelp_OnClick(object sender, RoutedEventArgs e) {
+            Process.Start(AppDomain.CurrentDomain.BaseDirectory + @"UserGuide.pdf");
         }
     }
 }

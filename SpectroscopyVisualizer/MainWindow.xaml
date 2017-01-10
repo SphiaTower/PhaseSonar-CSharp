@@ -7,7 +7,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:types="clr-namespace:SpectroscopyVisualizer.Configs"
         mc:Ignorable="d"
-        Title="Spectroscopy Visualizer 2.7.3" Height="600" Width="1200"
+        Title="Spectroscopy Visualizer 2.7.4 Final" Height="600" Width="1200"
         d:DataContext="{d:DesignData }">
 
     <Grid>
@@ -36,7 +36,7 @@
                     <MenuItem Header="_Miscellaneous Options..." Click="AdditionalOptions_OnClick" />
                 </MenuItem>
                 <MenuItem Header="_Help">
-                    <MenuItem Header="View Help" />
+                    <MenuItem Header="View Help" Click="ViewHelp_OnClick" />
                     <MenuItem Header="Check for Update" Click="CheckUpdate_OnClick"/>
                     <MenuItem Header="Credits" Click="Credits_OnClick"/>
                     <Separator />
@@ -142,27 +142,27 @@
 
                         <Label x:Name="label1" Content="Device Name" HorizontalAlignment="Left" Height="27"
                                VerticalAlignment="Top" Width="91" Margin="2,0,0,0" />
-                        <TextBox x:Name="TbDeviceName" Height="22"
+                        <TextBox x:Name="TbDeviceName" Height="22" DataContext="{Binding SampleConfigs}"
                                  TextWrapping="Wrap" Text="{Binding DeviceName}" VerticalAlignment="Top"
                                  HorizontalAlignment="Left" Margin="118,5,0,0" Width="44" />
 
                         <Label x:Name="label3" Content="Sample Rate/MHz" HorizontalAlignment="Left"
                                VerticalAlignment="Top" Margin="2,39,0,0" />
                         <TextBox x:Name="TbSamplingRate" HorizontalAlignment="Left" Height="23" Margin="118,40,0,0"
-                                 TextWrapping="Wrap" Text="{Binding SamplingRateInMHz}" VerticalAlignment="Top"
+                                 TextWrapping="Wrap" Text="{Binding SamplingRateInMHz}" DataContext="{Binding SampleConfigs}"  VerticalAlignment="Top"
                                  Width="44" />
                         <Label x:Name="LbChannel" Content="Channel" HorizontalAlignment="Left" VerticalAlignment="Top"
                                Margin="208,0,0,0" RenderTransformOrigin="-2.256,0.712" />
                         <TextBox x:Name="TbChannel" HorizontalAlignment="Left" Height="23" Margin="280,3,0,0"
-                                 TextWrapping="Wrap" Text="{Binding Channel}" VerticalAlignment="Top" Width="51"
+                                 TextWrapping="Wrap" Text="{Binding Channel}" DataContext="{Binding SampleConfigs}" VerticalAlignment="Top" Width="51"
                                  RenderTransformOrigin="0.017,1.089" />
                         <Label x:Name="label4" Content="Record Length/M" HorizontalAlignment="Left"
                                VerticalAlignment="Top" Margin="2,69,0,0" />
                         <TextBox x:Name="TbRecordLength" HorizontalAlignment="Left" Height="23" Margin="118,71,0,0"
-                                 TextWrapping="Wrap" Text="{Binding RecordLengthInM}" VerticalAlignment="Top"
+                                 TextWrapping="Wrap" Text="{Binding RecordLengthInM}"  DataContext="{Binding SampleConfigs}" VerticalAlignment="Top"
                                  Width="44" RenderTransformOrigin="0.618,2.629" />
                         <TextBox x:Name="TbRange" HorizontalAlignment="Left" Height="23"
-                                 TextWrapping="Wrap" Text="{Binding Range}" VerticalAlignment="Top" Width="51"
+                                 TextWrapping="Wrap" Text="{Binding Range}"  DataContext="{Binding SampleConfigs}" VerticalAlignment="Top" Width="51"
                                  Margin="280,38,0,0" RenderTransformOrigin="0.485,-0.07" />
                         <Label x:Name="label5" Content="Range/V" HorizontalAlignment="Left" VerticalAlignment="Top"
                                Margin="208,38,0,0" Width="60" RenderTransformOrigin="3.038,-0.798" />
@@ -170,7 +170,7 @@
                                Margin="174,71,0,0"
                                VerticalAlignment="Top" />
                         <TextBox x:Name="TbRepRate" HorizontalAlignment="Left" Height="23" Margin="280,71,0,0"
-                                 TextWrapping="Wrap" Text="{Binding RepetitionRate}" VerticalAlignment="Top" Width="51" />
+                                 TextWrapping="Wrap" Text="{Binding RepetitionRate}"  DataContext="{Binding GeneralConfigs}"  VerticalAlignment="Top" Width="51" />
                     </Grid>
                     <Grid Grid.Row="1">
                         <Grid.Resources>
@@ -191,30 +191,30 @@
                                Margin="0,6,0,0"
                                VerticalAlignment="Top" RenderTransformOrigin="0.903,0.34" />
                         <TextBox x:Name="TbPtsBeforeCrest" HorizontalAlignment="Left" Height="23" Margin="117,37,0,0"
-                                 TextWrapping="Wrap" Text="{Binding PeakMinLength}" VerticalAlignment="Top"
+                                 TextWrapping="Wrap" Text="{Binding PeakMinLength}"  DataContext="{Binding SliceConfigs}"  VerticalAlignment="Top"
                                  Width="47" RenderTransformOrigin="0.59,0.412" />
                         <TextBox x:Name="TbCrestMinAmp" HorizontalAlignment="Left" Height="23" Margin="116,6,0,0"
-                                 TextWrapping="Wrap" Text="{Binding CrestAmplitudeThreshold}" VerticalAlignment="Top"
+                                 TextWrapping="Wrap" Text="{Binding CrestAmplitudeThreshold}"  DataContext="{Binding SliceConfigs}" VerticalAlignment="Top"
                                  Width="48" />
                         <Label x:Name="label9_Copy" Content="Slice Length" HorizontalAlignment="Left"
                                VerticalAlignment="Top"
                                Margin="0,68,0,0" />
 
-                        <ComboBox x:Name="CbSliceLength"
+                        <ComboBox x:Name="CbSliceLength"  DataContext="{Binding SliceConfigs}"  
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:RulerType}}}"
                                   SelectedItem="{Binding Path=RulerType}" HorizontalAlignment="Left"
                                   VerticalAlignment="Top" Width="138" Margin="85,72,0,0" />
-                        <CheckBox x:Name="CkAutoAdjust" IsChecked="{Binding Path=AutoAdjust}"
+                        <CheckBox x:Name="CkAutoAdjust" IsChecked="{Binding Path=AutoAdjust}"  DataContext="{Binding SliceConfigs}" 
                                   Content="Auto-adjust Min Amp" HorizontalAlignment="Left" Margin="195,14,0,0"
                                   VerticalAlignment="Top" />
-                        <CheckBox x:Name="CkFindAbs" IsChecked="{Binding Path=FindAbsoluteValue}"
+                        <CheckBox x:Name="CkFindAbs" IsChecked="{Binding Path=FindAbsoluteValue}"  DataContext="{Binding SliceConfigs}" 
                                   Content="Find By Absolute Val" HorizontalAlignment="Left" Margin="195,45,0,0"
                                   VerticalAlignment="Top" Width="145" />
                         <TextBox x:Name="TbFixedLength" HorizontalAlignment="Left" Height="21" Margin="228,72,0,0"
-                                 TextWrapping="Wrap" Text="{Binding FixedLength}" VerticalAlignment="Top"
+                                 TextWrapping="Wrap" Text="{Binding FixedLength}"  DataContext="{Binding SliceConfigs}" VerticalAlignment="Top"
                                  Width="59" RenderTransformOrigin="0.59,0.412" />
                         <CheckBox x:Name="CkRef" HorizontalAlignment="Left" Height="21" Margin="228,72,0,0"
-                                  IsChecked="{Binding Path=Reference}" VerticalAlignment="Top" Content="Reference"
+                                  IsChecked="{Binding Path=Reference}" DataContext="{Binding SliceConfigs}"  VerticalAlignment="Top" Content="Reference"
                                   Width="80" RenderTransformOrigin="0.59,0.412" />
 
                     </Grid>
@@ -247,12 +247,12 @@
                                Margin="171,73,0,0"
                                VerticalAlignment="Top" />
                         <TextBox x:Name="TbZeroFillFactor" HorizontalAlignment="Left" Height="23" Margin="102,99,0,0"
-                                 TextWrapping="Wrap" Text="{Binding ZeroFillFactor}" VerticalAlignment="Top" Width="54" />
+                                 TextWrapping="Wrap" Text="{Binding ZeroFillFactor}"  DataContext="{Binding CorrectorConfigs}"  VerticalAlignment="Top" Width="54" />
                         <TextBox x:Name="TbCenterSpanLength" HorizontalAlignment="Left" VerticalAlignment="Top"
                                  Margin="286,74,0,17" Visibility="Hidden"
-                                 TextWrapping="Wrap" Text="{Binding CenterSpanLength}" Width="54" Height="23" />
+                                 TextWrapping="Wrap" Text="{Binding CenterSpanLength}"  DataContext="{Binding CorrectorConfigs}"  Width="54" Height="23" />
 
-                        <ComboBox x:Name="CbCorrector"
+                        <ComboBox x:Name="CbCorrector"  DataContext="{Binding CorrectorConfigs}" 
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:CorrectorType}}}"
                                   SelectedItem="{Binding Path=CorrectorType}" HorizontalAlignment="Left"
                                   VerticalAlignment="Top" Width="93" Margin="102,5,0,0" />
@@ -262,14 +262,14 @@
                         <Label x:Name="LbApodize" Content="Temp. Window" HorizontalAlignment="Left"
                                Margin="0,39,0,0"
                                VerticalAlignment="Top" />
-                        <ComboBox x:Name="CbApodizationType"
+                        <ComboBox x:Name="CbApodizationType"  DataContext="{Binding CorrectorConfigs}" 
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:ApodizerType}}}"
                                   SelectedItem="{Binding Path=ApodizerType}" HorizontalAlignment="Left"
                                   VerticalAlignment="Top" Width="93" Margin="102,39,0,0" />
                         <Label x:Name="LbPhaseType" Content="Phase" HorizontalAlignment="Left"
                                Margin="2,69,0,0"
                                VerticalAlignment="Top" />
-                        <ComboBox x:Name="CbPhaseType"
+                        <ComboBox x:Name="CbPhaseType"  DataContext="{Binding CorrectorConfigs}" 
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:PhaseType}}}"
                                   SelectedItem="{Binding PhaseType}" HorizontalAlignment="Left"
                                   VerticalAlignment="Top" Width="129" Margin="46,70,0,0" />
@@ -278,17 +278,17 @@
                         <Label x:Name="LbRangeEnd" Content="End" HorizontalAlignment="Left" Margin="260,66,0,0"
                                VerticalAlignment="Top" RenderTransformOrigin="0.624,0.068" />
                         <TextBox x:Name="TbRangeStart" HorizontalAlignment="Left" Height="23" Margin="212,70,0,0"
-                                 TextWrapping="Wrap" Text="{Binding RangeStart,UpdateSourceTrigger=LostFocus}"
+                                 TextWrapping="Wrap" Text="{Binding RangeStart,UpdateSourceTrigger=LostFocus}" DataContext="{Binding CorrectorConfigs}"
                                  VerticalAlignment="Top" Width="48" />
                         <TextBox x:Name="TbRangeEnd" HorizontalAlignment="Left" Height="23" Margin="297,69,0,0"
-                                 TextWrapping="Wrap" Text="{Binding RangeEnd,UpdateSourceTrigger=LostFocus}"
+                                 TextWrapping="Wrap" Text="{Binding RangeEnd,UpdateSourceTrigger=LostFocus}" DataContext="{Binding CorrectorConfigs}"
                                  VerticalAlignment="Top" Width="49" />
-                        <CheckBox x:Name="CkAutoFlip" IsChecked="{Binding Path=AutoFlip}"
+                        <CheckBox x:Name="CkAutoFlip" IsChecked="{Binding Path=AutoFlip}"  DataContext="{Binding CorrectorConfigs}" 
                                   Content="Auto-flip Minus Spec" HorizontalAlignment="Left" Margin="189,107,0,0"
                                   VerticalAlignment="Top" Width="151" />
-                        <CheckBox x:Name="CkPhase" IsChecked="{Binding Path=ViewPhase}" Content="View Phase"
+                        <CheckBox x:Name="CkPhase" IsChecked="{Binding Path=ViewPhase}"   DataContext="{Binding GeneralConfigs}" Content="View Phase"
                                   HorizontalAlignment="Left" Margin="212,11,0,0" VerticalAlignment="Top" Width="113" />
-                        <CheckBox x:Name="CkSpecReal" IsChecked="{Binding RealSpec}" Content="Real Spec Only"
+                        <CheckBox x:Name="CkSpecReal" IsChecked="{Binding RealSpec}"  DataContext="{Binding CorrectorConfigs}"  Content="Real Spec Only"
                                   HorizontalAlignment="Left" Margin="212,39,0,0" VerticalAlignment="Top" Width="138" />
                     </Grid>
                     <Grid Grid.Row="3">
@@ -304,20 +304,20 @@
                         <Rectangle Stroke="DarkGray" StrokeThickness="0.5" />
 
                         <TextBox x:Name="TbThreadNum" HorizontalAlignment="Left" Height="23" Margin="257,12,0,0"
-                                 TextWrapping="Wrap" Text="{Binding ThreadNum}" VerticalAlignment="Top" Width="67" />
+                                 TextWrapping="Wrap" Text="{Binding ThreadNum}"  DataContext="{Binding GeneralConfigs}"  VerticalAlignment="Top" Width="67" />
                         <Label x:Name="label18" Content="Threads" HorizontalAlignment="Left" Margin="196,11,0,0"
                                VerticalAlignment="Top" />
                         <Label x:Name="label17" Content="Points Displayed" HorizontalAlignment="Left"
                                VerticalAlignment="Top" Margin="0,10,0,0" />
                         <TextBox x:Name="TbDispPoints" HorizontalAlignment="Left" Height="23" Margin="112,11,0,0"
-                                 TextWrapping="Wrap" Text="{Binding DispPoints}" VerticalAlignment="Top" Width="54" />
+                                 TextWrapping="Wrap" Text="{Binding DispPoints}" DataContext="{Binding GeneralConfigs}"   VerticalAlignment="Top" Width="54" />
                         <TextBox x:Name="TbQueueSize" HorizontalAlignment="Left" Height="23" Margin="112,40,0,0"
-                                 TextWrapping="Wrap" Text="{Binding QueueSize}" VerticalAlignment="Top" Width="54" />
-                        <ComboBox x:Name="CbOperationMode"
+                                 TextWrapping="Wrap" Text="{Binding QueueSize}" DataContext="{Binding GeneralConfigs}"   VerticalAlignment="Top" Width="54" />
+                        <ComboBox x:Name="CbOperationMode" DataContext="{Binding GeneralConfigs}"  
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:OperationMode}}}"
                                   SelectedItem="{Binding Path=OperationMode}" HorizontalAlignment="Left"
                                   VerticalAlignment="Top" Width="70" Margin="196,39,0,0" />
-                        <TextBox x:Name="TbTargetCnt" Text="{Binding TargetCnt}" HorizontalAlignment="Left" Height="23"
+                        <TextBox x:Name="TbTargetCnt" Text="{Binding TargetCnt}" DataContext="{Binding GeneralConfigs}"   HorizontalAlignment="Left" Height="23"
                                  Margin="277,40,0,0"
                                  TextWrapping="Wrap" VerticalAlignment="Top" Width="54" />
                         <Label x:Name="label17_Copy" Content="Queue Capacity" HorizontalAlignment="Left"
@@ -337,23 +337,23 @@
                                 RenderTransformOrigin="3.756,-1.336"
                                 Click="BnPath_Click" Height="43" />
                         <TextBox x:Name="TbSavePath" HorizontalAlignment="Left" Height="43" Margin="88,10,0,0"
-                                 TextWrapping="Wrap" Text="{Binding Directory}" VerticalAlignment="Top" Width="187" />
+                                 TextWrapping="Wrap" Text="{Binding Directory}" DataContext="{Binding GeneralConfigs}"   VerticalAlignment="Top" Width="187" />
                         <Button x:Name="BnOpenPath" HorizontalAlignment="Left" Height="43" Margin="288,10,0,0"
                                 Content="Open" VerticalAlignment="Top" Width="50" Click="BnOpenPath_OnClick" />
-                        <CheckBox x:Name="CkCaptureSample" Content="Samples" IsChecked="{Binding Path=SaveSample}"
+                        <CheckBox x:Name="CkCaptureSample" Content="Samples" IsChecked="{Binding Path=SaveSample}" DataContext="{Binding GeneralConfigs}"  
                                   HorizontalAlignment="Left"
                                   Margin="12,74,0,0" VerticalAlignment="Top" />
-                        <CheckBox x:Name="CkCaptureSpec" Content="Spec" IsChecked="{Binding Path=SaveSpec}"
+                        <CheckBox x:Name="CkCaptureSpec" Content="Spec" IsChecked="{Binding Path=SaveSpec}" DataContext="{Binding GeneralConfigs}"  
                                   HorizontalAlignment="Left"
                                   Margin="95,74,0,0"
                                   VerticalAlignment="Top" />
-                        <CheckBox x:Name="CkCaptureAcc" Content="Total" IsChecked="{Binding Path=SaveAcc}"
+                        <CheckBox x:Name="CkCaptureAcc" Content="Total" IsChecked="{Binding Path=SaveAcc}" DataContext="{Binding GeneralConfigs}"  
                                   HorizontalAlignment="Left"
                                   Margin="156,74,0,0"
                                   VerticalAlignment="Top" />
                         <ProgressBar x:Name="PbLoading" HorizontalAlignment="Left" Height="28" Margin="10,100,0,0"
                                      VerticalAlignment="Top" Width="316" />
-                        <ComboBox x:Name="CbSaveType"
+                        <ComboBox x:Name="CbSaveType" DataContext="{Binding GeneralConfigs}"  
                                   ItemsSource="{Binding Source={local:EnumBindingSource {x:Type types:SaveType}}}"
                                   SelectedItem="{Binding Path=SaveType}"
                                   HorizontalAlignment="Left" Margin="246,69,0,0" VerticalAlignment="Top" Width="90" />

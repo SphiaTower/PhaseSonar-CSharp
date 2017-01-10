@@ -8,7 +8,7 @@ using PhaseSonar.Maths;
 using PhaseSonar.Utils;
 
 namespace PhaseSonar.PhaseExtractors {
-    public class SpecifiedRangePhaseExtractor : IPhaseExtractor {
+    public class SpecificRangePhaseExtractor : IPhaseExtractor {
         public enum DivisionResult {
             NoLeapPtsFound,
             AllIntervalTooShort,
@@ -29,7 +29,7 @@ namespace PhaseSonar.PhaseExtractors {
         private double[] _halfDoubleContainer;
 
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
-        public SpecifiedRangePhaseExtractor(int start, int end, int minFlatPhasePtsNumCnt, double maxPhaseStd) {
+        public SpecificRangePhaseExtractor(int start, int end, int minFlatPhasePtsNumCnt, double maxPhaseStd) {
             _start = start;
             _end = end;
             _minFlatPhasePtsNumCnt = minFlatPhasePtsNumCnt;
@@ -74,7 +74,7 @@ namespace PhaseSonar.PhaseExtractors {
 
             Functions.UnwrapInPlace(_rangePhaseContainer);
 
-            // tuple of a fit result, Item1: intersect, Item2: slope
+            // tuple of a fitting result, Item1: intersect, Item2: slope
             Tuple<double, double> tuple;
             // tuple of a spectrum interval, Item1: std, Item2: start index, Item3: end index
             Tuple<double, int, int> bestZone;
@@ -99,13 +99,10 @@ namespace PhaseSonar.PhaseExtractors {
                 default:
                     throw new PhaseFitException();
             }
-//            tuple = Fit.Line(_linespace, _rangePhaseContainer);
+            // get the slope and intersect of the best interval
             var slope = tuple.Item2;
-//             if (Math.Abs(slope)>0.05) {
-//                 throw new PhaseFitException();
-//             }
             var intersect = tuple.Item1;
-
+            // extrapolate the fit phase into single-side spectrum range 
             for (var i = 0; i < _halfDoubleContainer.Length; i++) {
                 _halfDoubleContainer[i] = intersect + slope*i;
             }
@@ -121,7 +118,7 @@ namespace PhaseSonar.PhaseExtractors {
 
         public DivisionResult TryGetSmoothestInterval(double[] phase, out Tuple<double, int, int> bestZone) {
             var last = phase[0];
-
+            // find all phase leaps
             var leapPts = new List<int>();
             for (var i = 1; i < phase.Length; i++) {
                 var curr = phase[i];
@@ -131,11 +128,12 @@ namespace PhaseSonar.PhaseExtractors {
                 }
                 last = curr;
             }
+            // if no phase leap found
             if (leapPts.IsEmpty()) {
                 bestZone = null;
                 return DivisionResult.NoLeapPtsFound;
             }
-
+            // divide the phase spectrum into intervals by leap pts
             var intervals = new List<Tuple<int, int>> {new Tuple<int, int>(0, leapPts.First() - 1)};
             for (var i = 0; i < leapPts.Count - 1; i++) {
                 var start = leapPts[i];
@@ -143,11 +141,14 @@ namespace PhaseSonar.PhaseExtractors {
                 intervals.Add(new Tuple<int, int>(start, end));
             }
             intervals.Add(new Tuple<int, int>(leapPts.Last(), phase.Length - 1));
+            // remove intervals which are too short
             intervals.RemoveAll(tuple => tuple.Item2 - tuple.Item1 <= _minFlatPhasePtsNumCnt);
+            // if all removed
             if (intervals.IsEmpty()) {
                 bestZone = null;
                 return DivisionResult.AllIntervalTooShort;
             }
+            // find the interval with lowest std
             var leastStd = new Tuple<double, int, int>(double.MaxValue, -1, -1);
             intervals.ForEach(tuple => {
                 var enumerable = _rangePhaseContainer.Where((d, j) => j >= tuple.Item1 && j <= tuple.Item2);

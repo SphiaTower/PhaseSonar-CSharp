@@ -119,8 +119,8 @@
     <Compile Include="CorrectorV2s\PhaseExtractors\FourierOnlyPhaseExtractor.cs" />
     <Compile Include="CorrectorV2s\PhaseExtractors\IPhaseExtractor.cs" />
     <Compile Include="CorrectorV2s\PhaseExtractors\PhaseFitException.cs" />
-    <Compile Include="CorrectorV2s\PhaseExtractors\SpecifiedFreqRangePhaseExtractor.cs" />
-    <Compile Include="CorrectorV2s\PhaseExtractors\SpecifiedRangePhaseExtractor.cs" />
+    <Compile Include="CorrectorV2s\PhaseExtractors\SpecificFreqRangePhaseExtractor.cs" />
+    <Compile Include="CorrectorV2s\PhaseExtractors\SpecificRangePhaseExtractor.cs" />
     <Compile Include="Slicers\Aligners\CenterAligner.cs" />
     <Compile Include="Slicers\Aligners\IAligner.cs" />
     <Compile Include="Slicers\Aligners\LeftAligner.cs" />

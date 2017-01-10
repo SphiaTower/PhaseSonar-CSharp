@@ -30,8 +30,8 @@ namespace SpectroscopyVisualizer.Configs {
         [Description("Full Range")] FullRange,
         [Description("Center Interpolation")] CenterInterpolation,
         [Description("Classic Method")] OldCenterInterpolation,
-        [Description("Specific Pts Range")] SpecifiedRange,
-        [Description("Specific Freq Range")] SpecifiedFreqRange
+        [Description("Specific Pts Range")] SpecificRange,
+        [Description("Specific Freq Range")] SpecificFreqRange
     }
 
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
@@ -103,18 +103,5 @@ namespace SpectroscopyVisualizer.Configs {
                 phaseType, rangeStart, rangeEnd, autoFlip, realPhase);
         }
 
-        public void Bind(Control tbZeroFillFactor, Control tbCenterSpanLength, Control cbCorrectorType,
-            Control cbApodizationType, Control cbPhaseType, Control tbRangeStart, Control tbRangeEnd, Control ckAutoFlip,
-            Control ckRealSpec) {
-            tbZeroFillFactor.DataContext = this;
-            tbCenterSpanLength.DataContext = this;
-            cbCorrectorType.DataContext = this;
-            cbApodizationType.DataContext = this;
-            cbPhaseType.DataContext = this;
-            tbRangeStart.DataContext = this;
-            tbRangeEnd.DataContext = this;
-            ckAutoFlip.DataContext = this;
-            ckRealSpec.DataContext = this;
-        }
     }
 }

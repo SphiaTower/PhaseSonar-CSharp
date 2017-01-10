@@ -26,22 +26,16 @@ namespace SpectroscopyVisualizer.Configs {
         }
 
         public bool ViewPhase { get; set; }
-
         public double RepetitionRate { get; set; }
-
         public int ThreadNum { get; set; }
         public int DispPoints { get; set; }
         public int QueueSize { get; set; }
         public bool SaveSample { get; set; }
         public bool SaveSpec { get; set; }
         public bool SaveAcc { get; set; }
-
         public string Directory { get; set; }
-
         public SaveType SaveType { get; set; }
-
         public OperationMode OperationMode { get; set; }
-
         public int TargetCnt { get; set; }
 
         public static void Register(GeneralConfigurations generalConfigurations) {
@@ -53,23 +47,6 @@ namespace SpectroscopyVisualizer.Configs {
         }
 
 
-        public void Bind([NotNull] Control repetitionRate, [NotNull] Control threadNum, [NotNull] Control dispPoints,
-            [NotNull] Control savePath, [NotNull] Control viewPhase, [NotNull] Control saveType,
-            [NotNull] Control queueSize, Control saveSample, Control saveSpec, Control saveAcc, Control operationType,
-            Control targetCnt) {
-            repetitionRate.DataContext = this;
-            threadNum.DataContext = this;
-            dispPoints.DataContext = this;
-            savePath.DataContext = this;
-            viewPhase.DataContext = this;
-            saveType.DataContext = this;
-            queueSize.DataContext = this;
-            saveSample.DataContext = this;
-            saveSpec.DataContext = this;
-            saveAcc.DataContext = this;
-            operationType.DataContext = this;
-            targetCnt.DataContext = this;
-        }
 
         public static void Initialize(double repetitionRate, int threadNum, int dispPoints, string directory,
             bool viewPhase, SaveType saveType, int queueSize, bool saveSample, bool saveSpec, bool saveAcc,

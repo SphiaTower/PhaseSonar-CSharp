@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using NationalInstruments.Examples.StreamToDiskConsole;
 using PhaseSonar.Analyzers.PhaseAnalyzers;
 using PhaseSonar.Analyzers.WithoutReference;
+using PhaseSonar.Analyzers.WithoutReference.LockOn;
 using PhaseSonar.Analyzers.WithReference;
 using PhaseSonar.CorrectorV2s;
 using PhaseSonar.CorrectorV2s.PhaseSynthesizers;
@@ -80,15 +81,20 @@ namespace SpectroscopyVisualizer.Factories {
 
         [NotNull]
         public IAccumulator NewPulseSequenceProcessor() {
+            var config = CorrectorConfigurations.Get();
+            if (config.LockDip) {
+                return new LockDipAccumulator(NewCrestFinder(),NewSlicer(),NewPulsePreprocessor(),NewCorrector(),config.LockDipFreqInMHz,
+                    MiscellaneousConfigurations.Get().LockDipScanRadiusInMhz,SamplingConfigurations.Get().SamplingRateInMHz);
+            }
             return new Accumulator(NewCrestFinder(), NewSlicer(), NewPulsePreprocessor(), NewCorrector());
         }
 
         public SpectrumDisplayAdapter NewSpectrumAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,
-            VerticalAxisView verticalAxisView, TextBox tbX, TextBox tbDelta) {
+            VerticalAxisView verticalAxisView, TextBox tbX, TextBox tbDelta,double? dipLockFreq,double lockDipScanRadius) {
             return new SpectrumDisplayAdapter(view, horizontalAxisView, verticalAxisView, tbX, tbDelta,
                 GeneralConfigurations.Get().DispPoints,
                 SamplingConfigurations.Get().SamplingRate, 0,
-                (int) Math.Round(SamplingConfigurations.Get().SamplingRateInMHz/2));
+                (int) Math.Round(SamplingConfigurations.Get().SamplingRateInMHz/2), dipLockFreq, lockDipScanRadius);
         }
 
         public PhaseDisplayAdapter NewPhaseAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,
@@ -137,7 +143,7 @@ namespace SpectroscopyVisualizer.Factories {
 
         [NotNull]
         public virtual ICorrectorV2 NewCorrector() {
-            if (CorrectorConfigurations.Get().AutoFlip) {
+            if (MiscellaneousConfigurations.Get().AutoFlip) {
                 return new AutoFlipCorrectorV2(NewCorrectorNoFlip());
             }
             return NewCorrectorNoFlip();
@@ -164,7 +170,11 @@ namespace SpectroscopyVisualizer.Factories {
 
         [NotNull]
         public IWriterV2<TracedSpectrum> NewSpectrumWriter() {
-            return new SpectrumWriterV2(GeneralConfigurations.Get().Directory, "[Sum]",
+            var prefix = "[Sum]";
+            if (CorrectorConfigurations.Get().LockDip) {
+                prefix += "[LockOn-" + CorrectorConfigurations.Get().LockDipFreqInMHz.ToString("F2") + "MHz]";
+            }
+            return new SpectrumWriterV2(GeneralConfigurations.Get().Directory, prefix,
                 GeneralConfigurations.Get().SaveType);
         }
 

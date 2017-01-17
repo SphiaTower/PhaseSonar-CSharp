@@ -89,12 +89,11 @@ namespace PhaseSonar.Analyzers.WithReference {
                 spectra[i] = new Spectrum(accumulatedSpectrum, cnt);
             }
 
-            var duo = Duo.Create(spectra[0], spectra[1]);
             GasRefTuple tuple;
-            if (Sum(duo.Item2.Array) > Sum(duo.Item1.Array)) {
-                tuple = GasRefTuple.SourceAndRef(duo.Item2, duo.Item1);
+            if (Average(spectra[1]) > Average(spectra[0])) {
+                tuple = GasRefTuple.SourceAndRef(spectra[1], spectra[0]);
             } else {
-                tuple = GasRefTuple.SourceAndRef(duo.Item1, duo.Item2);
+                tuple = GasRefTuple.SourceAndRef(spectra[0], spectra[1]);
             }
             if (errorCnt != 0) {
                 return new SplitResult(tuple, ProcessException.NoFlatPhaseIntervalFound, errorCnt);
@@ -102,12 +101,12 @@ namespace PhaseSonar.Analyzers.WithReference {
             return SplitResult.WithoutException(tuple);
         }
 
-        private static double Sum([NotNull] Complex[] array) {
+        private static double Average([NotNull] ISpectrum array) {
             double sum = 0;
-            for (var i = 0; i < array.Length/2; i++) {
-                sum += array[i].Magnitude;
+            for (var i = 0; i < array.Length()/2; i++) {
+                sum += array.Intensity(i);
             }
-            return sum;
+            return sum/array.PulseCount/array.PulseCount;
         }
     }
 }

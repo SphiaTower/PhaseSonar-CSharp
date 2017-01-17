@@ -57,8 +57,8 @@ namespace SpectroscopyVisualizer.Configs {
         private static CorrectorConfigurations _singleton;
 
         private CorrectorConfigurations(int zeroFillFactor, int centerSpanLength, CorrectorType correctorType,
-            ApodizerType apodizerType, PhaseType phaseType, double rangeStart, double rangeEnd, bool autoFlip,
-            bool realSpec) {
+            ApodizerType apodizerType, PhaseType phaseType, double rangeStart, double rangeEnd,
+            bool realSpec,bool lockDip,double lockDipFreqInMHz) {
             ZeroFillFactor = zeroFillFactor;
             CenterSpanLength = centerSpanLength;
             CorrectorType = correctorType;
@@ -66,8 +66,9 @@ namespace SpectroscopyVisualizer.Configs {
             PhaseType = phaseType;
             RangeStart = rangeStart;
             RangeEnd = rangeEnd;
-            AutoFlip = autoFlip;
             RealSpec = realSpec;
+            LockDip = lockDip;
+            LockDipFreqInMHz = lockDipFreqInMHz;
         }
 
 
@@ -78,9 +79,10 @@ namespace SpectroscopyVisualizer.Configs {
         public PhaseType PhaseType { get; set; }
         public double RangeStart { get; set; }
         public double RangeEnd { get; set; }
-        public bool AutoFlip { get; set; }
         public bool RealSpec { get; set; }
-
+        public bool LockDip { get; set; }
+        public double LockDipFreqInMHz { get; set; }
+      
         public static CorrectorConfigurations Get() {
             return _singleton;
         }
@@ -94,13 +96,13 @@ namespace SpectroscopyVisualizer.Configs {
         }
 
         public static void Initialize(int zeroFillFactor, int centerSpanLength, CorrectorType correctorType,
-            ApodizerType apodizerType, PhaseType phaseType, double rangeStart, double rangeEnd, bool autoFlip,
-            bool realPhase) {
+            ApodizerType apodizerType, PhaseType phaseType, double rangeStart, double rangeEnd,
+            bool realPhase, bool lockDip, double lockDipFreqInMHz) {
             if (_singleton != null) {
                 throw new Exception("environment already init");
             }
             _singleton = new CorrectorConfigurations(zeroFillFactor, centerSpanLength, correctorType, apodizerType,
-                phaseType, rangeStart, rangeEnd, autoFlip, realPhase);
+                phaseType, rangeStart, rangeEnd,  realPhase,lockDip,lockDipFreqInMHz);
         }
 
     }

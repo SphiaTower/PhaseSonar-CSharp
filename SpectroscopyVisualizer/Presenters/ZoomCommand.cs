@@ -20,8 +20,8 @@ namespace SpectroscopyVisualizer.Presenters {
         public void Invoke() {
             _lastStartFreq = _adapter.StartFreqInMHz;
             _lastEndFreq = _adapter.EndFreqInMHz;
-            var width = _canvasView.Canvas.ActualWidth;
-            var factor = new Func<double, double>(x => x/width*(_lastEndFreq - _lastStartFreq) + _lastStartFreq);
+            var width = _adapter.ScreenWidth;
+            var factor = new Func<double, double>(x => x*(_lastEndFreq - _lastStartFreq) / width + _lastStartFreq);
             var nextStart = factor.Invoke(_startX);
             var nextEnd = factor.Invoke(_endX);
             _adapter.StartFreqInMHz = nextStart;

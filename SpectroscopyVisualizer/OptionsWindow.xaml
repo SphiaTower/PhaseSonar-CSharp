@@ -33,6 +33,10 @@
                  Text="TextBox" VerticalAlignment="Top" Width="213" />
         <Button x:Name="BnPythonPath" Content="Browse..." HorizontalAlignment="Left" Margin="142,263,0,0"
                 Click="BnPythonPath_OnClick" VerticalAlignment="Top" Width="75" />
+        <CheckBox x:Name="CkFlipMinusSpec" Content=" " HorizontalAlignment="Left" Margin="263,315,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label" Content="Lock-on Scan Radius/MHz" HorizontalAlignment="Left" Margin="43,354,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="TbDipLockScanRadius" HorizontalAlignment="Left" Height="23" Margin="263,354,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <Label x:Name="label_Copy" Content="Flip Minus Real Spec" HorizontalAlignment="Left" Margin="43,309,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

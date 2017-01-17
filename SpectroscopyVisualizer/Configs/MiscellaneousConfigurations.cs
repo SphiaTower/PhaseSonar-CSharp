@@ -7,12 +7,16 @@ namespace SpectroscopyVisualizer.Configs {
         private static MiscellaneousConfigurations _singleton;
 
         private MiscellaneousConfigurations(int waitEmptyProducerMsTimeout, int minFlatPhasePtsNumCnt,
-            double maxPhaseStd, string pythonPath) {
+            double maxPhaseStd, string pythonPath, bool autoFlip,double lockDipScanRadiusInMHz) {
             MinFlatPhasePtsNumCnt = minFlatPhasePtsNumCnt;
             MaxPhaseStd = maxPhaseStd;
             WaitEmptyProducerMsTimeout = waitEmptyProducerMsTimeout;
             PythonPath = pythonPath;
+            AutoFlip = autoFlip;
+            LockDipScanRadiusInMhz = lockDipScanRadiusInMHz;
         }
+        public double LockDipScanRadiusInMhz { get; set; }
+        public bool AutoFlip { get; set; }
 
         public int MinFlatPhasePtsNumCnt { get; set; } //200
         public double MaxPhaseStd { get; set; } //0.34
@@ -27,9 +31,9 @@ namespace SpectroscopyVisualizer.Configs {
         }
 
         public static void Initialize(int waitEmptyProducerMsTimeout, int minFlatPhasePtsNumCnt, double maxPhaseStd,
-            string pythonPath) {
+            string pythonPath, bool autoFlip, double lockDipScanRadiusInMHz) {
             _singleton = new MiscellaneousConfigurations(waitEmptyProducerMsTimeout, minFlatPhasePtsNumCnt, maxPhaseStd,
-                pythonPath);
+                pythonPath,autoFlip,lockDipScanRadiusInMHz);
         }
 
         public static void Register(MiscellaneousConfigurations miscellaneous) {

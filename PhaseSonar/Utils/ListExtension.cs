@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Text;
 using JetBrains.Annotations;
 using MathNet.Numerics.IntegralTransforms;
+using Microsoft.Scripting.Hosting;
 
 namespace PhaseSonar.Utils {
     /// <summary>
@@ -59,6 +60,28 @@ namespace PhaseSonar.Utils {
         public static void Increase([NotNull] this Complex[] complexs, [NotNull] Complex[] another) {
             for (var i = 0; i < complexs.Length; i++) {
                 complexs[i] += another[i];
+            }
+        }
+
+        public static void AlignIncrease([NotNull] this Complex[] complexs, int dipIndex1, [NotNull] Complex[] another,int dipIndex2) {
+            int diff = dipIndex1 - dipIndex2;
+            var length = complexs.Length;
+            if (diff>0) {
+                for (int i = diff,j=0; i < length; i++,j++) {
+                    complexs[i] += another[j];
+                }
+                for (int i = 0,j=length-diff; i < diff; i++,j++) {
+                    complexs[i] += another[j];
+                }
+            }else if (diff == 0) {
+                complexs.Increase(another);
+            } else {
+                for (int i = 0, j = -diff; j < length; i++, j++) {
+                    complexs[i] += another[j];
+                }
+                for (int i = length+diff, j = 0; i<length; i++, j++) {
+                    complexs[i] += another[j];
+                }
             }
         }
 

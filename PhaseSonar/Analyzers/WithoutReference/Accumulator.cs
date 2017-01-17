@@ -1,5 +1,4 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using JetBrains.Annotations;
 using PhaseSonar.Correctors;
 using PhaseSonar.CorrectorV2s;
@@ -72,11 +71,7 @@ namespace PhaseSonar.Analyzers.WithoutReference {
                     errorCnt++;
                     continue;
                 }
-                if (accumulatedSpectrum == null) {
-                    accumulatedSpectrum = correctedSpectrum.Clone() as Complex[];
-                } else {
-                    accumulatedSpectrum.Increase(correctedSpectrum);
-                }
+                accumulatedSpectrum = Accumulate(accumulatedSpectrum, correctedSpectrum);
                 cnt++;
             }
             if (accumulatedSpectrum == null) {
@@ -87,6 +82,15 @@ namespace PhaseSonar.Analyzers.WithoutReference {
                 return AccumulationResult.WithoutException(spectrum);
             }
             return new AccumulationResult(spectrum, ProcessException.NoFlatPhaseIntervalFound, errorCnt);
+        }
+
+        protected virtual Complex[] Accumulate(Complex[] accumulatedSpectrum, Complex[] correctedSpectrum) {
+            if (accumulatedSpectrum == null) {
+                accumulatedSpectrum = correctedSpectrum.Clone() as Complex[];
+            } else {
+                accumulatedSpectrum.Increase(correctedSpectrum);
+            }
+            return accumulatedSpectrum;
         }
     }
 }

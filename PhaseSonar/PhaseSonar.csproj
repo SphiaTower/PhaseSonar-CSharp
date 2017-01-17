@@ -78,6 +78,10 @@
   <ItemGroup>
     <Compile Include="Analyzers\PhaseAnalyzers\PhaseReader.cs" />
     <Compile Include="Analyzers\PulseChecker.cs" />
+    <Compile Include="Analyzers\WithoutReference\LockOn\ILockOnSeeker.cs" />
+    <Compile Include="Analyzers\WithoutReference\LockOn\LockComAccumulator.cs" />
+    <Compile Include="Analyzers\WithoutReference\LockOn\LockDipAccumulator.cs" />
+    <Compile Include="Analyzers\WithoutReference\LockOn\BaseLockOnAccumulator.cs" />
     <Compile Include="Analyzers\WithReference\GasRefTuple.cs" />
     <Compile Include="Analyzers\WithReference\Splitter.cs" />
     <Compile Include="Analyzers\WithoutReference\AccumulationResult.cs" />

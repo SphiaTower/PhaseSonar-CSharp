@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using JetBrains.Annotations;
@@ -97,16 +98,20 @@ namespace SpectroscopyVisualizer {
                     correctorType: CorrectorType.Mertz,
                     apodizerType: ApodizerType.Hann,
                     phaseType: PhaseType.FullRange,
-                    autoFlip: false,
                     realPhase: false,
                     rangeStart: 3,
-                    rangeEnd: 4);
+                    rangeEnd: 4,
+                    lockDip:false,
+                    lockDipFreqInMHz:5
+                    );
 
                 MiscellaneousConfigurations.Initialize(
                     waitEmptyProducerMsTimeout: 5000,
                     minFlatPhasePtsNumCnt: 200,
                     maxPhaseStd: 0.34,
-                    pythonPath: @"C:\Anaconda3\python.exe");
+                    pythonPath: @"C:\Anaconda3\python.exe",
+                    lockDipScanRadiusInMHz: 0.4,
+                    autoFlip:false);
             }
 
 
@@ -165,7 +170,9 @@ namespace SpectroscopyVisualizer {
                     Show(CbCorrector);
                     Show(CbApodizationType);
                     Show(LbApodize);
-                    Show(CkAutoFlip);
+                    Show(CkLockDip);
+                    Show(TbLockDip);
+                    Show(LbLockDip);
                     Show(CkSpecReal);
                     if ((CorrectorType) CbCorrector.SelectedItem != CorrectorType.Fake) {
                         Show(CbPhaseType);
@@ -177,7 +184,9 @@ namespace SpectroscopyVisualizer {
                     Hide(LbCorrector);
                     Hide(CbApodizationType);
                     Hide(LbApodize);
-                    Hide(CkAutoFlip);
+                    Hide(CkLockDip);
+                    Hide(TbLockDip);
+                    Hide(LbLockDip);
                     Hide(CkSpecReal);
                     Hide(CbPhaseType);
                     Hide(LbPhaseType);
@@ -218,7 +227,6 @@ namespace SpectroscopyVisualizer {
                 _statsWindow.Left = this.Left + this.Width - 15;
                 _statsWindow.Top = this.Top;
             };
-          
         }
 
 
@@ -305,7 +313,7 @@ namespace SpectroscopyVisualizer {
                                     exception.Message);
                 });
             };
-            Adapter = NewAdapter();
+            Adapter = NewAdapterBinding();
             int? targetCnt;
             var configs = GeneralConfigurations.Get();
             if (configs.OperationMode == OperationMode.Manual) {
@@ -345,8 +353,6 @@ namespace SpectroscopyVisualizer {
                     throw new ArgumentOutOfRangeException();
             }
 
-            TbStartFreq.DataContext = Adapter;
-            TbEndFreq.DataContext = Adapter;
             PrepareStatsWinndow();
             Scheduler.Start();
         }
@@ -380,15 +386,30 @@ namespace SpectroscopyVisualizer {
         }
 
         [NotNull]
+        private DisplayAdapterV2 NewAdapterBinding() {
+            var displayAdapterV2 = NewAdapter();
+            TbStartFreq.DataContext = displayAdapterV2;
+            TbEndFreq.DataContext = displayAdapterV2;
+            return displayAdapterV2;
+        }
+
+        [NotNull]
         private DisplayAdapterV2 NewAdapter() {
             if (GeneralConfigurations.Get().ViewPhase) {
                 return FactoryHolder.Get()
                     .NewPhaseAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas),
                         new VerticalAxisView(VerAxisCanvas), TbXCoordinate, TbDistance);
             }
+            double? lockDipFreq;
+            if (CorrectorConfigs.LockDip) {
+                lockDipFreq = CorrectorConfigs.LockDipFreqInMHz;
+            } else {
+                lockDipFreq = null;
+            }
             return FactoryHolder.Get()
                 .NewSpectrumAdapter(new CanvasView(ScopeCanvas), new HorizontalAxisView(HorAxisCanvas),
-                    new VerticalAxisView(VerAxisCanvas), TbXCoordinate, TbDistance);
+                    new VerticalAxisView(VerAxisCanvas), TbXCoordinate, TbDistance,
+                    lockDipFreq,MiscellaneousConfigurations.Get().LockDipScanRadiusInMhz);
         }
 
         private void ConsumerOnSourceInvalid() {
@@ -509,6 +530,8 @@ namespace SpectroscopyVisualizer {
         private bool IsProgramRunning() {
             if (SwitchButton.State) {
                 MessageBox.Show("Command rejected! Plz terminate current processing first.");
+            } else {
+                TbDistance.Focus();
             }
             return SwitchButton.State;
         }
@@ -517,13 +540,14 @@ namespace SpectroscopyVisualizer {
             if (IsProgramRunning()) {
                 return;
             }
+            
             var fileNames = SelectFiles();
             if (fileNames.IsEmpty()) return;
             GeneralConfigurations.Get().Directory = Path.GetDirectoryName(fileNames[0]) + @"\";
             TbSavePath.Text = GeneralConfigurations.Get().Directory;
             var factory = FactoryHolder.Get();
             var producer = factory.NewProducer(fileNames, compressed);
-            Adapter = NewAdapter();
+            Adapter = NewAdapterBinding();
             var consumer = factory.NewConsumer(producer, Adapter, fileNames.Length);
             consumer.SourceInvalid += ConsumerOnSourceInvalid;
             consumer.Update += ConsumerOnUpdate;
@@ -570,7 +594,7 @@ namespace SpectroscopyVisualizer {
             };
             //            producer.HitTarget += () => { Dispatcher.InvokeAsync(() => { SwitchButton.State = false; }); };
             PbLoading.Maximum = total;
-            Adapter = NewAdapter();
+            Adapter = NewAdapterBinding();
             var threadNum = GeneralConfigurations.Get().ThreadNum;
             var workers = new List<SpecialSampleWriter>(threadNum);
             for (var i = 0; i < threadNum; i++) {
@@ -608,7 +632,7 @@ namespace SpectroscopyVisualizer {
             TbSavePath.Text = GeneralConfigurations.Get().Directory;
             var factory = FactoryHolder.Get();
             var producer = factory.NewProducer(fileNames, true);
-            Adapter = NewAdapter();
+            Adapter = NewAdapterBinding();
 
             var checkers = new List<PulseChecker>();
             for (var i = 0; i < 4; i++) {
@@ -803,6 +827,10 @@ namespace SpectroscopyVisualizer {
 
         private void UserAgreement_OnClick(object sender, RoutedEventArgs e) {
             Process.Start(AppDomain.CurrentDomain.BaseDirectory + @"LicenseAgreement.txt");
+        }
+
+        private void ChangeLog_OnClick(object sender, RoutedEventArgs e) {
+            Process.Start(AppDomain.CurrentDomain.BaseDirectory + @"ChangeLog.txt");
         }
     }
 }

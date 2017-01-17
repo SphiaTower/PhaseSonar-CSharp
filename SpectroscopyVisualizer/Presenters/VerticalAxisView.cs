@@ -14,7 +14,7 @@ namespace SpectroscopyVisualizer.Presenters {
         public double Height => Canvas.ActualHeight;
         public double Width => Canvas.ActualWidth;
 
-        public void DrawRuler(double minValue, double maxValue) {
+        public void DrawRuler(double minValue, double maxValue,bool phase=false) {
             Canvas.Children.Clear();
             var height = Height;
             var width = Width;
@@ -41,7 +41,7 @@ namespace SpectroscopyVisualizer.Presenters {
 
                 var mark = minValue + (maxValue - minValue)/10*i;
 
-                var formatted = mark.ToString("#.00E+0");
+                var formatted = phase?mark.ToString("F1"):mark.ToString("#.00E+0");
 
                 textBlock.Text = "" + formatted;
 
@@ -56,7 +56,7 @@ namespace SpectroscopyVisualizer.Presenters {
                 Canvas.Children.Add(textBlock);
             }
             var label = new TextBlock {
-                Text = "I\nN\nT\nE\nN\nS\nI\nT\nY\n/\nV^2",
+                Text = phase? "P\nH\nA\nS\nE\n/\nR\nA\nD\nI\nA\nN" : "I\nN\nT\nE\nN\nS\nI\nT\nY\n/\nV^2",
                 Foreground = new SolidColorBrush(Colors.White),
                 TextAlignment = TextAlignment.Center
             };

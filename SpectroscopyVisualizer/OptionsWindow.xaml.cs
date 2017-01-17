@@ -16,6 +16,8 @@ namespace SpectroscopyVisualizer {
             TbMinPhaseLength.Text = "" + config.MinFlatPhasePtsNumCnt;
             TbProducerTimeout.Text = "" + config.WaitEmptyProducerMsTimeout;
             TbPythonPath.Text = config.PythonPath;
+            TbDipLockScanRadius.Text = config.LockDipScanRadiusInMhz + "";
+            CkFlipMinusSpec.IsChecked = config.AutoFlip;
         }
 
 
@@ -26,7 +28,8 @@ namespace SpectroscopyVisualizer {
             config.MinFlatPhasePtsNumCnt = int.Parse(TbMinPhaseLength.Text);
             config.WaitEmptyProducerMsTimeout = int.Parse(TbProducerTimeout.Text);
             config.PythonPath = TbPythonPath.Text;
-
+            config.AutoFlip = CkFlipMinusSpec.IsChecked.GetValueOrDefault(false);
+            config.LockDipScanRadiusInMhz = double.Parse(TbDipLockScanRadius.Text);
             Close();
         }
 
@@ -59,5 +62,6 @@ namespace SpectroscopyVisualizer {
             }
             return null;
         }
+
     }
 }

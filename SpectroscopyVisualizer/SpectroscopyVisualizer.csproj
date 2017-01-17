@@ -28,8 +28,8 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ProductName>Spectroscopy Visualizer</ProductName>
     <PublisherName>SphiaTower</PublisherName>
-    <ApplicationRevision>59</ApplicationRevision>
-    <ApplicationVersion>2.7.4.%2a</ApplicationVersion>
+    <ApplicationRevision>66</ApplicationRevision>
+    <ApplicationVersion>2.8.3.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -243,6 +243,9 @@
     </None>
     <AppDesigner Include="Properties\" />
     <None Include="SpectroscopyVisualizer_TemporaryKey.pfx" />
+    <Content Include="ChangeLog.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="LicenseAgreement.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

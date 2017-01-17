@@ -7,7 +7,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:types="clr-namespace:SpectroscopyVisualizer.Configs"
         mc:Ignorable="d"
-        Title="Spectroscopy Visualizer 2.7.4 Final" Height="600" Width="1200"
+        Title="Spectroscopy Visualizer 2.8.3 Final" Height="600" Width="1200"
         d:DataContext="{d:DesignData }">
 
     <Grid>
@@ -37,10 +37,11 @@
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="View Help" Click="ViewHelp_OnClick" />
-                    <MenuItem Header="Check for Update" Click="CheckUpdate_OnClick"/>
+                    <MenuItem Header="Change Log" Click="ChangeLog_OnClick" />
                     <MenuItem Header="Credits" Click="Credits_OnClick"/>
                     <MenuItem Header="License Agreement" Click="UserAgreement_OnClick"/>
                     <Separator />
+                    <MenuItem Header="Check for Update" Click="CheckUpdate_OnClick"/>
                     <MenuItem Header="Tech Support" Click="ContactAuthor_OnClick" />
                     <MenuItem Header="Report a Bug" Click="ReportBug_OnClick" />
                     <MenuItem Header="Donate" Click="Donate_OnClick" />
@@ -81,20 +82,22 @@
                     <Grid Grid.Row="1">
                         <Rectangle Stroke="DarkGray" StrokeThickness="0.5" />
 
-                        <TextBox x:Name="TbStartFreq" Height="20" Margin="100,12,0,0"
+                        <TextBox x:Name="TbStartFreq" Height="20" Margin="100,14,0,0"
                                  TextWrapping="Wrap"
+                                 DataContext="Adapter"
                                  Text="{Binding Path=StartFreqInMHz,Mode=TwoWay,UpdateSourceTrigger=LostFocus}"
                                  VerticalAlignment="Top"
                                  HorizontalAlignment="Left" Width="34" RenderTransformOrigin="-1.512,0.608" />
-                        <Label x:Name="label15" Content="To" Margin="135,11,0,0" VerticalAlignment="Top" Height="24"
+                        <Label x:Name="label15" Content="To" Margin="135,11,0,0" VerticalAlignment="Top" Height="26"
                                HorizontalAlignment="Left" Width="28" RenderTransformOrigin="0.036,0.478" />
-                        <TextBox x:Name="TbEndFreq" Height="20" Margin="160,12,0,0"
+                        <TextBox x:Name="TbEndFreq" Height="20" Margin="160,14,0,0"
                                  TextWrapping="Wrap"
+                                  DataContext="Adapter"
                                  Text="{Binding Path=EndFreqInMHz,Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                  VerticalAlignment="Top" HorizontalAlignment="Left"
                                  Width="34" RenderTransformOrigin="-1.551,0.15" />
 
-                        <Label HorizontalAlignment="Left" Margin="0,10,0,0"
+                        <Label HorizontalAlignment="Left" Margin="0,11,0,0"
                                Content="Freq Axis/MHz : " VerticalAlignment="Top" Width="95" Height="26"
                                RenderTransformOrigin="0.41,-0.225" />
                         <Button x:Name="ToggleButton" Content="Start" HorizontalAlignment="Right"
@@ -114,16 +117,16 @@
                                 VerticalAlignment="Bottom" Width="97" Click="StartSample_OnClick"
                                 Background="FloralWhite" Margin="0,0,230,6"
                                 Height="22" RenderTransformOrigin="-4.984,-2.155" />
-                        <TextBox x:Name="TbXCoordinate" HorizontalAlignment="Left" Height="21" Margin="225,13,0,0"
+                        <TextBox x:Name="TbXCoordinate" HorizontalAlignment="Left" Height="20" Margin="225,14,0,0"
                                  MaxLines="1"
                                  TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="60" />
-                        <TextBox x:Name="TbDistance" HorizontalAlignment="Left" Height="21" Margin="330,13,0,0"
+                        <TextBox x:Name="TbDistance" HorizontalAlignment="Left" Height="20" Margin="330,14,0,0"
                                  MaxLines="1"
                                  TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="60" />
-                        <Label HorizontalAlignment="Left" Margin="208,8,0,0"
+                        <Label HorizontalAlignment="Left" Margin="208,11,0,0"
                                Content="X" VerticalAlignment="Top" Width="20" Height="26"
                                RenderTransformOrigin="0.41,-0.225" />
-                        <Label HorizontalAlignment="Left" Margin="288,10,0,0"
+                        <Label HorizontalAlignment="Left" Margin="288,11,0,0"
                                Content="Delta" VerticalAlignment="Top" Width="47" Height="26"
                                RenderTransformOrigin="0.41,-0.225" />
                     </Grid>
@@ -141,11 +144,11 @@
 
                         <Rectangle Stroke="DarkGray" StrokeThickness="0.5" />
 
-                        <Label x:Name="label1" Content="Device Name" HorizontalAlignment="Left" Height="27"
-                               VerticalAlignment="Top" Width="91" Margin="2,0,0,0" />
+                        <Label x:Name="label1" Content="Device Name" HorizontalAlignment="Left" Height="23"
+                               VerticalAlignment="Top" Width="91" Margin="2,8,0,0" />
                         <TextBox x:Name="TbDeviceName" Height="22" DataContext="{Binding SampleConfigs}"
                                  TextWrapping="Wrap" Text="{Binding DeviceName}" VerticalAlignment="Top"
-                                 HorizontalAlignment="Left" Margin="118,5,0,0" Width="44" />
+                                 HorizontalAlignment="Left" Margin="118,9,0,0" Width="44" />
 
                         <Label x:Name="label3" Content="Sample Rate/MHz" HorizontalAlignment="Left"
                                VerticalAlignment="Top" Margin="2,39,0,0" />
@@ -153,8 +156,8 @@
                                  TextWrapping="Wrap" Text="{Binding SamplingRateInMHz}" DataContext="{Binding SampleConfigs}"  VerticalAlignment="Top"
                                  Width="44" />
                         <Label x:Name="LbChannel" Content="Channel" HorizontalAlignment="Left" VerticalAlignment="Top"
-                               Margin="208,0,0,0" RenderTransformOrigin="-2.256,0.712" />
-                        <TextBox x:Name="TbChannel" HorizontalAlignment="Left" Height="23" Margin="280,3,0,0"
+                               Margin="208,6,0,0" RenderTransformOrigin="-2.256,0.712" />
+                        <TextBox x:Name="TbChannel" HorizontalAlignment="Left" Height="23" Margin="280,8,0,0"
                                  TextWrapping="Wrap" Text="{Binding Channel}" DataContext="{Binding SampleConfigs}" VerticalAlignment="Top" Width="51"
                                  RenderTransformOrigin="0.017,1.089" />
                         <Label x:Name="label4" Content="Record Length/M" HorizontalAlignment="Left"
@@ -214,8 +217,8 @@
                         <TextBox x:Name="TbFixedLength" HorizontalAlignment="Left" Height="21" Margin="228,72,0,0"
                                  TextWrapping="Wrap" Text="{Binding FixedLength}"  DataContext="{Binding SliceConfigs}" VerticalAlignment="Top"
                                  Width="59" RenderTransformOrigin="0.59,0.412" />
-                        <CheckBox x:Name="CkRef" HorizontalAlignment="Left" Height="21" Margin="228,72,0,0"
-                                  IsChecked="{Binding Path=Reference}" DataContext="{Binding SliceConfigs}"  VerticalAlignment="Top" Content="Reference"
+                        <CheckBox x:Name="CkRef" HorizontalAlignment="Left" Height="21" Margin="292,74,-22,0"
+                                  IsChecked="{Binding Path=Reference}" DataContext="{Binding SliceConfigs}"  VerticalAlignment="Top" Content="Ref"
                                   Width="80" RenderTransformOrigin="0.59,0.412" />
 
                     </Grid>
@@ -284,13 +287,14 @@
                         <TextBox x:Name="TbRangeEnd" HorizontalAlignment="Left" Height="23" Margin="297,69,0,0"
                                  TextWrapping="Wrap" Text="{Binding RangeEnd,UpdateSourceTrigger=LostFocus}" DataContext="{Binding CorrectorConfigs}"
                                  VerticalAlignment="Top" Width="49" />
-                        <CheckBox x:Name="CkAutoFlip" IsChecked="{Binding Path=AutoFlip}"  DataContext="{Binding CorrectorConfigs}" 
-                                  Content="Auto-flip Minus Spec" HorizontalAlignment="Left" Margin="189,107,0,0"
-                                  VerticalAlignment="Top" Width="151" />
+
                         <CheckBox x:Name="CkPhase" IsChecked="{Binding Path=ViewPhase}"   DataContext="{Binding GeneralConfigs}" Content="View Phase"
                                   HorizontalAlignment="Left" Margin="212,11,0,0" VerticalAlignment="Top" Width="113" />
                         <CheckBox x:Name="CkSpecReal" IsChecked="{Binding RealSpec}"  DataContext="{Binding CorrectorConfigs}"  Content="Real Spec Only"
                                   HorizontalAlignment="Left" Margin="212,39,0,0" VerticalAlignment="Top" Width="138" />
+                        <CheckBox x:Name="CkLockDip" DataContext="{Binding CorrectorConfigs}" IsChecked="{Binding LockDip}" Content="Lock On" HorizontalAlignment="Left" Margin="165,105,0,0" VerticalAlignment="Top"/>
+                        <TextBox x:Name="TbLockDip" DataContext="{Binding CorrectorConfigs}"  HorizontalAlignment="Left" Height="23" Margin="238,102,0,0" TextWrapping="Wrap" Text="{Binding LockDipFreqInMHz}" VerticalAlignment="Top" Width="54"/>
+                        <Label x:Name="LbLockDip" Content="MHz" HorizontalAlignment="Left" Margin="297,97,0,0" VerticalAlignment="Top"/>
                     </Grid>
                     <Grid Grid.Row="3">
                         <Grid.Resources>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using JetBrains.Annotations;
+using MathNet.Numerics;
 
 namespace PhaseSonar.Maths {
     /// <summary>
@@ -261,6 +262,44 @@ namespace PhaseSonar.Maths {
             Array.Clear(array, 0, array.Length);
         }
 
+        public static int FindMinIndex(Complex[] array, int start, int stop) {
+            int minIndex = start;
+            double min = array[start].MagnitudeSquared();
+            for (var i = start+1; i < stop; i++) {
+                var magnitudeSquared = array[i].MagnitudeSquared();
+                if (magnitudeSquared<min) {
+                    min = magnitudeSquared;
+                    minIndex = i;
+                }
+            }
+            return minIndex;
+        }
+
+        public static int FindMinIndex(double[] array, int start, int stop) {
+            int minIndex = start;
+            double min = array[start];
+            for (var i = start+1; i < stop; i++) {
+                var value = array[i];
+                if (value<min) {
+                    min = value;
+                    minIndex = i;
+                }
+            }
+            return minIndex;
+        }
+
+        public static int FindMaxIndex(double[] array, int start, int stop) {
+            int minIndex = start;
+            double min = array[start];
+            for (var i = start+1; i < stop; i++) {
+                var value = array[i];
+                if (value>min) {
+                    min = value;
+                    minIndex = i;
+                }
+            }
+            return minIndex;
+        }
 
         public static void FindMinMax([NotNull] double[] nums, out double min, out double max) {
             /*min = double.MaxValue;
@@ -301,6 +340,18 @@ namespace PhaseSonar.Maths {
                     min = Math.Min(min, num1);
                 }
             }
+        }
+
+        public static int FindCenterOfMass(Complex[] spec, int start, int stop) {
+            double weighted = 0;
+            double mass = 0;
+            for (var i = start; i < stop; i++) {
+                var squared = spec[i].MagnitudeSquared();
+                weighted += squared*i;
+                mass += squared;
+            }
+            return (int)Math.Round(weighted/mass);
+
         }
     }
 }

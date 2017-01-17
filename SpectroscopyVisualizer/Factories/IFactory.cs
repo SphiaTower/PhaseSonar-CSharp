@@ -26,7 +26,7 @@ namespace SpectroscopyVisualizer.Factories {
 
         [NotNull]
         SpectrumDisplayAdapter NewSpectrumAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,
-            VerticalAxisView verticalAxisView, TextBox tbX, TextBox tbDelta);
+            VerticalAxisView verticalAxisView, TextBox tbX, TextBox tbDelta,double? dipLockFreq,double lockDipScanRadius);
 
         [NotNull]
         PhaseDisplayAdapter NewPhaseAdapter(CanvasView view, HorizontalAxisView horizontalAxisView,

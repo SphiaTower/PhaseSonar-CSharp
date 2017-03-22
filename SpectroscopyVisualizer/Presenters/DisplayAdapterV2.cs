@@ -314,8 +314,8 @@ namespace SpectroscopyVisualizer.Presenters {
             Width = 40,
             Height = 40,
             Stroke = new SolidColorBrush(Color.FromArgb(255, 220, 200, 0)),
-            StrokeThickness = 1,
-            StrokeDashArray = new DoubleCollection {4, 2},
+            StrokeThickness = 2,
+            StrokeDashArray = new DoubleCollection {14, 4},
             Visibility = Visibility.Hidden
         };
 
@@ -323,8 +323,8 @@ namespace SpectroscopyVisualizer.Presenters {
             Width = 30,
             Height = 30,
             Stroke = new SolidColorBrush(Color.FromArgb(255, 220, 200, 0)),
-            StrokeThickness = 1,
-            StrokeDashArray = new DoubleCollection {3, 3},
+            StrokeThickness = 2,
+            StrokeDashArray = new DoubleCollection {11, 3},
             Visibility = Visibility.Hidden
 
         };
@@ -407,7 +407,7 @@ namespace SpectroscopyVisualizer.Presenters {
                     Canvas.SetTop(_innerEllipse, y - 15);
                     Canvas.SetLeft(_innerEllipse, x - 15);
                     _ellipse.StrokeDashOffset -= 1.7;
-                    _innerEllipse.StrokeDashOffset -= 0.7;
+                    _innerEllipse.StrokeDashOffset += 0.7;
                     if (_ellipse.Visibility!=Visibility.Visible) {
                         _ellipse.Visibility = Visibility.Visible;
                         _innerEllipse.Visibility = Visibility.Visible; ;

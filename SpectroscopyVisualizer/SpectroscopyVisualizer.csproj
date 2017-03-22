@@ -28,8 +28,8 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ProductName>Spectroscopy Visualizer</ProductName>
     <PublisherName>SphiaTower</PublisherName>
-    <ApplicationRevision>66</ApplicationRevision>
-    <ApplicationVersion>2.8.3.%2a</ApplicationVersion>
+    <ApplicationRevision>67</ApplicationRevision>
+    <ApplicationVersion>2.8.4.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>

@@ -139,7 +139,7 @@ def main():
     plt.figure('wl')
     plt.plot(wavelength_axis, data)
     plt.xlim(1500, 1560)
-    filename = os.path.basename(address).split('.')[0]
+    filename = os.path.basename(address).rstrip('.txt')
     directory = os.path.dirname(address)
     save(directory, filename + '[WavelengthAxis]', wavelength_axis)
     print()
